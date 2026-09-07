@@ -1,0 +1,243 @@
+import React, { useState } from 'react';
+import { X, Sprout, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
+import { ACTOR_CATEGORIES } from '../data/mockData';
+import { saveUser, findUserByEmail } from '../utils/dbSync';
+
+export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
+  const [mode, setMode] = useState('signup');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const [fullName, setFullName]   = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [role, setRole]           = useState('agriculteur');
+  const [company, setCompany]     = useState('');
+  const [location, setLocation]   = useState('Rosso, Trarza');
+  const [profilePic, setProfilePic] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) return;
+    setLoading(true);
+
+    try {
+      if (mode === 'signup') {
+        // Check email uniqueness in Supabase
+        const existing = await findUserByEmail(email);
+        if (existing) {
+          setError('Cet email est déjà utilisé.');
+          setLoading(false);
+          return;
+        }
+
+        const newUser = {
+          id: `user-${Date.now()}`,
+          name: fullName || 'Utilisateur',
+          email,
+          password, // stored in Supabase for login lookup
+          role,
+          roleLabel: ACTOR_CATEGORIES.find(c => c.id === role)?.label || 'Membre Professionnel',
+          company: company || 'Exploitation Agricole',
+          location,
+          avatar: profilePic || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          verified: true,
+          badge: 'Membre Vérifié',
+        };
+
+        // Save to Supabase (with password for login)
+        await saveUser(newUser);
+
+        const { password: _, ...userObj } = newUser;
+        onLoginSuccess(userObj, true);
+        onClose();
+
+      } else {
+        // Login: look up in Supabase first, fallback to allUsers prop
+        let found = await findUserByEmail(email);
+        if (!found) {
+          // fallback to MOCK_ACTORS if not yet in Supabase
+          found = allUsers.find(u => u.email === email) || null;
+        }
+
+        if (found && found.password === password) {
+          const { password: _, ...userObj } = found;
+          onLoginSuccess(userObj, false);
+          onClose();
+        } else if (email === 'test@agroconnect.mr' && password === '123456') {
+          onLoginSuccess({
+            id: 'user-test',
+            name: 'Mamadou Oumar Diallo',
+            email: 'test@agroconnect.mr',
+            role: 'agriculteur',
+            roleLabel: 'Agriculteur',
+            company: 'Ferme du Fleuve',
+            location: 'Rosso, Trarza',
+            avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+            verified: true,
+            badge: 'Membre Vérifié',
+          }, false);
+          onClose();
+        } else {
+          setError('Email ou mot de passe incorrect.');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Une erreur est survenue. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) setProfilePic(URL.createObjectURL(file));
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-lg rounded-3xl border border-slate-200 overflow-hidden shadow-2xl animate-scaleIn">
+        {/* Header */}
+        <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#0a66c2] flex items-center justify-center shadow-xs">
+              <Sprout className="w-6 h-6 text-white stroke-[2.5]" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-slate-900">
+                {mode === 'signup' ? 'Créer un Compte AgroConnect' : 'Se Connecter à AgroConnect'}
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">Rejoignez le réseau professionnel agricole</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Toggle Mode */}
+        <div className="grid grid-cols-2 p-2 bg-slate-100 border-b border-slate-200 gap-2">
+          <button
+            onClick={() => { setMode('signup'); setError(''); }}
+            className={`py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${mode === 'signup' ? 'bg-[#0a66c2] text-white shadow-xs' : 'text-slate-700 hover:bg-slate-200'}`}
+          >
+            S'inscrire (Nouveau Compte)
+          </button>
+          <button
+            onClick={() => { setMode('login'); setError(''); }}
+            className={`py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${mode === 'login' ? 'bg-[#0a66c2] text-white shadow-xs' : 'text-slate-700 hover:bg-slate-200'}`}
+          >
+            Se Connecter
+          </button>
+        </div>
+
+        {error && (
+          <div className="mx-6 mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold rounded-xl">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+          {mode === 'signup' && (
+            <>
+              {/* Profile Photo */}
+              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <div className="relative">
+                  <img
+                    src={profilePic || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'}
+                    alt="Aperçu Profil"
+                    className="w-14 h-14 rounded-full object-cover border-2 border-[#0a66c2]"
+                  />
+                  <label className="absolute bottom-0 right-0 bg-[#0a66c2] text-white p-1 rounded-full cursor-pointer shadow-xs">
+                    <Camera className="w-3.5 h-3.5" />
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  </label>
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-slate-800 block">Photo de profil</span>
+                  <span className="text-[11px] text-slate-500 font-medium">Ajoutez une photo claire pour votre badge vérifié.</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Nom Complet / Entreprise</label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
+                    placeholder="Ex: Mamadou Oumar Diallo" required
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Rôle Professionnel</label>
+                  <select value={role} onChange={e => setRole(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white cursor-pointer font-medium">
+                    {ACTOR_CATEGORIES.filter(c => c.id !== 'all').map(c => (
+                      <option key={c.id} value={c.id}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nom Exploitation / Société</label>
+                  <input type="text" value={company} onChange={e => setCompany(e.target.value)}
+                    placeholder="Ex: Ferme du Fleuve"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Région / Localisation</label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 text-[#0a66c2] absolute left-3.5 top-3" />
+                  <input type="text" value={location} onChange={e => setLocation(e.target.value)}
+                    placeholder="Ex: Rosso, Trarza" required
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
+                </div>
+              </div>
+            </>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Adresse Email</label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="votre.email@agroconnect.mr" required
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Mot de passe</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••" required
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button type="submit" disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-60 text-white font-bold text-xs py-3 rounded-full shadow-md transition-all cursor-pointer">
+              <span>{loading ? 'Chargement...' : mode === 'signup' ? 'Créer mon Compte & Continuer' : 'Se Connecter'}</span>
+              {!loading && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="text-center pt-2">
+            <span className="text-[11px] text-slate-500 font-medium">
+              En continuant, vous acceptez les conditions de confiance AgroConnect.
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

@@ -106,27 +106,17 @@ export type Database = {
       }
     }
     Views: {
-      users_public: {
-        Row: {
-          created_at: string | null
-          data: Json | null
-          id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          data?: never
-          id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          data?: never
-          id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          data: Json
+          id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -29,10 +29,15 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
       if (mode === 'signup') {
         const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
         if (signUpError) {
+          const raw = (signUpError.message || '').toLowerCase();
           setError(
-            signUpError.message?.toLowerCase().includes('already')
+            raw.includes('already')
               ? 'Cet email est déjà utilisé.'
-              : signUpError.message || 'Inscription impossible.'
+              : raw.includes('weak') || raw.includes('easy to guess')
+                ? 'Mot de passe trop faible. Choisissez-en un plus long et unique.'
+                : raw.includes('password')
+                  ? 'Mot de passe invalide : au moins 6 caractères.'
+                  : signUpError.message || 'Inscription impossible.'
           );
           setLoading(false);
           return;

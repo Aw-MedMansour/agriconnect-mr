@@ -12,6 +12,8 @@ import MessagingPanel from './components/MessagingPanel';
 import UserProfileModal from './components/UserProfileModal';
 import ComingSoonModule from './components/ComingSoonModule';
 import PlantAnalysis from './components/PlantAnalysis';
+import SplashScreen from './components/SplashScreen';
+
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
 
@@ -35,6 +37,13 @@ export default function App() {
   const [socialPosts, setSocialPosts] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [minSplashDone, setMinSplashDone] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMinSplashDone(true), 1600);
+    return () => clearTimeout(t);
+  }, []);
+
 
   const allAvailableUsers = Array.isArray(registeredUsers) && registeredUsers.length ? registeredUsers : (MOCK_ACTORS || []);
 
@@ -510,9 +519,10 @@ export default function App() {
     }
   };
 
-  if (isLoading) {
-    return <div className="min-h-screen bg-[#f3f2ef] flex items-center justify-center font-bold text-slate-500">Chargement de la base de données...</div>;
+  if (isLoading || !minSplashDone) {
+    return <SplashScreen done={!isLoading} />;
   }
+
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -725,19 +735,35 @@ export default function App() {
             <span className="font-extrabold text-[#0a66c2]">AgriConnect 🌱</span>
             <span>— Le réseau professionnel agricole</span>
           </div>
-          <div className="flex flex-wrap items-center gap-6 text-slate-600">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-slate-600">
             <span>Marketplace Produits</span>
             <span>Services & Logistique</span>
-            <span>Pompage Solaire & Eau</span>
             <span>Matching IA Pro</span>
             <a href="/conditions" className="font-bold text-[#0a66c2] hover:underline">
               Conditions d'utilisation
             </a>
+            <a href="/mentions-legales" className="font-bold text-[#0a66c2] hover:underline">
+              Mentions légales
+            </a>
           </div>
-          <div className="text-slate-400">© 2026 AgriConnect. Tous droits réservés.</div>
+          <div className="flex flex-col items-center gap-1 text-slate-400 md:items-end">
+            <span>© 2026 AgriConnect. Tous droits réservés.</span>
+            <span>
+              Développé par{' '}
+              <a
+                href="https://3A55.Fulania.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-[#0a66c2] hover:underline"
+              >
+                3A55
+              </a>
+            </span>
+          </div>
 
         </div>
       </footer>
     </div>
   );
 }
+

@@ -426,12 +426,23 @@ export default function App() {
   const startOrOpenConversation = (participant) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
 
-    // Build resolved fields from various shapes of participant objects
-    const participantId = participant.id || participant.authorId || participant.sellerId || participant.sellerName || participant.name;
-    const participantName = participant.name || participant.sellerName || participant.authorName || 'Inconnu';
+    // Build resolved fields from various shapes of participant objects.
+    // IMPORTANT: for a listing (product/service/post) the owner id must win over
+    // the listing's own id, otherwise the message is sent to a non-existing account.
+    const participantId =
+      participant.sellerId || participant.authorId || participant.providerId || participant.id;
+    const participantName =
+      participant.sellerName || participant.authorName || participant.providerName ||
+      participant.name || 'Inconnu';
     const participantAvatar =
-      participant.avatar || participant.sellerAvatar || participant.authorAvatar ||
+      participant.sellerAvatar || participant.authorAvatar || participant.providerAvatar ||
+      participant.avatar ||
       'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80';
+
+    if (!participantId) {
+      showToast("⚠️ Impossible d'identifier le destinataire de ce message.");
+      return;
+    }
 
     // ❌ Block sending a message to yourself
     if (String(participantId) === String(currentUser.id) || participantName === currentUser.name) {

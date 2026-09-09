@@ -275,7 +275,7 @@ export const MOCK_PRODUCTS = [
     location: 'Nouakchott / Dépôt Rosso',
     availabilityDate: 'En stock immédiat',
     images: [
-      'https://images.unsplash.com/photo-1585314062340-f1a5a7c9328d?auto=format&fit=crop&w=800&q=80'
+      '/__l5e/assets-v1/0341b4a8-4170-430e-9c6f-8fa5a4f281e7/engrais-compost.jpg'
     ],
     deliveryConditions: 'Retrait sur dépôt ou expédition rapide dans tout le pays.',
     description: 'Amendement organique haute efficacité pour régénérer les sols ensablés et protéger les racines contre les champignons.',

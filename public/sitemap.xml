@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://agriconnect.fulania.com/</loc>
+    <loc>https://agriconnect-mr.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://agriconnect.fulania.com/conditions</loc>
+    <loc>https://agriconnect-mr.com/conditions</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://agriconnect.fulania.com/mentions-legales</loc>
+    <loc>https://agriconnect-mr.com/mentions-legales</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>

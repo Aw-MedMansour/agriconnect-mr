@@ -17,10 +17,10 @@ export const Route = createFileRoute("/")({
           "Marketplace agricole, offres de services, réseau social et messagerie pour les acteurs de l'agriculture.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://agriconnect.fulania.com/" },
+      { property: "og:url", content: "https://agriconnect-mr.com/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://agriconnect.fulania.com/" }],
+    links: [{ rel: "canonical", href: "https://agriconnect-mr.com/" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "AgriConnect",
-          url: "https://agriconnect.fulania.com/",
+          url: "https://agriconnect-mr.com/",
           description:
             "Réseau professionnel agricole : marketplace de produits, services, messagerie et analyse des plantes par IA.",
         }),

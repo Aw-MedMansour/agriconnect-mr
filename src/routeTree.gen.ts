@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConditionsRouteImport } from './routes/conditions'
+import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ConditionsRoute = ConditionsRouteImport.update({
   path: '/conditions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
+  id: '/mentions-legales',
+  path: '/mentions-legales',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
+  '/mentions-legales': typeof MentionsLegalesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conditions'
+  fullPaths: '/' | '/conditions' | '/mentions-legales'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conditions'
-  id: '__root__' | '/' | '/conditions'
+  to: '/' | '/conditions' | '/mentions-legales'
+  id: '__root__' | '/' | '/conditions' | '/mentions-legales'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConditionsRoute: typeof ConditionsRoute
+  MentionsLegalesRoute: typeof MentionsLegalesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConditionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mentions-legales': {
+      id: '/mentions-legales'
+      path: '/mentions-legales'
+      fullPath: '/mentions-legales'
+      preLoaderRoute: typeof MentionsLegalesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConditionsRoute: ConditionsRoute,
+  MentionsLegalesRoute: MentionsLegalesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

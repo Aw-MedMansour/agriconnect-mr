@@ -19,7 +19,7 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
   };
 
   const recipientName = targetData.name || targetData.sellerName || targetData.providerName || 'Acteur Agricole';
-  const recipientRole = targetData.roleLabel || targetData.sellerRole || targetData.providerRole || 'Professionnel AgroConnect';
+  const recipientRole = targetData.roleLabel || targetData.sellerRole || targetData.providerRole || 'Professionnel AgriConnect';
   const phone = targetData.phone || '+222 45 23 88 11';
 
   return (

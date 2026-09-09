@@ -24,7 +24,7 @@ export default function App() {
 
   // Auth
   const [currentUser, setCurrentUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('agroconnect_user')) || null; } catch { return null; }
+    try { return JSON.parse(localStorage.getItem('agriconnect_user')) || null; } catch { return null; }
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
@@ -108,8 +108,8 @@ export default function App() {
 
   // ── Persist currentUser locally ────────────────────────────────
   useEffect(() => { 
-    if (currentUser) localStorage.setItem('agroconnect_user', JSON.stringify(currentUser));
-    else localStorage.removeItem('agroconnect_user');
+    if (currentUser) localStorage.setItem('agriconnect_user', JSON.stringify(currentUser));
+    else localStorage.removeItem('agriconnect_user');
   }, [currentUser]);
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export default function App() {
     const newPost = {
       id: `post-${Date.now()}`,
       authorId: currentUser?.id || 'guest',
-      authorName: currentUser?.name || 'Utilisateur AgroConnect',
+      authorName: currentUser?.name || 'Utilisateur AgriConnect',
       authorRole: currentUser?.roleLabel || 'Agriculteur',
       authorAvatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
       timestamp: 'À l\'instant',
@@ -397,7 +397,7 @@ export default function App() {
       if (navigator.share) {
         await navigator.share({
           title: text,
-          text: 'Découvrez ceci sur AgroConnect',
+          text: 'Découvrez ceci sur AgriConnect',
           url: window.location.href,
         });
       } else {
@@ -722,7 +722,7 @@ export default function App() {
       <footer className="bg-white border-t border-slate-200 py-6 px-4 mt-12">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold text-[#0a66c2]">AgroConnect 🌱</span>
+            <span className="font-extrabold text-[#0a66c2]">AgriConnect 🌱</span>
             <span>— Le réseau professionnel agricole</span>
           </div>
           <div className="flex flex-wrap items-center gap-6 text-slate-600">
@@ -731,7 +731,7 @@ export default function App() {
             <span>Pompage Solaire & Eau</span>
             <span>Matching IA Pro</span>
           </div>
-          <div className="text-slate-400">© 2026 AgroConnect. Tous droits réservés.</div>
+          <div className="text-slate-400">© 2026 AgriConnect. Tous droits réservés.</div>
         </div>
       </footer>
     </div>

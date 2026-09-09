@@ -155,7 +155,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
             <PlusCircle className="w-5 h-5 text-[#0a66c2]" />
-            <h3 className="text-lg font-bold text-slate-900">Nouvelle Publication AgroConnect</h3>
+            <h3 className="text-lg font-bold text-slate-900">Nouvelle Publication AgriConnect</h3>
           </div>
           <button 
             onClick={onClose}

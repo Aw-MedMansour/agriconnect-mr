@@ -105,7 +105,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
               </button>
             ) : (
               <h3 className="text-sm font-extrabold text-slate-900">
-                Messagerie <span className="text-[#0a66c2]">AgroConnect</span>
+                Messagerie <span className="text-[#0a66c2]">AgriConnect</span>
               </h3>
             )}
             <div className="flex items-center gap-2">

@@ -296,15 +296,15 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => onContactSeller(prod)}
-                        className="flex items-center justify-center gap-1.5 bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-bold py-2 rounded-lg transition-colors cursor-pointer shadow-xs"
+                        className="group/msg flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                       >
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
                         <span>Contacter</span>
                       </button>
 
                       <button
                         onClick={() => onRequestTransport(prod)}
-                        className="flex items-center justify-center gap-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold py-2.5 rounded-full shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                       >
                         <Truck className="w-3.5 h-3.5 text-[#0a66c2]" />
                         <span>Transport</span>

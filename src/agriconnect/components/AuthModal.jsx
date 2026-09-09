@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, Sprout, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
+import { X, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
 import { ACTOR_CATEGORIES } from '../data/mockData';
 import { saveUser, findUserById } from '../utils/dbSync';
 import { supabase } from '../utils/supabaseClient';
+import agriLogo from '../assets/agriconnect-logo.png';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
   const [mode, setMode] = useState('signup');
@@ -16,6 +17,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
   const [company, setCompany]     = useState('');
   const [location, setLocation]   = useState('Rosso, Trarza');
   const [profilePic, setProfilePic] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   if (!isOpen) return null;
 
@@ -115,8 +117,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         {/* Header */}
         <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0a66c2] flex items-center justify-center shadow-xs">
-              <Sprout className="w-6 h-6 text-white stroke-[2.5]" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden bg-white ring-1 ring-slate-200 shadow-xs">
+              <img src={agriLogo} alt="Logo AgriConnect" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900">
@@ -234,18 +236,29 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             </div>
           </div>
 
+          {mode === 'signup' && (
+            <label className="flex items-start gap-2.5 bg-slate-50 border border-slate-200 rounded-2xl p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acceptTerms}
+                onChange={e => setAcceptTerms(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-[#0a66c2] cursor-pointer"
+              />
+              <span className="text-[11px] text-slate-600 font-medium leading-snug">
+                J'ai lu et j'accepte les{' '}
+                <a href="/conditions" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">conditions d'utilisation</a>
+                {' '}et les{' '}
+                <a href="/mentions-legales" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">mentions légales</a> d'AgriConnect.
+              </span>
+            </label>
+          )}
+
           <div className="pt-2">
-            <button type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-60 text-white font-bold text-xs py-3 rounded-full shadow-md transition-all cursor-pointer">
+            <button type="submit" disabled={loading || (mode === 'signup' && !acceptTerms)}
+              className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-xs py-3 rounded-full shadow-md transition-all cursor-pointer">
               <span>{loading ? 'Chargement...' : mode === 'signup' ? 'Créer mon Compte & Continuer' : 'Se Connecter'}</span>
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
-          </div>
-
-          <div className="text-center pt-2">
-            <span className="text-[11px] text-slate-500 font-medium">
-              En continuant, vous acceptez les conditions de confiance AgriConnect.
-            </span>
           </div>
         </form>
       </div>

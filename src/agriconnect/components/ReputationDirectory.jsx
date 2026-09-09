@@ -156,9 +156,9 @@ export default function ReputationDirectory({ onContactActor, searchQuery }) {
 
                   <button
                     onClick={() => onContactActor(actor)}
-                    className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white font-bold text-xs py-2.5 rounded-full transition-colors cursor-pointer shadow-xs"
+                    className="group/msg w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white font-bold text-xs py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                   >
-                    <MessageSquare className="w-4 h-4" />
+                    <MessageSquare className="w-4 h-4 transition-transform group-hover/msg:scale-110" />
                     <span>Se connecter / Profil</span>
                   </button>
                 </div>

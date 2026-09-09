@@ -30,6 +30,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
     { id: 'finance', label: 'Banque & Assurance', icon: Landmark },
     { id: 'land', label: 'Terrain à louer & vendre', icon: Map },
     { id: 'workers', label: 'Agronome & ouvrier', icon: HardHat },
+    { id: 'plantai', label: 'Analyse des Plantes IA', icon: Sprout },
     { id: 'matching', label: 'Mise en Relation IA', icon: Sparkles },
     { id: 'reputation', label: 'Acteurs & Réputation', icon: ShieldCheck },
   ];

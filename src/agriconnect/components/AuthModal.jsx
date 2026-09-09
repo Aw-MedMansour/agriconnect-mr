@@ -43,7 +43,19 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           return;
         }
 
-        const uid = data.user?.id || `user-${Date.now()}`;
+        // Make sure a session exists before writing the profile (otherwise it is refused)
+        let session = data.session;
+        if (!session) {
+          const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
+          session = signInData?.session || null;
+        }
+        if (!session) {
+          setError("Compte créé, mais la connexion a échoué. Essayez « Se Connecter ».");
+          setLoading(false);
+          return;
+        }
+
+        const uid = session.user?.id || data.user?.id || `user-${Date.now()}`;
         const newUser = {
           id: uid,
           name: fullName || 'Utilisateur',

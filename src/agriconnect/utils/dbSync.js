@@ -45,6 +45,13 @@ export async function fetchConversations() {
   return data?.map(r => r.data).filter(Boolean) || [];
 }
 
+// ── Members only (so newly registered accounts appear without reloading) ─────
+export async function fetchUsers() {
+  const { data, error } = await supabase.from('users').select('*');
+  if (error) { console.error('[DB] users:', error.message); return null; }
+  return data?.map(r => r.data).filter(Boolean) || [];
+}
+
 // ── User profile helpers (passwords are handled by the auth system, never stored here)
 export async function saveUser(user) {
   await upsertData('users', user.id, user);

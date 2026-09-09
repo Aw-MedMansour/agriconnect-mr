@@ -15,7 +15,8 @@ export async function deleteData(table, id) {
 // ── Load all data (mock data is pre-seeded in the database via migration) ────
 export async function fetchAllData() {
   const [usersRes, productsRes, servicesRes, postsRes, convsRes] = await Promise.all([
-    supabase.from('users').select('*'),
+    // Sanitized directory: contact details are never exposed to other members.
+    supabase.rpc('get_public_users'),
     supabase.from('products').select('*').order('created_at', { ascending: false }),
     supabase.from('services').select('*').order('created_at', { ascending: false }),
     supabase.from('posts').select('*').order('created_at', { ascending: false }),
@@ -47,7 +48,7 @@ export async function fetchConversations() {
 
 // ── Members only (so newly registered accounts appear without reloading) ─────
 export async function fetchUsers() {
-  const { data, error } = await supabase.from('users').select('*');
+  const { data, error } = await supabase.rpc('get_public_users');
   if (error) { console.error('[DB] users:', error.message); return null; }
   return data?.map(r => r.data).filter(Boolean) || [];
 }
@@ -57,10 +58,9 @@ export async function saveUser(user) {
   await upsertData('users', user.id, user);
 }
 
-export async function findUserByEmail(email) {
-  const { data, error } = await supabase.from('users').select('data');
-  if (error || !data) return null;
-  return data.map(r => r.data).find(u => u && u.email === email) || null;
+// Email lookups are handled by the auth system; profiles never expose emails.
+export async function findUserByEmail() {
+  return null;
 }
 
 export async function findUserById(id) {

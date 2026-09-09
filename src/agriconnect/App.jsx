@@ -11,6 +11,7 @@ import AuthModal from './components/AuthModal';
 import MessagingPanel from './components/MessagingPanel';
 import UserProfileModal from './components/UserProfileModal';
 import ComingSoonModule from './components/ComingSoonModule';
+import PlantAnalysis from './components/PlantAnalysis';
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
 
@@ -552,6 +553,13 @@ export default function App() {
           />
         )}
 
+        {activeModule === 'plantai' && (
+          <PlantAnalysis
+            currentUser={currentUser}
+            onRequireAuth={() => setIsAuthModalOpen(true)}
+          />
+        )}
+
         {activeModule === 'matching' && (
           <MatchingEngine onDispatchSuccess={(msg) => showToast(msg)} />
         )}
@@ -654,7 +662,7 @@ export default function App() {
       {/* Floating Messaging Panel */}
       <MessagingPanel
         currentUser={currentUser}
-        conversations={conversations}
+        conversations={myConversations}
         onSendMessage={handleSendMessage}
         onMarkRead={handleMarkRead}
         onDeleteConv={handleDeleteConv}

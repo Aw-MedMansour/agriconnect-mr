@@ -86,6 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "AgriConnect" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "google-site-verification",
+        content: "HWoW3Klip0beO_mTlVXffoMOeRK-WjWVFoXbpjIbl88",
+      },
     ],
     links: [
       {

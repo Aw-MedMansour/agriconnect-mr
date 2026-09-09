@@ -15,7 +15,7 @@ import PlantAnalysis from './components/PlantAnalysis';
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
 
-import { fetchAllData, upsertData, deleteData } from './utils/dbSync';
+import { fetchAllData, fetchConversations, upsertData, deleteData } from './utils/dbSync';
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {

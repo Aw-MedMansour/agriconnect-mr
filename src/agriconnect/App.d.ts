@@ -1,3 +1,3 @@
-import type { ComponentType } from "react";
-declare const App: ComponentType;
+import type { ReactElement } from "react";
+declare function App(): ReactElement;
 export default App;

@@ -361,71 +361,57 @@ export default function App() {
   };
 
   // ── Messaging handlers ────────────────────────────────────────────────────
+  // A conversation is shared between the two accounts:
+  // { id, participantIds: [a, b], participants: { [id]: {id,name,avatar} }, messages: [], reads: { [id]: ts } }
+  const convIdFor = (a, b) => `conv-${[String(a), String(b)].sort().join('__')}`;
+
   const startOrOpenConversation = (participant) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
 
     // Build resolved fields from various shapes of participant objects
-    const participantId = participant.id || participant.authorId || participant.sellerName || participant.name;
+    const participantId = participant.id || participant.authorId || participant.sellerId || participant.sellerName || participant.name;
     const participantName = participant.name || participant.sellerName || participant.authorName || 'Inconnu';
     const participantAvatar =
       participant.avatar || participant.sellerAvatar || participant.authorAvatar ||
       'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80';
 
     // ❌ Block sending a message to yourself
-    if (participantId === currentUser.id || participantName === currentUser.name) {
+    if (String(participantId) === String(currentUser.id) || participantName === currentUser.name) {
       showToast('⚠️ Vous ne pouvez pas vous envoyer un message à vous-même.');
       return;
     }
 
-    // Check if this contact already exists — use existing conv
-    const existing = conversations.find(
-      c => c.participantId === participantId || c.participantName === participantName
-    );
-    if (existing) {
+    const id = convIdFor(currentUser.id, participantId);
+    if (conversations.some(c => c.id === id)) {
       showToast(`💬 Conversation avec ${participantName} déjà ouverte dans votre messagerie.`);
       return;
     }
 
-    // Create new conversation
     const newConv = {
-      id: `conv-${Date.now()}`,
-      participantId,
-      participantName,
-      participantAvatar,
+      id,
+      participantIds: [String(currentUser.id), String(participantId)],
+      participants: {
+        [String(currentUser.id)]: { id: String(currentUser.id), name: currentUser.name, avatar: currentUser.avatar || '' },
+        [String(participantId)]: { id: String(participantId), name: participantName, avatar: participantAvatar },
+      },
       messages: [],
-      unread: 0,
+      reads: {},
     };
-    setConversations(prev => {
-      const updated = [newConv, ...prev];
-      upsertData('conversations', newConv.id, newConv);
-      return updated;
-    });
+    setConversations(prev => [newConv, ...prev.filter(c => c.id !== id)]);
+    upsertData('conversations', newConv.id, newConv);
     showToast(`✅ Conversation avec ${participantName} créée ! Ouvrez la messagerie en bas à droite.`);
   };
 
   const handleSendMessage = (convId, text) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const ts = Date.now();
+    const newMsg = { id: `msg-${ts}-${Math.random().toString(36).slice(2, 7)}`, senderId: String(currentUser.id), text, ts };
     setConversations(prev => {
-      const updated = prev.map(c => {
-        if (c.id !== convId) return c;
-        const newMsg = { senderId: currentUser?.id, text, ts: Date.now() };
-        // Simulate auto-reply after 2s (only in local state for mockup)
-        setTimeout(() => {
-          setConversations(prev2 => {
-            const updated2 = prev2.map(c2 => {
-              if (c2.id !== convId) return c2;
-              const res = {
-                ...c2,
-                messages: [...(c2.messages || []), { senderId: c.participantId, text: 'Merci pour votre message ! Je reviens vers vous dès que possible. 🌾', ts: Date.now() }],
-                unread: (c2.unread || 0) + 1
-              };
-              upsertData('conversations', convId, res);
-              return res;
-            });
-            return updated2;
-          });
-        }, 2000);
-        return { ...c, messages: [...(c.messages || []), newMsg] };
-      });
+      const updated = prev.map(c =>
+        c.id === convId
+          ? { ...c, messages: [...(c.messages || []), newMsg], reads: { ...(c.reads || {}), [String(currentUser.id)]: ts } }
+          : c
+      );
       const conv = updated.find(c => c.id === convId);
       if (conv) upsertData('conversations', convId, conv);
       return updated;
@@ -433,8 +419,11 @@ export default function App() {
   };
 
   const handleMarkRead = (convId) => {
+    if (!currentUser) return;
     setConversations(prev => {
-      const updated = prev.map(c => c.id === convId ? { ...c, unread: 0 } : c);
+      const updated = prev.map(c =>
+        c.id === convId ? { ...c, reads: { ...(c.reads || {}), [String(currentUser.id)]: Date.now() } } : c
+      );
       const conv = updated.find(c => c.id === convId);
       if (conv) upsertData('conversations', convId, conv);
       return updated;

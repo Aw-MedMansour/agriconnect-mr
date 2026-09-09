@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.strip_contact_keys(jsonb) TO authenticated, anon, service_role;

@@ -16,7 +16,7 @@ export async function deleteData(table, id) {
 export async function fetchAllData() {
   const [usersRes, productsRes, servicesRes, postsRes, convsRes] = await Promise.all([
     // Sanitized directory: contact details are never exposed to other members.
-    supabase.rpc('get_public_users'),
+    supabase.from('public_profiles').select('*').order('created_at', { ascending: false }),
     supabase.from('products').select('*').order('created_at', { ascending: false }),
     supabase.from('services').select('*').order('created_at', { ascending: false }),
     supabase.from('posts').select('*').order('created_at', { ascending: false }),
@@ -48,7 +48,7 @@ export async function fetchConversations() {
 
 // ── Members only (so newly registered accounts appear without reloading) ─────
 export async function fetchUsers() {
-  const { data, error } = await supabase.rpc('get_public_users');
+  const { data, error } = await supabase.from('public_profiles').select('*');
   if (error) { console.error('[DB] users:', error.message); return null; }
   return data?.map(r => r.data).filter(Boolean) || [];
 }

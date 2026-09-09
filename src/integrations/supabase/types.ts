@@ -68,6 +68,24 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string
@@ -109,14 +127,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_public_users: {
-        Args: never
-        Returns: {
-          created_at: string
-          data: Json
-          id: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never

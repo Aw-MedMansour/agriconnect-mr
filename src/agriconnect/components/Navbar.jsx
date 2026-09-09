@@ -18,6 +18,7 @@ import {
   Map,
   HardHat
 } from 'lucide-react';
+import agriLogo from '../assets/agriconnect-logo.png';
 
 export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -120,8 +121,8 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
           onClick={() => setActiveModule('products')}
           className="flex items-center gap-2.5 cursor-pointer group shrink-0"
         >
-          <div className="w-9 h-9 rounded-md bg-[#0a66c2] flex items-center justify-center shadow-sm group-hover:bg-[#004182] transition-colors">
-            <Sprout className="w-5 h-5 text-white stroke-[2.5]" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden bg-white ring-1 ring-slate-200 shadow-sm group-hover:ring-[#0a66c2] transition-all">
+            <img src={agriLogo} alt="Logo AgriConnect" className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-1">

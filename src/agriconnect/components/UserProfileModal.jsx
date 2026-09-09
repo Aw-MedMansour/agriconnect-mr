@@ -187,9 +187,9 @@ export default function UserProfileModal({
                         onStartConversation({ name: authorName, avatar: authorAvatar, id: authorId });
                         onClose();
                       }}
-                      className="flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full border border-[#0a66c2] text-[#0a66c2] hover:bg-blue-50 transition-all"
+                      className="group/msg flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                     >
-                      <MessageSquare className="w-3.5 h-3.5" />
+                      <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
                       Message
                     </button>
                   </>

@@ -58,6 +58,52 @@ export default function App() {
   // Toast
   const [toastMessage, setToastMessage] = useState(null);
 
+  // ── Conversations visible for the logged-in account (shared between both accounts) ──
+  const myConversations = React.useMemo(() => {
+    if (!currentUser) return [];
+    const me = String(currentUser.id);
+    return (conversations || [])
+      .filter(c => Array.isArray(c?.participantIds) && c.participantIds.map(String).includes(me))
+      .map(c => {
+        const otherId = c.participantIds.map(String).find(id => id !== me) || me;
+        const other = c.participants?.[otherId] || {};
+        const lastRead = c.reads?.[me] || 0;
+        const unread = (c.messages || []).filter(m => String(m.senderId) !== me && (m.ts || 0) > lastRead).length;
+        return {
+          ...c,
+          participantId: otherId,
+          participantName: other.name || 'Utilisateur',
+          participantAvatar: other.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          unread,
+        };
+      })
+      .sort((a, b) => {
+        const la = a.messages?.[a.messages.length - 1]?.ts || 0;
+        const lb = b.messages?.[b.messages.length - 1]?.ts || 0;
+        return lb - la;
+      });
+  }, [conversations, currentUser]);
+
+  // ── Keep messages in sync so the recipient really receives them ──
+  useEffect(() => {
+    if (!currentUser) return;
+    let cancelled = false;
+    const sync = async () => {
+      const fresh = await fetchConversations();
+      if (cancelled || !fresh) return;
+      setConversations(prev => {
+        const byId = new Map(fresh.map(c => [c.id, c]));
+        // keep local convs not yet visible remotely
+        prev.forEach(c => { if (!byId.has(c.id)) byId.set(c.id, c); });
+        return Array.from(byId.values());
+      });
+    };
+    sync();
+    const t = setInterval(sync, 4000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [currentUser]);
+
+
   // ── Persist currentUser locally ────────────────────────────────
   useEffect(() => { 
     if (currentUser) localStorage.setItem('agroconnect_user', JSON.stringify(currentUser));

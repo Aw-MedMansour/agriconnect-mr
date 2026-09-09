@@ -38,6 +38,13 @@ export async function fetchAllData() {
   };
 }
 
+// ── Conversations only (used for live sync between accounts) ─────────────────
+export async function fetchConversations() {
+  const { data, error } = await supabase.from('conversations').select('*');
+  if (error) { console.error('[DB] conversations:', error.message); return null; }
+  return data?.map(r => r.data).filter(Boolean) || [];
+}
+
 // ── User profile helpers (passwords are handled by the auth system, never stored here)
 export async function saveUser(user) {
   await upsertData('users', user.id, user);

@@ -11,18 +11,37 @@ import {
 } from 'lucide-react';
 import { ACTOR_CATEGORIES, MOCK_ACTORS } from '../data/mockData';
 
-export default function ReputationDirectory({ onContactActor, searchQuery }) {
+export default function ReputationDirectory({ actors, onContactActor, searchQuery }) {
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
 
-  const filteredActors = MOCK_ACTORS.filter(actor => {
+  const source = Array.isArray(actors) && actors.length ? actors : MOCK_ACTORS;
+
+  const normalized = source.map(a => ({
+    ...a,
+    name: a.name || 'Membre AgriConnect',
+    company: a.company || a.roleLabel || 'Professionnel indépendant',
+    location: a.location || 'Mauritanie',
+    bio: a.bio || 'Membre de la communauté AgriConnect.',
+    specialties: Array.isArray(a.specialties) ? a.specialties : [],
+    zone: a.zone || a.location || 'Mauritanie',
+    rating: a.rating ?? '—',
+    transactionsCount: a.transactionsCount ?? 0,
+    badge: a.badge || 'Nouveau membre',
+    avatar: a.avatar || `https://ui-avatars.com/api/?background=0a66c2&color=fff&name=${encodeURIComponent(a.name || 'AgriConnect')}`,
+    coverImage: a.coverImage || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
+  }));
+
+  const filteredActors = normalized.filter(actor => {
     const matchesRole = selectedRoleFilter === 'all' || actor.role === selectedRoleFilter;
-    const matchesSearch = !searchQuery ||
-      actor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      actor.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      actor.specialties.some(s => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      actor.location.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = (searchQuery || '').toLowerCase();
+    const matchesSearch = !q ||
+      actor.name.toLowerCase().includes(q) ||
+      actor.company.toLowerCase().includes(q) ||
+      actor.specialties.some(s => String(s).toLowerCase().includes(q)) ||
+      actor.location.toLowerCase().includes(q);
     return matchesRole && matchesSearch;
   });
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -135,7 +154,8 @@ export default function ReputationDirectory({ onContactActor, searchQuery }) {
                   </p>
 
                   {/* Specialties Pills */}
-                  <div className="mb-4">
+                  <div className={actor.specialties.length ? 'mb-4' : 'hidden'}>
+
                     <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Spécialités & Équipements:</span>
                     <div className="flex flex-wrap gap-1.5">
                       {actor.specialties.map((spec, i) => (

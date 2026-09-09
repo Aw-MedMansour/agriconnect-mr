@@ -635,7 +635,8 @@ export default function App() {
 
         {activeModule === 'reputation' && (
           <ReputationDirectory
-            onContactActor={(actor) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(actor); }}
+            actors={allAvailableUsers.filter(u => !currentUser || u.id !== currentUser.id)}
+            onContactActor={(actor) => { if (!currentUser) setIsAuthModalOpen(true); else startOrOpenConversation(actor); }}
             searchQuery={searchQuery}
           />
         )}

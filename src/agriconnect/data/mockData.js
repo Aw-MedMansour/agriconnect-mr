@@ -416,7 +416,7 @@ export const MOCK_SOCIAL_POSTS = [
     authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=250&q=80',
     timestamp: 'Il y a 1 jour',
     badge: 'Logistique Certifiée',
-    content: '🚚 Nous avons un camion frigorifique 20 Tonnes disponible au départ de Rosso ce jeudi vers Nouakchott ou la frontière nord. Température de transport réglable de +2°C à +10°C. Idéal pour convoyage de légumes et fruits frais ! Contactez-nous en MP ou via AgroConnect. 📱',
+    content: '🚚 Nous avons un camion frigorifique 20 Tonnes disponible au départ de Rosso ce jeudi vers Nouakchott ou la frontière nord. Température de transport réglable de +2°C à +10°C. Idéal pour convoyage de légumes et fruits frais ! Contactez-nous en MP ou via AgriConnect. 📱',
     image: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80',
     likesCount: 37,
     commentsCount: 8,

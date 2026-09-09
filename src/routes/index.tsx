@@ -4,13 +4,13 @@ import App from "../agriconnect/App";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AgroConnect — Le Réseau Professionnel Agricole" },
+      { title: "AgriConnect — Le Réseau Professionnel Agricole" },
       {
         name: "description",
         content:
-          "AgroConnect connecte agriculteurs, transporteurs, acheteurs et prestataires : marketplace de produits agricoles, services, réseau social et messagerie.",
+          "AgriConnect connecte agriculteurs, transporteurs, acheteurs et prestataires : marketplace de produits agricoles, services, réseau social et messagerie.",
       },
-      { property: "og:title", content: "AgroConnect — Le Réseau Professionnel Agricole" },
+      { property: "og:title", content: "AgriConnect — Le Réseau Professionnel Agricole" },
       {
         property: "og:description",
         content:
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "AgroConnect",
+          name: "AgriConnect",
           url: "https://agriconnect.fulania.com/",
           description:
             "Réseau professionnel agricole : marketplace de produits, services, messagerie et analyse des plantes par IA.",

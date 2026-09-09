@@ -120,7 +120,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900">
-                {mode === 'signup' ? 'Créer un Compte AgroConnect' : 'Se Connecter à AgroConnect'}
+                {mode === 'signup' ? 'Créer un Compte AgriConnect' : 'Se Connecter à AgriConnect'}
               </h3>
               <p className="text-xs text-slate-500 font-medium">Rejoignez le réseau professionnel agricole</p>
             </div>
@@ -219,7 +219,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="votre.email@agroconnect.mr" required
+                placeholder="votre.email@agriconnect.mr" required
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
 
           <div className="text-center pt-2">
             <span className="text-[11px] text-slate-500 font-medium">
-              En continuant, vous acceptez les conditions de confiance AgroConnect.
+              En continuant, vous acceptez les conditions de confiance AgriConnect.
             </span>
           </div>
         </form>

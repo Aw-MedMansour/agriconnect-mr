@@ -55,7 +55,7 @@ export default function EcosystemHeader({ activeModule, setActiveModule, onOpenM
         {expanded && (
           <div className="bg-white rounded-2xl p-5 mb-6 border border-slate-300 shadow-sm animate-fadeIn">
             <div className="text-center mb-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0a66c2]">🧩 Architecture de l'Écosystème AgroConnect</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0a66c2]">🧩 Architecture de l'Écosystème AgriConnect</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

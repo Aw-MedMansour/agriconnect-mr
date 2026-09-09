@@ -77,13 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AgroConnect — Réseau Professionnel Agricole" },
+      { title: "AgriConnect — Réseau Professionnel Agricole" },
       {
         name: "description",
         content:
           "Marketplace agricole, services, messagerie et analyse des plantes par IA pour les acteurs de l'agriculture.",
       },
-      { property: "og:site_name", content: "AgroConnect" },
+      { property: "og:site_name", content: "AgriConnect" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

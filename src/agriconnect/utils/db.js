@@ -1,4 +1,4 @@
-const DB_NAME = 'AgroConnectDB';
+const DB_NAME = 'AgriConnectDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'media';
 

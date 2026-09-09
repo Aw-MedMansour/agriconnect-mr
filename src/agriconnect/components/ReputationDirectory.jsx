@@ -116,7 +116,7 @@ export default function ReputationDirectory({ onContactActor, searchQuery }) {
                   <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-1.5 mb-0.5">
                     {actor.name}
                     {actor.verified && (
-                      <span title="Professionnel Vérifié AgroConnect">
+                      <span title="Professionnel Vérifié AgriConnect">
                         <CheckCircle2 className="w-4 h-4 text-[#0a66c2] shrink-0" />
                       </span>
                     )}

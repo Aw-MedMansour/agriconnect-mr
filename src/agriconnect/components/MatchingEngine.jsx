@@ -78,7 +78,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
           Mise en Relation <span className="text-[#0a66c2]">Automatique</span>
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-2 font-medium">
-          AgroConnect identifie en temps réel les prestataires disponibles les plus qualifiés à proximité de votre exploitation.
+          AgriConnect identifie en temps réel les prestataires disponibles les plus qualifiés à proximité de votre exploitation.
         </p>
       </div>
 

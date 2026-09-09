@@ -46,7 +46,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0a66c2]"></span>
               </span>
-              <span className="truncate">AgroConnect Réseau Pro</span>
+              <span className="truncate">AgriConnect Réseau Pro</span>
             </span>
             <span className="hidden md:inline text-slate-300">|</span>
             <span className="hidden md:inline text-slate-700">

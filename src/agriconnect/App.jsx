@@ -89,14 +89,23 @@ export default function App() {
     if (!currentUser) return;
     let cancelled = false;
     const sync = async () => {
-      const fresh = await fetchConversations();
-      if (cancelled || !fresh) return;
-      setConversations(prev => {
-        const byId = new Map(fresh.map(c => [c.id, c]));
-        // keep local convs not yet visible remotely
-        prev.forEach(c => { if (!byId.has(c.id)) byId.set(c.id, c); });
-        return Array.from(byId.values());
-      });
+      const [fresh, freshUsers] = await Promise.all([fetchConversations(), fetchUsers()]);
+      if (cancelled) return;
+      if (fresh) {
+        setConversations(prev => {
+          const byId = new Map(fresh.map(c => [c.id, c]));
+          // keep local convs not yet visible remotely
+          prev.forEach(c => { if (!byId.has(c.id)) byId.set(c.id, c); });
+          return Array.from(byId.values());
+        });
+      }
+      if (freshUsers && freshUsers.length) {
+        setRegisteredUsers(prev => {
+          const byId = new Map((prev || []).map(u => [String(u.id), u]));
+          freshUsers.forEach(u => byId.set(String(u.id), u));
+          return Array.from(byId.values());
+        });
+      }
     };
     sync();
     const t = setInterval(sync, 4000);

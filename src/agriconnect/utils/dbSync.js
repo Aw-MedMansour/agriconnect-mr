@@ -12,31 +12,8 @@ export async function deleteData(table, id) {
   if (error) console.error(`[DB] delete ${table}:`, error.message);
 }
 
-// ── Seed a table with mock data if it is empty ───────────────────────────────
-async function seedIfEmpty(table, mockItems) {
-  const { data } = await supabase.from(table).select('id').limit(1);
-  if (data && data.length === 0) {
-    await Promise.all(
-      mockItems.map(item =>
-        supabase.from(table).upsert({ id: String(item.id), data: item })
-      )
-    );
-    return mockItems;
-  }
-  return null; // already seeded
-}
-
-// ── Load all data from Supabase ───────────────────────────────────────────────
+// ── Load all data (mock data is pre-seeded in the database via migration) ────
 export async function fetchAllData() {
-  // 1. Seed mock data on first run (awaited so data is ready)
-  const [seededUsers, seededProducts, seededServices, seededPosts] = await Promise.all([
-    seedIfEmpty('users', MOCK_ACTORS),
-    seedIfEmpty('products', MOCK_PRODUCTS),
-    seedIfEmpty('services', MOCK_SERVICES),
-    seedIfEmpty('posts', MOCK_SOCIAL_POSTS),
-  ]);
-
-  // 2. Fetch everything
   const [usersRes, productsRes, servicesRes, postsRes, convsRes] = await Promise.all([
     supabase.from('users').select('*'),
     supabase.from('products').select('*').order('created_at', { ascending: false }),
@@ -45,46 +22,61 @@ export async function fetchAllData() {
     supabase.from('conversations').select('*').order('created_at', { ascending: false }),
   ]);
 
-  const users        = usersRes.data?.map(r => r.data).filter(Boolean)        || seededUsers        || MOCK_ACTORS;
-  const products     = productsRes.data?.map(r => r.data).filter(Boolean)     || seededProducts     || MOCK_PRODUCTS;
-  const services     = servicesRes.data?.map(r => r.data).filter(Boolean)     || seededServices     || MOCK_SERVICES;
-  const posts        = postsRes.data?.map(r => r.data).filter(Boolean)        || seededPosts        || MOCK_SOCIAL_POSTS;
-  const conversations= convsRes.data?.map(r => r.data).filter(Boolean)        || [];
+  const users         = usersRes.data?.map(r => r.data).filter(Boolean)     || [];
+  const products      = productsRes.data?.map(r => r.data).filter(Boolean)  || [];
+  const services      = servicesRes.data?.map(r => r.data).filter(Boolean)  || [];
+  const posts         = postsRes.data?.map(r => r.data).filter(Boolean)     || [];
+  // Conversations require an authenticated session — empty for visitors.
+  const conversations = convsRes.data?.map(r => r.data).filter(Boolean)     || [];
 
-  return { users, products, services, posts, conversations };
+  return {
+    users: users.length ? users : MOCK_ACTORS,
+    products: products.length ? products : MOCK_PRODUCTS,
+    services: services.length ? services : MOCK_SERVICES,
+    posts: posts.length ? posts : MOCK_SOCIAL_POSTS,
+    conversations,
+  };
 }
 
-// ── User auth helpers ─────────────────────────────────────────────────────────
-// Store user WITH password in Supabase (password is needed for login lookup)
-export async function saveUser(userWithPassword) {
-  await upsertData('users', userWithPassword.id, userWithPassword);
+// ── User profile helpers (passwords are handled by the auth system, never stored here)
+export async function saveUser(user) {
+  await upsertData('users', user.id, user);
 }
 
 export async function findUserByEmail(email) {
-  // Fetch all and filter in JS — most reliable with jsonb column
   const { data, error } = await supabase.from('users').select('data');
   if (error || !data) return null;
   return data.map(r => r.data).find(u => u && u.email === email) || null;
 }
 
-// ── Media Upload to Supabase Storage ─────────────────────────────────────────
+export async function findUserById(id) {
+  const { data, error } = await supabase.from('users').select('data').eq('id', String(id)).maybeSingle();
+  if (error || !data) return null;
+  return data.data || null;
+}
+
+// ── Media Upload to file storage ─────────────────────────────────────────────
 export async function uploadMedia(file, folder = 'media') {
-  const ext = file.name.split('.').pop();
-  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  try {
+    const ext = file.name.split('.').pop();
+    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-  const { data, error } = await supabase.storage
-    .from('agroconnect-media')
-    .upload(filename, file, { cacheControl: '3600', upsert: false });
+    const { data, error } = await supabase.storage
+      .from('agroconnect-media')
+      .upload(filename, file, { cacheControl: '3600', upsert: false });
 
-  if (error) {
-    console.error('[Storage] upload error:', error.message);
-    // Fallback to blob URL if storage not configured yet
+    if (error) {
+      console.error('[Storage] upload error:', error.message);
+      return URL.createObjectURL(file);
+    }
+
+    const { data: signed } = await supabase.storage
+      .from('agroconnect-media')
+      .createSignedUrl(data.path, 60 * 60 * 24 * 365);
+
+    return signed?.signedUrl || URL.createObjectURL(file);
+  } catch (err) {
+    console.error('[Storage] upload exception:', err);
     return URL.createObjectURL(file);
   }
-
-  const { data: urlData } = supabase.storage
-    .from('agroconnect-media')
-    .getPublicUrl(data.path);
-
-  return urlData.publicUrl;
 }

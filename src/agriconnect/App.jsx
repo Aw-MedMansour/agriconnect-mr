@@ -35,7 +35,7 @@ export default function App() {
   const [conversations, setConversations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const allAvailableUsers = [...(MOCK_ACTORS || []), ...(Array.isArray(registeredUsers) ? registeredUsers : [])];
+  const allAvailableUsers = Array.isArray(registeredUsers) && registeredUsers.length ? registeredUsers : (MOCK_ACTORS || []);
 
   useEffect(() => {
     fetchAllData().then(data => {

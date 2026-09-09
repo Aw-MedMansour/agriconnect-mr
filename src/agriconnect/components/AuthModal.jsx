@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X, Sprout, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
 import { ACTOR_CATEGORIES } from '../data/mockData';
-import { saveUser, findUserByEmail } from '../utils/dbSync';
+import { saveUser, findUserById } from '../utils/dbSync';
+import { supabase } from '../utils/supabaseClient';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
   const [mode, setMode] = useState('signup');
@@ -26,19 +27,22 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
 
     try {
       if (mode === 'signup') {
-        // Check email uniqueness in Supabase
-        const existing = await findUserByEmail(email);
-        if (existing) {
-          setError('Cet email est déjà utilisé.');
+        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        if (signUpError) {
+          setError(
+            signUpError.message?.toLowerCase().includes('already')
+              ? 'Cet email est déjà utilisé.'
+              : signUpError.message || 'Inscription impossible.'
+          );
           setLoading(false);
           return;
         }
 
+        const uid = data.user?.id || `user-${Date.now()}`;
         const newUser = {
-          id: `user-${Date.now()}`,
+          id: uid,
           name: fullName || 'Utilisateur',
           email,
-          password, // stored in Supabase for login lookup
           role,
           roleLabel: ACTOR_CATEGORIES.find(c => c.id === role)?.label || 'Membre Professionnel',
           company: company || 'Exploitation Agricole',
@@ -48,42 +52,32 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           badge: 'Membre Vérifié',
         };
 
-        // Save to Supabase (with password for login)
         await saveUser(newUser);
-
-        const { password: _, ...userObj } = newUser;
-        onLoginSuccess(userObj, true);
+        onLoginSuccess(newUser, true);
         onClose();
 
       } else {
-        // Login: look up in Supabase first, fallback to allUsers prop
-        let found = await findUserByEmail(email);
-        if (!found) {
-          // fallback to MOCK_ACTORS if not yet in Supabase
-          found = allUsers.find(u => u.email === email) || null;
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        if (signInError || !data.user) {
+          setError('Email ou mot de passe incorrect.');
+          setLoading(false);
+          return;
         }
 
-        if (found && found.password === password) {
-          const { password: _, ...userObj } = found;
-          onLoginSuccess(userObj, false);
-          onClose();
-        } else if (email === 'test@agroconnect.mr' && password === '123456') {
-          onLoginSuccess({
-            id: 'user-test',
-            name: 'Mamadou Oumar Diallo',
-            email: 'test@agroconnect.mr',
-            role: 'agriculteur',
-            roleLabel: 'Agriculteur',
-            company: 'Ferme du Fleuve',
-            location: 'Rosso, Trarza',
-            avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
-            verified: true,
-            badge: 'Membre Vérifié',
-          }, false);
-          onClose();
-        } else {
-          setError('Email ou mot de passe incorrect.');
-        }
+        const profile = await findUserById(data.user.id);
+        onLoginSuccess(profile || {
+          id: data.user.id,
+          name: data.user.user_metadata?.name || email.split('@')[0],
+          email,
+          role: 'agriculteur',
+          roleLabel: 'Membre',
+          company: '',
+          location: '',
+          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          verified: true,
+          badge: 'Membre Vérifié',
+        }, false);
+        onClose();
       }
     } catch (err) {
       console.error(err);
@@ -218,7 +212,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" required
+                placeholder="••••••••" required minLength={6}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
             </div>
           </div>

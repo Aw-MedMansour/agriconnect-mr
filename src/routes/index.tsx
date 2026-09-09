@@ -1,24 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
+import App from "../agriconnect/App";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "AgroConnect — Le Réseau Professionnel Agricole" },
+      {
+        name: "description",
+        content:
+          "AgroConnect connecte agriculteurs, transporteurs, acheteurs et prestataires : marketplace de produits agricoles, services, réseau social et messagerie.",
+      },
+      { property: "og:title", content: "AgroConnect — Le Réseau Professionnel Agricole" },
+      {
+        property: "og:description",
+        content:
+          "Marketplace agricole, offres de services, réseau social et messagerie pour les acteurs de l'agriculture.",
+      },
+      { property: "og:type", content: "website" },
+      {
+        property: "og:image",
+        content:
+          "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80",
+      },
+      { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:image",
+        content:
+          "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80",
+      },
+    ],
+  }),
+  component: App,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}

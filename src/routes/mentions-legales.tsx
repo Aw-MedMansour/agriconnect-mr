@@ -16,11 +16,11 @@ export const Route = createFileRoute("/mentions-legales")({
           "Éditeur, hébergement, propriété intellectuelle, données personnelles et droit applicable de la plateforme AgriConnect.",
       },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: "https://agriconnect.fulania.com/mentions-legales" },
+      { property: "og:url", content: "https://agriconnect-mr.com/mentions-legales" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "canonical", href: "https://agriconnect.fulania.com/mentions-legales" },
+      { rel: "canonical", href: "https://agriconnect-mr.com/mentions-legales" },
     ],
   }),
   component: LegalPage,

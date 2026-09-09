@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://agriconnect.fulania.com/sitemap.xml
+Sitemap: https://agriconnect-mr.com/sitemap.xml

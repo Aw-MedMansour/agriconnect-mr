@@ -16,10 +16,10 @@ export const Route = createFileRoute("/conditions")({
           "Règles d'utilisation de la plateforme AgriConnect : comptes, annonces, messagerie, analyse IA et données personnelles.",
       },
       { property: "og:type", content: "article" },
-      { property: "og:url", content: "https://agriconnect.fulania.com/conditions" },
+      { property: "og:url", content: "https://agriconnect-mr.com/conditions" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://agriconnect.fulania.com/conditions" }],
+    links: [{ rel: "canonical", href: "https://agriconnect-mr.com/conditions" }],
   }),
   component: ConditionsPage,
 });

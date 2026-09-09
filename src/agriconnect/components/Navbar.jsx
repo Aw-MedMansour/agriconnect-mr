@@ -125,7 +125,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
           </div>
           <div>
             <div className="flex items-center gap-1">
-              <span className="text-xl font-bold tracking-tight text-slate-900">Agro<span className="text-[#0a66c2]">Connect</span></span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">Agri<span className="text-[#0a66c2]">Connect</span></span>
               <span className="bg-blue-100 text-[#0a66c2] text-[10px] uppercase font-bold px-1.5 py-0.5 rounded">Pro</span>
             </div>
             <p className="text-[10px] text-slate-500 font-medium -mt-1">Le réseau professionnel agricole</p>

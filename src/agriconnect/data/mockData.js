@@ -212,7 +212,7 @@ export const MOCK_PRODUCTS = [
     location: 'Atar, Adrar',
     availabilityDate: 'Disponibilité immédiate',
     images: [
-      'https://images.unsplash.com/photo-1593005510509-d05b264f1c9c?auto=format&fit=crop&w=800&q=80'
+      '/__l5e/assets-v1/20b2686a-d1a8-4018-adb4-89f7134a2bdb/dattes-medjool.jpg'
     ],
     deliveryConditions: 'Conditionnées en cartons de 5kg. Expédition par fret terrestre ou port de Nouakchott.',
     description: 'Dattes royales Medjool charnues et séchées naturellement sous le soleil d\'Atar. Certifiées bio.',
@@ -233,7 +233,7 @@ export const MOCK_PRODUCTS = [
     location: 'Boghé, Brakna',
     availabilityDate: 'Disponible sous 48h',
     images: [
-      'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80'
+      '/__l5e/assets-v1/ee9fa996-9f6f-420b-a582-72872e930599/oignons-rouges.jpg'
     ],
     deliveryConditions: 'En sacs de filet de 25 kg. Livraison à la charge de l\'acheteur ou avec notre partenaire transporteur.',
     description: 'Oignons rouges de haute tenue pour stockage longue durée. Bulbes fermes et réguliers.',

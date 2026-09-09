@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   image: z.string().min(100), // data URL (base64)
@@ -24,6 +25,7 @@ On te fournit la photo d'une plante. Réponds UNIQUEMENT avec un objet JSON vali
 Règles : n'invente rien. Si un élément n'est pas observable, laisse le tableau vide. Si l'image est inexploitable ou ne montre pas de plante, mets reliable=false et remplis reason. Écris tout en français simple et compréhensible par un agriculteur.`;
 
 export const analyzePlant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];

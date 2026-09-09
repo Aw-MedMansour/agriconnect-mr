@@ -109,7 +109,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_public_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          data: Json
+          id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

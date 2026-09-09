@@ -730,8 +730,12 @@ export default function App() {
             <span>Services & Logistique</span>
             <span>Pompage Solaire & Eau</span>
             <span>Matching IA Pro</span>
+            <a href="/conditions" className="font-bold text-[#0a66c2] hover:underline">
+              Conditions d'utilisation
+            </a>
           </div>
           <div className="text-slate-400">© 2026 AgriConnect. Tous droits réservés.</div>
+
         </div>
       </footer>
     </div>

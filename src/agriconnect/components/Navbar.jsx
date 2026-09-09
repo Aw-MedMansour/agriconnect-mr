@@ -38,15 +38,15 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
       {/* Top Ticker & Role Bar */}
-      <div className="bg-slate-100 border-b border-slate-200 py-1.5 px-4 text-xs">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-4 text-slate-600">
-            <span className="flex items-center gap-1.5 text-[#0a66c2] font-semibold">
+      <div className="bg-slate-100 border-b border-slate-200 px-3 py-1 text-[10px] sm:px-4 sm:py-1.5 sm:text-xs">
+        <div className="max-w-7xl mx-auto grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:justify-between sm:gap-3">
+          <div className="flex min-w-0 items-center gap-4 text-slate-600">
+            <span className="flex min-w-0 items-center gap-1.5 text-[#0a66c2] font-semibold">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0a66c2]"></span>
               </span>
-              AgroConnect Réseau Pro
+              <span className="truncate">AgroConnect Réseau Pro</span>
             </span>
             <span className="hidden md:inline text-slate-300">|</span>
             <span className="hidden md:inline text-slate-700">
@@ -57,20 +57,20 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
             </span>
           </div>
 
-          <div className="flex items-center gap-3 ml-auto">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 sm:ml-auto">
             {currentUser ? (
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer"
+                  className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-md px-1.5 py-0.5 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer sm:gap-2 sm:px-2.5 sm:py-1"
                 >
                   <img 
                     src={currentUser.avatar} 
                     alt={currentUser.name} 
                     className="w-5 h-5 rounded-full object-cover border border-[#0a66c2]"
                   />
-                  <span className="text-xs font-bold text-slate-900">{currentUser.name}</span>
-                  <span className="text-[10px] bg-blue-100 text-[#0a66c2] font-bold px-1.5 py-0.5 rounded">
+                  <span className="hidden max-w-24 truncate text-xs font-bold text-slate-900 sm:inline">{currentUser.name}</span>
+                  <span className="hidden text-[10px] bg-blue-100 text-[#0a66c2] font-bold px-1.5 py-0.5 rounded md:inline">
                     {currentUser.roleLabel || 'Membre'}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
@@ -98,14 +98,15 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
             ) : (
               <button
                 onClick={onOpenAuthModal}
-                className="flex items-center gap-1.5 bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-bold px-3 py-1 rounded-full transition-all cursor-pointer shadow-xs"
+                className="flex items-center gap-1 bg-[#0a66c2] hover:bg-[#004182] text-white text-[10px] font-bold px-2 py-1 rounded-full transition-all cursor-pointer shadow-xs sm:gap-1.5 sm:px-3 sm:text-xs"
               >
                 <User className="w-3.5 h-3.5" />
-                <span>Créer un compte / Connexion</span>
+                <span className="sm:hidden">Connexion</span>
+                <span className="hidden sm:inline">Créer un compte / Connexion</span>
               </button>
             )}
 
-            <div className="flex items-center gap-1 bg-blue-50 text-[#0a66c2] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-semibold">
+            <div className="hidden items-center gap-1 bg-blue-50 text-[#0a66c2] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-semibold sm:flex">
               <CheckCircle2 className="w-3.5 h-3.5" /> Compte Vérifié
             </div>
           </div>

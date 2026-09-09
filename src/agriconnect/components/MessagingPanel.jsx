@@ -76,7 +76,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
       {/* Floating trigger button */}
       <button
         onClick={() => setIsOpen(p => !p)}
-        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white px-4 py-3 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white px-5 py-3 rounded-full shadow-xl shadow-[#0a66c2]/30 ring-1 ring-white/20 backdrop-blur-sm transition-all hover:shadow-2xl hover:shadow-[#0a66c2]/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
       >
         <MessageSquare className="w-5 h-5" />
         <span className="text-sm font-bold">Messages</span>
@@ -326,7 +326,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                   <button
                     onClick={handleSend}
                     disabled={!inputText.trim()}
-                    className="bg-[#0a66c2] disabled:opacity-40 hover:bg-[#004182] text-white p-2 rounded-full transition-all hover:scale-105 active:scale-95"
+                    className="bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] disabled:opacity-40 disabled:shadow-none text-white p-2.5 rounded-full shadow-md shadow-[#0a66c2]/30 transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                   >
                     <Send className="w-4 h-4" />
                   </button>

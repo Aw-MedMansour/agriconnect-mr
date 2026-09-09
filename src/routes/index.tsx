@@ -17,16 +17,21 @@ export const Route = createFileRoute("/")({
           "Marketplace agricole, offres de services, réseau social et messagerie pour les acteurs de l'agriculture.",
       },
       { property: "og:type", content: "website" },
-      {
-        property: "og:image",
-        content:
-          "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80",
-      },
+      { property: "og:url", content: "https://agriconnect.fulania.com/" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [{ rel: "canonical", href: "https://agriconnect.fulania.com/" }],
+    scripts: [
       {
-        name: "twitter:image",
-        content:
-          "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=1200&q=80",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "AgroConnect",
+          url: "https://agriconnect.fulania.com/",
+          description:
+            "Réseau professionnel agricole : marketplace de produits, services, messagerie et analyse des plantes par IA.",
+        }),
       },
     ],
   }),

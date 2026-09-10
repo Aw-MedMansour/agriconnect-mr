@@ -56,7 +56,7 @@ export default function AsyncMediaItem({ item, onClick, className, style, isVide
       style={style}
       onClick={onClick}
     >
-      <img src={url} alt={alt || "Photo publiée sur AgriConnect"} className="w-full h-full object-cover" style={{ display: 'block' }} />
+      <img src={url} alt="Photo publiée sur AgriConnect" className="w-full h-full object-cover" style={{ display: 'block' }} />
     </div>
   );
 }

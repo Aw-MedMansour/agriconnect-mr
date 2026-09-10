@@ -563,8 +563,19 @@ export default function App() {
       />
 
 
+      {/* ── Titre principal (SEO) ── */}
+      <section className="max-w-7xl mx-auto px-4 pt-5 w-full">
+        <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+          AgriConnect — le réseau professionnel agricole
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium max-w-3xl">
+          Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec
+          les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.
+        </p>
+      </section>
 
       {/* ── Info Banner : explains where posts go ── */}
+
       {activeModule === 'products' && (
         <div className="max-w-7xl mx-auto px-4 pt-4 w-full">
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center gap-3 text-xs text-blue-800 font-medium">

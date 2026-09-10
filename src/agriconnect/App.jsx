@@ -530,21 +530,21 @@ export default function App() {
     }
   };
 
-  if (isLoading || !minSplashDone) {
-    return <SplashScreen done={!isLoading} />;
-  }
-
+  const showSplash = isLoading || !minSplashDone;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900">
+
+      {showSplash && <SplashScreen done={!isLoading} />}
+
 
       {/* Toast Banner */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-50 bg-white border border-[#0a66c2] text-slate-900 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 max-w-md">
           <CheckCircle2 className="w-5 h-5 text-[#0a66c2] shrink-0" />
           <span className="text-xs font-bold">{toastMessage}</span>
-          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-slate-700 p-1">
+          <button onClick={() => setToastMessage(null)} aria-label="Fermer la notification" className="text-slate-400 hover:text-slate-700 p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -563,8 +563,19 @@ export default function App() {
       />
 
 
+      {/* ── Titre principal (SEO) ── */}
+      <section className="max-w-7xl mx-auto px-4 pt-5 w-full">
+        <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+          AgriConnect — le réseau professionnel agricole
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium max-w-3xl">
+          Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec
+          les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.
+        </p>
+      </section>
 
       {/* ── Info Banner : explains where posts go ── */}
+
       {activeModule === 'products' && (
         <div className="max-w-7xl mx-auto px-4 pt-4 w-full">
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center gap-3 text-xs text-blue-800 font-medium">

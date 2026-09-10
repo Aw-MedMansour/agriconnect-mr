@@ -127,7 +127,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
               <p className="text-xs text-slate-500 font-medium">Rejoignez le réseau professionnel agricole</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} aria-label="Fermer" className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>

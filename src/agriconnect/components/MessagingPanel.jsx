@@ -111,16 +111,17 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
             <div className="flex items-center gap-2">
               {activeConv && (
                 <>
-                  <button className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                  <button aria-label="Appeler" className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
                     <Phone className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                  <button aria-label="Appel vidéo" className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
                     <Video className="w-4 h-4" />
                   </button>
                 </>
               )}
               <button
                 onClick={() => setIsOpen(false)}
+                aria-label="Fermer la messagerie"
                 className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
               >
                 <X className="w-4 h-4" />
@@ -311,6 +312,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowEmojiBar(p => !p)}
+                    aria-label="Ajouter un émoji"
                     className="text-slate-400 hover:text-[#0a66c2] transition-colors p-1"
                   >
                     <Smile className="w-5 h-5" />
@@ -325,6 +327,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                   />
                   <button
                     onClick={handleSend}
+                    aria-label="Envoyer le message"
                     disabled={!inputText.trim()}
                     className="bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] disabled:opacity-40 disabled:shadow-none text-white p-2.5 rounded-full shadow-md shadow-[#0a66c2]/30 transition-all hover:shadow-lg hover:scale-105 active:scale-95"
                   >

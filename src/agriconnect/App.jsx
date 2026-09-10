@@ -544,7 +544,7 @@ export default function App() {
         <div className="fixed bottom-5 right-5 z-50 bg-white border border-[#0a66c2] text-slate-900 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 max-w-md">
           <CheckCircle2 className="w-5 h-5 text-[#0a66c2] shrink-0" />
           <span className="text-xs font-bold">{toastMessage}</span>
-          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-slate-700 p-1">
+          <button onClick={() => setToastMessage(null)} aria-label="Fermer la notification" className="text-slate-400 hover:text-slate-700 p-1">
             <X className="w-4 h-4" />
           </button>
         </div>

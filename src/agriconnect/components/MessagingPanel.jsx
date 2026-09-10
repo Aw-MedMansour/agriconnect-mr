@@ -111,10 +111,10 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
             <div className="flex items-center gap-2">
               {activeConv && (
                 <>
-                  <button className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                  <button aria-label="Appeler" className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
                     <Phone className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                  <button aria-label="Appel vidéo" className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
                     <Video className="w-4 h-4" />
                   </button>
                 </>

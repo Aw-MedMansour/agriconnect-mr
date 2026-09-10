@@ -530,14 +530,14 @@ export default function App() {
     }
   };
 
-  if (isLoading || !minSplashDone) {
-    return <SplashScreen done={!isLoading} />;
-  }
-
+  const showSplash = isLoading || !minSplashDone;
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900">
+
+      {showSplash && <SplashScreen done={!isLoading} />}
+
 
       {/* Toast Banner */}
       {toastMessage && (

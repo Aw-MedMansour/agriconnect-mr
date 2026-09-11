@@ -380,6 +380,24 @@ export default function UserProfileModal({
                 )}
               </>
             )}
+
+            {/* ── RELATIONS TAB ── */}
+            {activeTab === 'relations' && (
+              <div className="space-y-5">
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
+                    Abonnés ({followerUsers.length})
+                  </h4>
+                  {renderPersonList(followerUsers, 'Aucun abonné pour le moment.')}
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
+                    Abonnements ({followingUsers.length})
+                  </h4>
+                  {renderPersonList(followingUsers, 'Ne suit encore personne.')}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -43,8 +43,8 @@ export default function SplashScreen({ done }) {
         <p className="text-[11px] font-medium text-slate-400">Chargement…</p>
       </div>
 
-      <div className="absolute bottom-8 text-[11px] font-medium text-slate-400">
-        Développé par{' '}
+      <div className="absolute bottom-8 text-[11px] font-medium text-slate-400 text-center px-4">
+        Développé en partenariat par{' '}
         <a
           href="https://3A55.Fulania.com"
           target="_blank"
@@ -52,7 +52,8 @@ export default function SplashScreen({ done }) {
           className="font-bold text-[#0a66c2] hover:underline"
         >
           3A55
-        </a>
+        </a>{' '}
+        & Agrosky
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConditionsRouteImport } from './routes/conditions'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
+import { Route as PolitiqueDUtilisationRouteImport } from './routes/politique-d-utilisation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,50 @@ const MentionsLegalesRoute = MentionsLegalesRouteImport.update({
   path: '/mentions-legales',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PolitiqueDUtilisationRoute = PolitiqueDUtilisationRouteImport.update({
+  id: '/politique-d-utilisation',
+  path: '/politique-d-utilisation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
+  '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/conditions' | '/mentions-legales'
+  fullPaths:
+    '/' | '/conditions' | '/mentions-legales' | '/politique-d-utilisation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conditions' | '/mentions-legales'
-  id: '__root__' | '/' | '/conditions' | '/mentions-legales'
+  to: '/' | '/conditions' | '/mentions-legales' | '/politique-d-utilisation'
+  id:
+    | '__root__'
+    | '/'
+    | '/conditions'
+    | '/mentions-legales'
+    | '/politique-d-utilisation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConditionsRoute: typeof ConditionsRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
+  PolitiqueDUtilisationRoute: typeof PolitiqueDUtilisationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +98,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MentionsLegalesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/politique-d-utilisation': {
+      id: '/politique-d-utilisation'
+      path: '/politique-d-utilisation'
+      fullPath: '/politique-d-utilisation'
+      preLoaderRoute: typeof PolitiqueDUtilisationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +112,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConditionsRoute: ConditionsRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
+  PolitiqueDUtilisationRoute: PolitiqueDUtilisationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

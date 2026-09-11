@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Phone, MessageSquare, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
+import Avatar from './Avatar';
 
 export default function ContactModal({ isOpen, onClose, targetData, onSendMessage }) {
   const [message, setMessage] = useState('');
@@ -28,10 +29,11 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
         {/* Modal Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-3">
-            <img 
-              src={targetData.avatar || targetData.sellerAvatar || targetData.providerAvatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'} 
-              alt={recipientName}
-              className="w-10 h-10 rounded-full object-cover border border-[#0a66c2]"
+            <Avatar
+              src={targetData.avatar || targetData.sellerAvatar || targetData.providerAvatar}
+              name={recipientName}
+              seed={targetData.id || recipientName}
+              className="w-10 h-10"
             />
             <div>
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">

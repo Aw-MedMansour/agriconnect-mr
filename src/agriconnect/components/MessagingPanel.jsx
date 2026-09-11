@@ -4,7 +4,7 @@ import {
   X,
   Send,
   Search,
-  ChevronDown,
+  Check,
   CheckCheck,
   Phone,
   Video,
@@ -12,6 +12,15 @@ import {
   ArrowLeft,
   Trash2
 } from 'lucide-react';
+import Avatar from './Avatar';
+
+// Accusés de réception : 1 coche = envoyé, 2 coches grises = reçu, 2 coches bleues = lu
+function Ticks({ msg, readTs }) {
+  const isRead = !!readTs && (msg.ts || 0) <= readTs;
+  if (isRead) return <CheckCheck className="w-3.5 h-3.5 text-[#0a66c2]" aria-label="Lu" />;
+  if (msg.delivered === false) return <Check className="w-3.5 h-3.5 text-slate-400" aria-label="Envoyé" />;
+  return <CheckCheck className="w-3.5 h-3.5 text-slate-400" aria-label="Reçu, non lu" />;
+}
 
 const EMOJI_LIST = ['👍', '❤️', '😊', '🌾', '🚜', '🙏'];
 
@@ -29,8 +38,7 @@ function formatTime(ts) {
 
 const ONLINE_IDS = ['user-2', 'user-3']; // mock online status
 
-export default function MessagingPanel({ currentUser, conversations, onSendMessage, onMarkRead, onDeleteConv, allUsers, onStartConversation }) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function MessagingPanel({ isOpen = false, onClose = () => {}, currentUser, conversations, onSendMessage, onMarkRead, onDeleteConv, allUsers, onStartConversation }) {
   const [activeConv, setActiveConv] = useState(null);
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -42,8 +50,6 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [activeConv, conversations]);
-
-  const totalUnread = conversations.reduce((sum, c) => sum + (c.unread || 0), 0);
 
   const filteredConvs = (conversations || []).filter(c =>
     !searchQuery || (c?.participantName || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,25 +79,10 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
 
   return (
     <>
-      {/* Floating trigger button */}
-      <button
-        onClick={() => setIsOpen(p => !p)}
-        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white px-5 py-3 rounded-full shadow-xl shadow-[#0a66c2]/30 ring-1 ring-white/20 backdrop-blur-sm transition-all hover:shadow-2xl hover:shadow-[#0a66c2]/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-      >
-        <MessageSquare className="w-5 h-5" />
-        <span className="text-sm font-bold">Messages</span>
-        {totalUnread > 0 && (
-          <span className="bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
-            {totalUnread > 9 ? '9+' : totalUnread}
-          </span>
-        )}
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
-
-      {/* Panel */}
+      {/* Panneau ancré en haut à droite (comme Facebook) */}
       {isOpen && (
-        <div className="fixed bottom-20 right-5 z-50 w-[350px] sm:w-[380px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
-          style={{ maxHeight: '520px' }}
+        <div className="fixed top-16 right-3 sm:right-5 z-50 w-[calc(100vw-1.5rem)] max-w-[380px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
+          style={{ maxHeight: 'min(75vh, 560px)' }}
         >
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100">
@@ -120,7 +111,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                 </>
               )}
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={onClose}
                 aria-label="Fermer la messagerie"
                 className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
               >
@@ -166,10 +157,12 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                           >
                             {/* Avatar with online dot */}
                             <div className="relative shrink-0">
-                              <img
+                              <Avatar
                                 src={conv.participantAvatar}
-                                alt={conv.participantName}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+                                name={conv.participantName}
+                                seed={conv.participantId}
+                                className="w-10 h-10 border-2 border-white shadow"
+                                textClassName="text-xs"
                               />
                               {isOnline && (
                                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
@@ -222,10 +215,12 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                             }}
                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors border-b border-slate-50 text-left"
                           >
-                            <img
-                              src={user.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'}
-                              alt={user.name}
-                              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+                            <Avatar
+                              src={user.avatar}
+                              name={user.name}
+                              seed={user.id}
+                              className="w-10 h-10 border-2 border-white shadow"
+                              textClassName="text-xs"
                             />
                             <div className="flex-1 min-w-0">
                               <span className="text-xs font-bold text-slate-900 block truncate">{user.name}</span>
@@ -247,7 +242,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
               {activeConvData && (
                 <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-100">
                   <div className="relative">
-                    <img src={activeConvData.participantAvatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+                    <Avatar src={activeConvData.participantAvatar} name={activeConvData.participantName} seed={activeConvData.participantId} className="w-7 h-7" textClassName="text-[9px]" />
                     {ONLINE_IDS.includes(activeConvData.participantId) && (
                       <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white rounded-full" />
                     )}
@@ -272,11 +267,12 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                   </div>
                 ) : (
                   activeConvData?.messages?.map((msg, i) => {
-                    const isMine = msg.senderId === currentUser?.id;
+                    const isMine = String(msg.senderId) === String(currentUser?.id);
+                    const otherReadTs = activeConvData?.reads?.[String(activeConvData.participantId)];
                     return (
                       <div key={i} className={`flex items-end gap-2 ${isMine ? 'flex-row-reverse' : ''}`}>
                         {!isMine && (
-                          <img src={activeConvData.participantAvatar} alt="" className="w-6 h-6 rounded-full object-cover shrink-0" />
+                          <Avatar src={activeConvData.participantAvatar} name={activeConvData.participantName} seed={activeConvData.participantId} className="w-6 h-6 shrink-0" textClassName="text-[8px]" />
                         )}
                         <div className={`max-w-[75%] ${isMine ? 'items-end' : 'items-start'} flex flex-col gap-0.5`}>
                           <div className={`px-3 py-2 rounded-2xl text-xs leading-relaxed ${
@@ -288,7 +284,7 @@ export default function MessagingPanel({ currentUser, conversations, onSendMessa
                           </div>
                           <div className={`flex items-center gap-1 text-[9px] text-slate-400 ${isMine ? 'flex-row-reverse' : ''}`}>
                             <span>{formatTime(msg.ts)}</span>
-                            {isMine && <CheckCheck className="w-3 h-3 text-[#0a66c2]" />}
+                            {isMine && <Ticks msg={msg} readTs={otherReadTs} />}
                           </div>
                         </div>
                       </div>

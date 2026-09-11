@@ -63,6 +63,7 @@ export default function App() {
   const [createModalDefaultCategory, setCreateModalDefaultCategory] = useState(null);
   const [contactTarget, setContactTarget] = useState(null);
   const [profileModalTarget, setProfileModalTarget] = useState(null);
+  const [isMessagingOpen, setIsMessagingOpen] = useState(false);
 
   // Toast
   const [toastMessage, setToastMessage] = useState(null);
@@ -82,7 +83,7 @@ export default function App() {
           ...c,
           participantId: otherId,
           participantName: other.name || 'Utilisateur',
-          participantAvatar: other.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          participantAvatar: other.avatar || '',
           unread,
         };
       })
@@ -188,7 +189,7 @@ export default function App() {
       authorId: currentUser?.id || 'guest',
       authorName: currentUser?.name || 'Utilisateur AgriConnect',
       authorRole: currentUser?.roleLabel || 'Agriculteur',
-      authorAvatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+      authorAvatar: currentUser?.avatar || '',
       timestamp: 'À l\'instant',
       badge: currentUser?.badge || 'Membre Vérifié',
       content: postData.content,
@@ -298,7 +299,7 @@ export default function App() {
           id: `c-${Date.now()}`,
           userId: currentUser?.id,
           user: currentUser?.name || 'Vous',
-          avatar: currentUser?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          avatar: currentUser?.avatar || '',
           text,
           reactions: {},
           replies: [],
@@ -436,8 +437,7 @@ export default function App() {
       participant.name || 'Inconnu';
     const participantAvatar =
       participant.sellerAvatar || participant.authorAvatar || participant.providerAvatar ||
-      participant.avatar ||
-      'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80';
+      participant.avatar || '';
 
     if (!participantId) {
       showToast("⚠️ Impossible d'identifier le destinataire de ce message.");
@@ -468,13 +468,16 @@ export default function App() {
     };
     setConversations(prev => [newConv, ...prev.filter(c => c.id !== id)]);
     upsertData('conversations', newConv.id, newConv);
-    showToast(`✅ Conversation avec ${participantName} créée ! Ouvrez la messagerie en bas à droite.`);
+    setIsMessagingOpen(true);
+    showToast(`✅ Conversation avec ${participantName} ouverte dans votre messagerie.`);
   };
 
   const handleSendMessage = (convId, text) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
     const ts = Date.now();
-    const newMsg = { id: `msg-${ts}-${Math.random().toString(36).slice(2, 7)}`, senderId: String(currentUser.id), text, ts };
+    const msgId = `msg-${ts}-${Math.random().toString(36).slice(2, 7)}`;
+    // delivered = false tant que le message n'est pas enregistré côté serveur (1 coche)
+    const newMsg = { id: msgId, senderId: String(currentUser.id), text, ts, delivered: false };
     setConversations(prev => {
       const updated = prev.map(c =>
         c.id === convId
@@ -482,7 +485,21 @@ export default function App() {
           : c
       );
       const conv = updated.find(c => c.id === convId);
-      if (conv) upsertData('conversations', convId, conv);
+      if (conv) {
+        Promise.resolve(upsertData('conversations', convId, conv)).then(() => {
+          // le message est bien arrivé sur le serveur → 2 coches (grises tant que non lu)
+          setConversations(cur => {
+            const next = cur.map(c =>
+              c.id === convId
+                ? { ...c, messages: (c.messages || []).map(m => (m.id === msgId ? { ...m, delivered: true } : m)) }
+                : c
+            );
+            const updatedConv = next.find(c => c.id === convId);
+            if (updatedConv) upsertData('conversations', convId, updatedConv);
+            return next;
+          });
+        });
+      }
       return updated;
     });
   };
@@ -532,6 +549,19 @@ export default function App() {
 
   const showSplash = isLoading || !minSplashDone;
 
+  const totalUnread = myConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+
+  const openMyProfile = () => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    setProfileModalTarget({
+      authorId: currentUser.id,
+      authorName: currentUser.name,
+      authorAvatar: currentUser.avatar || '',
+      authorRole: currentUser.roleLabel || 'Membre',
+      authorBadge: currentUser.badge || 'Membre Vérifié',
+    });
+  };
+
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900">
@@ -562,6 +592,13 @@ export default function App() {
         setSearchQuery={setSearchQuery}
         products={products}
         members={allAvailableUsers}
+        unreadCount={totalUnread}
+        isMessagingOpen={isMessagingOpen}
+        onToggleMessaging={() => {
+          if (!currentUser) { setIsAuthModalOpen(true); return; }
+          setIsMessagingOpen(o => !o);
+        }}
+        onOpenMyProfile={openMyProfile}
       />
 
 
@@ -736,15 +773,19 @@ export default function App() {
           authorBadge={profileModalTarget.authorBadge}
           allPosts={socialPosts}
           allProducts={products}
+          allUsers={allAvailableUsers}
           currentUser={currentUser}
           onToggleFollow={handleToggleFollow}
           onStartConversation={startOrOpenConversation}
+          onOpenProfile={setProfileModalTarget}
           onRequireAuth={() => setIsAuthModalOpen(true)}
         />
       )}
 
-      {/* Floating Messaging Panel */}
+      {/* Messagerie (ancrée en haut à droite, comme Facebook) */}
       <MessagingPanel
+        isOpen={isMessagingOpen}
+        onClose={() => setIsMessagingOpen(false)}
         currentUser={currentUser}
         conversations={myConversations}
         onSendMessage={handleSendMessage}

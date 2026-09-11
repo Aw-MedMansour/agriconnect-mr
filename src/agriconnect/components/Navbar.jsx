@@ -11,16 +11,19 @@ import {
   Bell,
   CheckCircle2,
   User,
+  UserCircle,
   LogOut,
   ChevronDown,
+  MessageSquare,
   Droplets,
   Landmark,
   Map,
   HardHat
 } from 'lucide-react';
 import agriLogo from '../assets/agriconnect-logo.png';
+import Avatar from './Avatar';
 
-export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [] }) {
+export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [], unreadCount = 0, isMessagingOpen = false, onToggleMessaging = () => {}, onOpenMyProfile = () => {} }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const totalTonnes = Math.round(
@@ -86,10 +89,12 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-md px-1.5 py-0.5 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer sm:gap-2 sm:px-2.5 sm:py-1"
                 >
-                  <img 
-                    src={currentUser.avatar} 
-                    alt={currentUser.name} 
-                    className="w-5 h-5 rounded-full object-cover border border-[#0a66c2]"
+                  <Avatar
+                    src={currentUser.avatar}
+                    name={currentUser.name}
+                    seed={currentUser.id || currentUser.name}
+                    className="w-5 h-5"
+                    textClassName="text-[8px]"
                   />
                   <span className="hidden max-w-24 truncate text-xs font-bold text-slate-900 sm:inline">{currentUser.name}</span>
                   <span className="hidden text-[10px] bg-blue-100 text-[#0a66c2] font-bold px-1.5 py-0.5 rounded md:inline">
@@ -104,6 +109,16 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
                       <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
                       <div className="text-[11px] text-slate-500 truncate">{currentUser.email}</div>
                     </div>
+                    <button
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                        onOpenMyProfile();
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 font-bold hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                    >
+                      <UserCircle className="w-4 h-4 text-[#0a66c2]" />
+                      <span>Mon profil & mes publications</span>
+                    </button>
                     <button
                       onClick={() => {
                         setShowProfileMenu(false);
@@ -177,6 +192,22 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
           >
             <PlusCircle className="w-4 h-4" />
             <span className="hidden sm:inline">Commencer un post / Annonce</span>
+          </button>
+
+          {/* Bulle messagerie (style Facebook, en haut à droite) */}
+          <button
+            onClick={onToggleMessaging}
+            aria-label="Ouvrir la messagerie"
+            className={`relative p-2 rounded-full transition-colors cursor-pointer ${
+              isMessagingOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <MessageSquare className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </button>
 
           <div className="relative cursor-pointer p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">

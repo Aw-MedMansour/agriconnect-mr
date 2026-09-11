@@ -4,6 +4,7 @@ import { ACTOR_CATEGORIES } from '../data/mockData';
 import { saveUser, findUserById } from '../utils/dbSync';
 import { supabase } from '../utils/supabaseClient';
 import agriLogo from '../assets/agriconnect-logo.png';
+import Avatar from './Avatar';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
   const [mode, setMode] = useState('signup');
@@ -66,7 +67,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           roleLabel: ACTOR_CATEGORIES.find(c => c.id === role)?.label || 'Membre Professionnel',
           company: company || 'Exploitation Agricole',
           location,
-          avatar: profilePic || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          avatar: profilePic || '',
           verified: true,
           badge: 'Membre Vérifié',
         };
@@ -92,7 +93,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           roleLabel: 'Membre',
           company: '',
           location: '',
-          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80',
+          avatar: '',
           verified: true,
           badge: 'Membre Vérifié',
         }, false);
@@ -160,10 +161,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
               {/* Profile Photo */}
               <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                 <div className="relative">
-                  <img
-                    src={profilePic || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'}
-                    alt="Aperçu Profil"
-                    className="w-14 h-14 rounded-full object-cover border-2 border-[#0a66c2]"
+                  <Avatar
+                    src={profilePic}
+                    name={fullName || 'Nouveau membre'}
+                    seed={email || fullName || 'nouveau'}
+                    className="w-14 h-14 border-2 border-[#0a66c2]"
+                    textClassName="text-base"
                   />
                   <label className="absolute bottom-0 right-0 bg-[#0a66c2] text-white p-1 rounded-full cursor-pointer shadow-xs">
                     <Camera className="w-3.5 h-3.5" />

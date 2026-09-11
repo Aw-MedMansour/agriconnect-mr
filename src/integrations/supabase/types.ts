@@ -32,6 +32,24 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           created_at: string

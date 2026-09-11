@@ -23,7 +23,7 @@ import {
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
 
-export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [], unreadCount = 0, isMessagingOpen = false, onToggleMessaging = () => {}, onOpenMyProfile = () => {} }) {
+export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [], unreadCount = 0, isMessagingOpen = false, onToggleMessaging = () => {}, notificationCount = 0, isNotificationsOpen = false, onToggleNotifications = () => {}, onOpenMyProfile = () => {} }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const totalTonnes = Math.round(
@@ -210,10 +210,19 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
             )}
           </button>
 
-          <div className="relative cursor-pointer p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors">
+          <button
+            onClick={onToggleNotifications}
+            aria-label="Ouvrir les notifications"
+            aria-expanded={isNotificationsOpen}
+            className={`relative cursor-pointer rounded-full p-2 transition-colors ${isNotificationsOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#0a66c2]"></span>
-          </div>
+            {notificationCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white">
+                {notificationCount > 9 ? '9+' : notificationCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 

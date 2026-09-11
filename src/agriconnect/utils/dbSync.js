@@ -65,6 +65,12 @@ export async function fetchNotifications(userId) {
   return data?.map(r => ({ ...r.data, id: r.id })).filter(Boolean) || [];
 }
 
+export async function updateNotification(id, data) {
+  const { error } = await supabase.from('notifications').update({ data }).eq('id', String(id));
+  if (error) console.error('[DB] update notification:', error.message);
+  return !error;
+}
+
 // ── User profile helpers (passwords are handled by the auth system, never stored here)
 export async function saveUser(user) {
   await upsertData('users', user.id, user);

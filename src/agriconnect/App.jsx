@@ -9,6 +9,7 @@ import CreateModal from './components/CreateModal';
 import ContactModal from './components/ContactModal';
 import AuthModal from './components/AuthModal';
 import MessagingPanel from './components/MessagingPanel';
+import NotificationPanel from './components/NotificationPanel';
 import UserProfileModal from './components/UserProfileModal';
 import ComingSoonModule from './components/ComingSoonModule';
 import PlantAnalysis from './components/PlantAnalysis';
@@ -17,7 +18,7 @@ import SplashScreen from './components/SplashScreen';
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
 
-import { fetchAllData, fetchConversations, fetchUsers, upsertData, deleteData } from './utils/dbSync';
+import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, upsertData, deleteData } from './utils/dbSync';
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
   const [services, setServices] = useState([]);
   const [socialPosts, setSocialPosts] = useState([]);
   const [conversations, setConversations] = useState([]);
+  const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [minSplashDone, setMinSplashDone] = useState(false);
 
@@ -64,6 +66,7 @@ export default function App() {
   const [contactTarget, setContactTarget] = useState(null);
   const [profileModalTarget, setProfileModalTarget] = useState(null);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   // Toast
   const [toastMessage, setToastMessage] = useState(null);
@@ -115,6 +118,22 @@ export default function App() {
     return () => { cancelled = true; clearInterval(t); };
   }, [currentUser]);
 
+  useEffect(() => {
+    if (!currentUser) {
+      setNotifications([]);
+      setIsNotificationsOpen(false);
+      return;
+    }
+    let cancelled = false;
+    const syncNotifications = async () => {
+      const fresh = await fetchNotifications(currentUser.id);
+      if (!cancelled && fresh) setNotifications(fresh);
+    };
+    syncNotifications();
+    const timer = setInterval(syncNotifications, 4000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [currentUser]);
+
 
   // ── Persist currentUser locally ────────────────────────────────
   useEffect(() => { 
@@ -142,6 +161,24 @@ export default function App() {
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 5000);
+  };
+
+  const sendNotification = (recipientId, type, text, target = {}) => {
+    if (!currentUser || !recipientId || String(recipientId) === String(currentUser.id)) return;
+    const ts = Date.now();
+    const notification = {
+      id: `notification-${ts}-${Math.random().toString(36).slice(2, 8)}`,
+      recipientId: String(recipientId),
+      actorId: String(currentUser.id),
+      actorName: currentUser.name || 'Un membre',
+      actorAvatar: currentUser.avatar || '',
+      type,
+      text,
+      target,
+      read: false,
+      ts,
+    };
+    upsertData('notifications', notification.id, notification);
   };
 
   const openCreateModal = (defaultTab = 'product', defaultCategory = null) => {
@@ -273,11 +310,13 @@ export default function App() {
       if (original) upsertData('posts', original.id, original);
       return updated;
     });
+    sendNotification(post.authorId, 'repost', 'a republié votre publication.', { module: 'social', postId: post.id });
     showToast('✅ Publication repartagée !');
   };
 
   const handleToggleFollow = (authorId) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const isAlreadyFollowing = currentUser.following?.includes(authorId);
     setCurrentUser(prev => {
       const following = prev.following || [];
       const isFollowing = following.includes(authorId);
@@ -288,10 +327,13 @@ export default function App() {
       upsertData('users', updatedUser.id, updatedUser);
       return updatedUser;
     });
+    if (!isAlreadyFollowing) sendNotification(authorId, 'follow', 's’est abonné à votre profil.', { profileId: currentUser.id });
     showToast(currentUser.following?.includes(authorId) ? 'Vous ne suivez plus cet agriculteur.' : '✅ Vous suivez maintenant cet agriculteur !');
   };
 
   const handleAddComment = (postId, text, replyToId = null) => {
+    const sourcePost = socialPosts.find(p => p.id === postId);
+    const sourceComment = replyToId ? sourcePost?.comments?.find(c => c.id === replyToId) : null;
     setSocialPosts(prev => {
       const updated = prev.map(p => {
         if (p.id !== postId) return p;
@@ -319,10 +361,15 @@ export default function App() {
       if (post) upsertData('posts', postId, post);
       return updated;
     });
+    const recipientId = sourceComment?.userId || sourcePost?.authorId;
+    sendNotification(recipientId, replyToId ? 'comment_reply' : 'post_comment', replyToId ? 'a répondu à votre commentaire.' : 'a commenté votre publication.', { module: 'social', postId });
   };
 
   const handleAddCommentReaction = (postId, commentId, emoji) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const sourceComment = socialPosts.find(p => p.id === postId)?.comments?.find(c => c.id === commentId);
+    const existingReaction = sourceComment?.reactions?.[emoji] || [];
+    const isRemoving = existingReaction.includes(currentUser.id);
     setSocialPosts(prev => {
       const updated = prev.map(p => {
         if (p.id !== postId) return p;
@@ -346,6 +393,7 @@ export default function App() {
       if (post) upsertData('posts', postId, post);
       return updated;
     });
+    if (!isRemoving) sendNotification(sourceComment?.userId, 'comment_reaction', `a réagi ${emoji} à votre commentaire.`, { module: 'social', postId });
   };
 
 
@@ -356,6 +404,8 @@ export default function App() {
 
   const handleToggleLikePost = (postId) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const sourcePost = socialPosts.find(p => p.id === postId);
+    const isRemoving = sourcePost?.likedBy?.includes(currentUser.id);
     setSocialPosts(prev => {
       const updated = prev.map(p => {
         if (p.id !== postId) return p;
@@ -367,10 +417,13 @@ export default function App() {
       if (post) upsertData('posts', postId, post);
       return updated;
     });
+    if (!isRemoving) sendNotification(sourcePost?.authorId, 'post_like', 'a aimé votre publication.', { module: 'social', postId });
   };
 
   const handleToggleLikeProduct = (productId) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const sourceProduct = products.find(p => p.id === productId);
+    const isRemoving = sourceProduct?.likedBy?.includes(currentUser.id);
     setProducts(prev => {
       const updated = prev.map(p => {
         if (p.id !== productId) return p;
@@ -382,6 +435,7 @@ export default function App() {
       if (prod) upsertData('products', productId, prod);
       return updated;
     });
+    if (!isRemoving) sendNotification(sourceProduct?.sellerId, 'product_like', 'a aimé votre annonce.', { module: 'products', productId });
   };
 
   const handleAddProductComment = (productId, text) => {
@@ -391,13 +445,15 @@ export default function App() {
         if (p.id !== productId) return p;
         return {
           ...p,
-          comments: [...(p.comments || []), { id: `pc-${Date.now()}`, user: currentUser.name, avatar: currentUser.avatar, text }]
+          comments: [...(p.comments || []), { id: `pc-${Date.now()}`, userId: currentUser.id, user: currentUser.name, avatar: currentUser.avatar, text }]
         };
       });
       const prod = updated.find(p => p.id === productId);
       if (prod) upsertData('products', productId, prod);
       return updated;
     });
+    const product = products.find(p => p.id === productId);
+    sendNotification(product?.sellerId, 'product_comment', 'a commenté votre annonce.', { module: 'products', productId });
     showToast('✅ Commentaire ajouté au produit !');
   };
 
@@ -478,6 +534,8 @@ export default function App() {
     const msgId = `msg-${ts}-${Math.random().toString(36).slice(2, 7)}`;
     // delivered = false tant que le message n'est pas enregistré côté serveur (1 coche)
     const newMsg = { id: msgId, senderId: String(currentUser.id), text, ts, delivered: false };
+    const sourceConversation = conversations.find(c => c.id === convId);
+    const recipientId = sourceConversation?.participantIds?.map(String).find(id => id !== String(currentUser.id));
     setConversations(prev => {
       const updated = prev.map(c =>
         c.id === convId
@@ -502,6 +560,7 @@ export default function App() {
       }
       return updated;
     });
+    sendNotification(recipientId, 'message', 'vous a envoyé un nouveau message.', { conversationId: convId });
   };
 
   const handleMarkRead = (convId) => {
@@ -520,6 +579,40 @@ export default function App() {
     setConversations(prev => prev.filter(c => c.id !== convId));
     deleteData('conversations', convId);
     showToast('🗑️ Conversation supprimée.');
+  };
+
+  const markNotificationRead = (notification) => {
+    if (!notification || notification.read) return;
+    const updated = { ...notification, read: true };
+    setNotifications(prev => prev.map(item => item.id === notification.id ? updated : item));
+    updateNotification(notification.id, updated);
+  };
+
+  const handleOpenNotification = (notification) => {
+    markNotificationRead(notification);
+    setIsNotificationsOpen(false);
+    if (notification.type === 'message') {
+      setIsMessagingOpen(true);
+      return;
+    }
+    if (notification.target?.profileId) {
+      const actor = allAvailableUsers.find(user => String(user.id) === String(notification.actorId));
+      if (actor) setProfileModalTarget({ authorId: actor.id, authorName: actor.name, authorAvatar: actor.avatar || '', authorRole: actor.roleLabel || 'Membre' });
+      return;
+    }
+    if (notification.target?.module) setActiveModule(notification.target.module);
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    const unread = notifications.filter(item => !item.read);
+    const updated = notifications.map(item => ({ ...item, read: true }));
+    setNotifications(updated);
+    unread.forEach(item => updateNotification(item.id, { ...item, read: true }));
+  };
+
+  const handleDeleteNotification = (id) => {
+    setNotifications(prev => prev.filter(item => item.id !== id));
+    deleteData('notifications', id);
   };
 
   // ── Repost product as social post ──────────────────────────────────────────────
@@ -550,6 +643,7 @@ export default function App() {
   const showSplash = isLoading || !minSplashDone;
 
   const totalUnread = myConversations.reduce((sum, c) => sum + (c.unread || 0), 0);
+  const unreadNotifications = notifications.filter(item => !item.read).length;
 
   const openMyProfile = () => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
@@ -596,7 +690,15 @@ export default function App() {
         isMessagingOpen={isMessagingOpen}
         onToggleMessaging={() => {
           if (!currentUser) { setIsAuthModalOpen(true); return; }
+          setIsNotificationsOpen(false);
           setIsMessagingOpen(o => !o);
+        }}
+        notificationCount={unreadNotifications}
+        isNotificationsOpen={isNotificationsOpen}
+        onToggleNotifications={() => {
+          if (!currentUser) { setIsAuthModalOpen(true); return; }
+          setIsMessagingOpen(false);
+          setIsNotificationsOpen(open => !open);
         }}
         onOpenMyProfile={openMyProfile}
       />
@@ -793,6 +895,15 @@ export default function App() {
         onDeleteConv={handleDeleteConv}
         allUsers={allAvailableUsers}
         onStartConversation={startOrOpenConversation}
+      />
+
+      <NotificationPanel
+        isOpen={isNotificationsOpen}
+        notifications={notifications}
+        onClose={() => setIsNotificationsOpen(false)}
+        onOpenNotification={handleOpenNotification}
+        onMarkAllRead={handleMarkAllNotificationsRead}
+        onDelete={handleDeleteNotification}
       />
 
       {/* Footer */}

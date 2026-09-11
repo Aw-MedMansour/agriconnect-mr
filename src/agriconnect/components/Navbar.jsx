@@ -20,8 +20,22 @@ import {
 } from 'lucide-react';
 import agriLogo from '../assets/agriconnect-logo.png';
 
-export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery }) {
+export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [] }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const totalTonnes = Math.round(
+    products.reduce((sum, p) => {
+      const label = String(p?.quantity ?? '');
+      const amount = Number(p?.quantityAvailable) || 0;
+      if (!/tonne/i.test(label) || !amount) return sum;
+      return sum + amount / 1000;
+    }, 0)
+  );
+
+  const transporterCount = members.filter((u) =>
+    String(u?.role ?? '').startsWith('transporteur')
+  ).length;
+
 
   const modules = [
     { id: 'products', label: 'Marketplace Produits', icon: Store },

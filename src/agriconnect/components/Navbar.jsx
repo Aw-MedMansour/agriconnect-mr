@@ -20,8 +20,22 @@ import {
 } from 'lucide-react';
 import agriLogo from '../assets/agriconnect-logo.png';
 
-export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery }) {
+export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [] }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const totalTonnes = Math.round(
+    products.reduce((sum, p) => {
+      const label = String(p?.quantity ?? '');
+      const amount = Number(p?.quantityAvailable) || 0;
+      if (!/tonne/i.test(label) || !amount) return sum;
+      return sum + amount / 1000;
+    }, 0)
+  );
+
+  const transporterCount = members.filter((u) =>
+    String(u?.role ?? '').startsWith('transporteur')
+  ).length;
+
 
   const modules = [
     { id: 'products', label: 'Marketplace Produits', icon: Store },
@@ -49,13 +63,20 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
               </span>
               <span className="truncate">AgriConnect Réseau Pro</span>
             </span>
-            <span className="hidden md:inline text-slate-300">|</span>
-            <span className="hidden md:inline text-slate-700">
-              <strong className="text-[#0a66c2]">142 Tonnes</strong> de récoltes en ligne
-            </span>
-            <span className="hidden lg:inline text-slate-700">
-              <strong className="text-emerald-700">38 Transporteurs</strong> actifs
-            </span>
+            {totalTonnes > 0 && (
+              <>
+                <span className="hidden md:inline text-slate-300">|</span>
+                <span className="hidden md:inline text-slate-700">
+                  <strong className="text-[#0a66c2]">{totalTonnes} Tonnes</strong> de récoltes en ligne
+                </span>
+              </>
+            )}
+            {transporterCount > 0 && (
+              <span className="hidden lg:inline text-slate-700">
+                <strong className="text-emerald-700">{transporterCount} Transporteur{transporterCount > 1 ? 's' : ''}</strong> actif{transporterCount > 1 ? 's' : ''}
+              </span>
+            )}
+
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3 sm:ml-auto">

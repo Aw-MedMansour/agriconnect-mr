@@ -560,7 +560,10 @@ export default function App() {
         onLogout={handleLogout}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        products={products}
+        members={allAvailableUsers}
       />
+
 
 
       {/* ── Titre principal (SEO) ── */}

@@ -7,13 +7,13 @@ export const Route = createFileRoute("/mentions-legales")({
       {
         name: "description",
         content:
-          "Mentions légales d'AgriConnect : éditeur du site, hébergement, propriété intellectuelle, données personnelles, cookies et droit applicable.",
+          "Mentions légales d'AgriConnect : éditeur Agrosky, développement en partenariat avec 3A55, hébergement, propriété intellectuelle, données personnelles, cookies et droit applicable.",
       },
       { property: "og:title", content: "Mentions légales — AgriConnect" },
       {
         property: "og:description",
         content:
-          "Éditeur, hébergement, propriété intellectuelle, données personnelles et droit applicable de la plateforme AgriConnect.",
+          "Éditeur, développement, hébergement, propriété intellectuelle, données personnelles et droit applicable de la plateforme AgriConnect.",
       },
       { property: "og:type", content: "article" },
       { property: "og:url", content: "https://agriconnect-mr.com/mentions-legales" },
@@ -29,43 +29,51 @@ export const Route = createFileRoute("/mentions-legales")({
 const sections = [
   {
     title: "1. Éditeur du site",
-    body: "Le site AgriConnect est édité et développé par 3A55. Toute demande relative au site peut être adressée via la messagerie de la plateforme ou le site de l'éditeur : 3A55.Fulania.com.",
+    body: "Le site AgriConnect est édité par Agrosky, société dont le siège social est situé à Nouakchott, Mauritanie. Contact : agrosky00@gmail.com, +222 38 31 04 76 ou +222 32 25 67 18.",
   },
   {
-    title: "2. Directeur de la publication",
-    body: "La direction de la publication est assurée par le représentant légal de 3A55.",
+    title: "2. Direction de la publication",
+    body: "La direction de la publication est assurée par le représentant légal d'Agrosky.",
   },
   {
-    title: "3. Hébergement",
+    title: "3. Développement",
+    body: "La plateforme AgriConnect est développée en partenariat entre 3A55 et Agrosky. Site partenaire : 3A55.Fulania.com.",
+  },
+  {
+    title: "4. Hébergement",
     body: "Le site est hébergé sur une infrastructure cloud sécurisée, accessible via le domaine officiel agriconnect-mr.com. Les données applicatives sont stockées sur une base gérée avec chiffrement en transit et contrôle d'accès par utilisateur.",
   },
   {
-    title: "4. Propriété intellectuelle",
+    title: "5. Propriété intellectuelle",
     body: "La structure du site, son interface, son logo, sa charte graphique et ses contenus originaux sont protégés. Toute reproduction, représentation ou adaptation, totale ou partielle, sans autorisation écrite est interdite. Les contenus publiés par les membres restent leur propriété.",
   },
   {
-    title: "5. Données personnelles",
-    body: "AgriConnect collecte uniquement les données nécessaires au fonctionnement du service : identité professionnelle, adresse e-mail, contenus publiés et images téléversées. Les coordonnées privées ne sont pas rendues publiques. Chaque membre dispose d'un droit d'accès, de rectification et de suppression de ses données, exerçable via la messagerie de la plateforme.",
+    title: "6. Données personnelles",
+    body: "AgriConnect collecte uniquement les données nécessaires au fonctionnement du service : identité professionnelle, adresse e-mail, contenus publiés et images téléversées. Les coordonnées privées ne sont pas rendues publiques. Chaque membre dispose d'un droit d'accès, de rectification et de suppression de ses données, exerçable via la messagerie de la plateforme ou auprès d'Agrosky à agrosky00@gmail.com.",
   },
   {
-    title: "6. Cookies et stockage local",
+    title: "7. Cookies et stockage local",
     body: "Le site utilise le stockage local du navigateur pour maintenir la session de connexion et améliorer l'expérience d'utilisation. Aucun cookie publicitaire ou de traçage tiers n'est déposé.",
   },
   {
-    title: "7. Sécurité",
+    title: "8. Sécurité",
     body: "L'accès aux données est protégé par une authentification par compte et des règles de sécurité au niveau de la base : chaque membre n'accède qu'à ses propres données et aux contenus publics. Les fichiers téléversés sont stockés dans un espace privé accessible uniquement à leur propriétaire.",
   },
   {
-    title: "8. Responsabilité",
+    title: "9. Responsabilité",
     body: "AgriConnect met en relation des professionnels mais n'est pas partie aux transactions conclues entre membres. L'éditeur ne peut être tenu responsable des contenus publiés par les utilisateurs ni des interruptions temporaires du service.",
   },
   {
-    title: "9. Liens externes",
+    title: "10. Liens externes",
     body: "Le site peut contenir des liens vers des sites tiers. L'éditeur n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.",
   },
   {
-    title: "10. Droit applicable",
-    body: "Les présentes mentions légales sont régies par le droit applicable au lieu d'établissement de l'éditeur. Tout litige fera l'objet d'une recherche de solution amiable avant toute action judiciaire.",
+    title: "11. Droit applicable",
+    body: "Les présentes mentions légales sont régies par le droit applicable en Mauritanie. Tout litige fera l'objet d'une recherche de solution amiable avant toute action judiciaire.",
+  },
+  {
+    title: "12. Contact",
+    body: "Pour toute question relative aux mentions légales, contactez Agrosky : agrosky00@gmail.com, +222 38 31 04 76 ou +222 32 25 67 18.",
   },
 ];
 
@@ -111,6 +119,12 @@ function LegalPage() {
             Conditions d'utilisation
           </Link>
           <Link
+            to="/politique-d-utilisation"
+            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2 text-xs font-bold text-slate-700 hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors"
+          >
+            Politique d'utilisation
+          </Link>
+          <Link
             to="/"
             className="inline-flex items-center rounded-full bg-[#0a66c2] px-5 py-2 text-xs font-bold text-white hover:bg-[#004182] transition-colors"
           >
@@ -119,7 +133,7 @@ function LegalPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Développé par{" "}
+          Développé en partenariat par{" "}
           <a
             href="https://3A55.Fulania.com"
             target="_blank"
@@ -127,7 +141,8 @@ function LegalPage() {
             className="font-bold text-[#0a66c2] hover:underline"
           >
             3A55
-          </a>
+          </a>{" "}
+          & Agrosky
         </p>
       </main>
     </div>

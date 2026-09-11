@@ -70,6 +70,12 @@ export const Route = createFileRoute("/")({
               name: "Mentions légales",
               item: "https://agriconnect-mr.com/mentions-legales",
             },
+            {
+              "@type": "ListItem",
+              position: 4,
+              name: "Politique d'utilisation",
+              item: "https://agriconnect-mr.com/politique-d-utilisation",
+            },
           ],
         }),
       },

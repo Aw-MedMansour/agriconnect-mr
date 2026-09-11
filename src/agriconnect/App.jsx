@@ -771,11 +771,14 @@ export default function App() {
             <a href="/mentions-legales" className="font-bold text-[#0a66c2] hover:underline">
               Mentions légales
             </a>
+            <a href="/politique-d-utilisation" className="font-bold text-[#0a66c2] hover:underline">
+              Politique d'utilisation
+            </a>
           </div>
           <div className="flex flex-col items-center gap-1 text-slate-400 md:items-end">
             <span>© 2026 AgriConnect. Tous droits réservés.</span>
             <span>
-              Développé par{' '}
+              Développé en partenariat par{' '}
               <a
                 href="https://3A55.Fulania.com"
                 target="_blank"
@@ -783,7 +786,8 @@ export default function App() {
                 className="font-bold text-[#0a66c2] hover:underline"
               >
                 3A55
-              </a>
+              </a>{' '}
+              & Agrosky
             </span>
           </div>
 

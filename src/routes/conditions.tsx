@@ -27,7 +27,7 @@ export const Route = createFileRoute("/conditions")({
 const sections = [
   {
     title: "1. Objet",
-    body: "AgriConnect est une plateforme professionnelle qui met en relation agriculteurs, acheteurs, transporteurs, prestataires de services et autres acteurs du secteur agricole. L'utilisation du site implique l'acceptation pleine et entière des présentes conditions.",
+    body: "AgriConnect est une plateforme professionnelle éditée par Agrosky et développée en partenariat avec 3A55. Elle met en relation agriculteurs, acheteurs, transporteurs, prestataires de services et autres acteurs du secteur agricole. L'utilisation du site implique l'acceptation pleine et entière des présentes conditions.",
   },
   {
     title: "2. Création de compte",
@@ -51,11 +51,11 @@ const sections = [
   },
   {
     title: "7. Données personnelles",
-    body: "Les données collectées (identité, coordonnées, contenus publiés, images téléversées) servent au fonctionnement du service. Les coordonnées privées ne sont pas rendues publiques dans les annonces. Chaque membre peut demander la consultation, la rectification ou la suppression de ses données.",
+    body: "Les données collectées (identité, coordonnées, contenus publiés, images téléversées) servent au fonctionnement du service. Les coordonnées privées ne sont pas rendues publiques dans les annonces. Chaque membre peut demander la consultation, la rectification ou la suppression de ses données auprès d'Agrosky : agrosky00@gmail.com.",
   },
   {
     title: "8. Propriété intellectuelle",
-    body: "Les membres conservent leurs droits sur les contenus publiés et accordent à AgriConnect une licence gratuite et non exclusive pour les afficher sur la plateforme. La marque, le logo et les éléments du site restent la propriété d'AgriConnect.",
+    body: "Les membres conservent leurs droits sur les contenus publiés et accordent à AgriConnect une licence gratuite et non exclusive pour les afficher sur la plateforme. La marque, le logo et les éléments du site restent la propriété d'Agrosky et de ses partenaires.",
   },
   {
     title: "9. Responsabilité",
@@ -71,7 +71,7 @@ const sections = [
   },
   {
     title: "12. Contact",
-    body: "Pour toute question relative aux présentes conditions, contactez l'équipe AgriConnect via la messagerie de la plateforme.",
+    body: "Pour toute question relative aux présentes conditions, contactez Agrosky : agrosky00@gmail.com, +222 38 31 04 76 ou +222 32 25 67 18.",
   },
 ];
 
@@ -109,7 +109,19 @@ function ConditionsPage() {
           ))}
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 flex flex-wrap items-center gap-3">
+          <Link
+            to="/mentions-legales"
+            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2 text-xs font-bold text-slate-700 hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors"
+          >
+            Mentions légales
+          </Link>
+          <Link
+            to="/politique-d-utilisation"
+            className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2 text-xs font-bold text-slate-700 hover:border-[#0a66c2] hover:text-[#0a66c2] transition-colors"
+          >
+            Politique d'utilisation
+          </Link>
           <Link
             to="/"
             className="inline-flex items-center rounded-full bg-[#0a66c2] px-5 py-2 text-xs font-bold text-white hover:bg-[#004182] transition-colors"
@@ -117,6 +129,19 @@ function ConditionsPage() {
             Retour à AgriConnect
           </Link>
         </div>
+
+        <p className="mt-8 text-[11px] text-slate-400">
+          Développé en partenariat par{" "}
+          <a
+            href="https://3A55.Fulania.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-[#0a66c2] hover:underline"
+          >
+            3A55
+          </a>{" "}
+          & Agrosky
+        </p>
       </main>
     </div>
   );

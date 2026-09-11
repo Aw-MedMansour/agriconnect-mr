@@ -1,0 +1,11 @@
+# AgriConnect
+
+> Réseau professionnel agricole : marketplace de produits et de services, annuaire des acteurs, messagerie entre membres et analyse des plantes par intelligence artificielle.
+
+AgriConnect met en relation agriculteurs, acheteurs, transporteurs et prestataires de services agricoles. Les membres publient leurs récoltes et leurs offres de services, échangent par messagerie, consultent l'annuaire des professionnels et analysent une photo de plante pour détecter maladies, parasites, carences et état général.
+
+## Pages
+
+- [Accueil](https://agriconnect-mr.com/): Marketplace agricole, annuaire des professionnels, fil d'actualité, messagerie et analyse des plantes par IA.
+- [Conditions d'utilisation](https://agriconnect-mr.com/conditions): Règles d'inscription, de publication d'annonces, de messagerie et d'usage de l'analyse IA.
+- [Mentions légales](https://agriconnect-mr.com/mentions-legales): Éditeur, hébergement, propriété intellectuelle, données personnelles et droit applicable.

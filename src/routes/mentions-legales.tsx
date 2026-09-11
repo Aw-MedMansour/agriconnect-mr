@@ -37,7 +37,7 @@ const sections = [
   },
   {
     title: "3. Hébergement",
-    body: "Le site est hébergé sur une infrastructure cloud sécurisée, accessible via le domaine agriconnect.fulania.com. Les données applicatives sont stockées sur une base gérée avec chiffrement en transit et contrôle d'accès par utilisateur.",
+    body: "Le site est hébergé sur une infrastructure cloud sécurisée, accessible via le domaine officiel agriconnect-mr.com. Les données applicatives sont stockées sur une base gérée avec chiffrement en transit et contrôle d'accès par utilisateur.",
   },
   {
     title: "4. Propriété intellectuelle",

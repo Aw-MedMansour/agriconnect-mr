@@ -127,6 +127,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      public_profile_fields: { Args: { d: Json }; Returns: Json }
       strip_contact_keys: { Args: { d: Json }; Returns: Json }
     }
     Enums: {

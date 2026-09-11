@@ -63,13 +63,20 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
               </span>
               <span className="truncate">AgriConnect Réseau Pro</span>
             </span>
-            <span className="hidden md:inline text-slate-300">|</span>
-            <span className="hidden md:inline text-slate-700">
-              <strong className="text-[#0a66c2]">142 Tonnes</strong> de récoltes en ligne
-            </span>
-            <span className="hidden lg:inline text-slate-700">
-              <strong className="text-emerald-700">38 Transporteurs</strong> actifs
-            </span>
+            {totalTonnes > 0 && (
+              <>
+                <span className="hidden md:inline text-slate-300">|</span>
+                <span className="hidden md:inline text-slate-700">
+                  <strong className="text-[#0a66c2]">{totalTonnes} Tonnes</strong> de récoltes en ligne
+                </span>
+              </>
+            )}
+            {transporterCount > 0 && (
+              <span className="hidden lg:inline text-slate-700">
+                <strong className="text-emerald-700">{transporterCount} Transporteur{transporterCount > 1 ? 's' : ''}</strong> actif{transporterCount > 1 ? 's' : ''}
+              </span>
+            )}
+
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3 sm:ml-auto">

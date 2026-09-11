@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
+import Avatar from './Avatar';
 
 export default function UserProfileModal({
   isOpen,
@@ -31,9 +32,11 @@ export default function UserProfileModal({
   authorBadge,
   allPosts,
   allProducts,
+  allUsers = [],
   currentUser,
   onToggleFollow,
   onStartConversation,
+  onOpenProfile,
   onRequireAuth
 }) {
   const [activeTab, setActiveTab] = useState('posts');
@@ -55,6 +58,62 @@ export default function UserProfileModal({
   );
 
   const totalLikes = userPosts.reduce((sum, p) => sum + (p.likedBy?.length || 0) + (p.likesCount || 0), 0);
+
+  // ── Relations (abonnés / abonnements) ──
+  const profileUser =
+    (isOwnProfile ? currentUser : null) ||
+    (allUsers || []).find(u => String(u?.id) === String(authorId)) ||
+    null;
+
+  const followingIds = (profileUser?.following || []).map(String);
+  const followingUsers = followingIds
+    .map(id => (allUsers || []).find(u => String(u?.id) === id) || { id, name: id })
+    .filter(Boolean);
+
+  const followerUsers = (allUsers || []).filter(u =>
+    (u?.following || []).map(String).includes(String(authorId))
+  );
+
+  const relationsCount = followerUsers.length + followingUsers.length;
+
+  const openOther = (u) => {
+    if (!onOpenProfile || !u?.id) return;
+    onOpenProfile({
+      authorId: u.id,
+      authorName: u.name || 'Membre',
+      authorAvatar: u.avatar || '',
+      authorRole: u.roleLabel || 'Membre du réseau',
+      authorBadge: u.badge || '',
+    });
+  };
+
+  function renderPersonList(list, emptyLabel) {
+    if (!list.length) {
+      return (
+        <div className="flex flex-col items-center py-8 text-center">
+          <Users className="w-8 h-8 text-slate-300 mb-2" />
+          <p className="text-xs font-semibold text-slate-500">{emptyLabel}</p>
+        </div>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {list.map(u => (
+          <button
+            key={u.id}
+            onClick={() => openOther(u)}
+            className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-left"
+          >
+            <Avatar src={u.avatar} name={u.name} seed={u.id} className="w-9 h-9" />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-slate-900 truncate">{u.name}</p>
+              <p className="text-[10px] text-slate-500 truncate">{u.roleLabel || 'Membre du réseau'}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   function renderGallery(media) {
     if (!media || media.length === 0) return null;
@@ -115,9 +174,13 @@ export default function UserProfileModal({
             </button>
 
             {/* Avatar */}
-            <div className="absolute left-5 -bottom-10 w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden">
-              <img src={authorAvatar} alt={authorName} className="w-full h-full object-cover" />
-            </div>
+            <Avatar
+              src={authorAvatar}
+              name={authorName}
+              seed={authorId || authorName}
+              className="absolute left-5 -bottom-10 w-20 h-20 border-4 border-white shadow-lg"
+              textClassName="text-xl"
+            />
           </div>
 
           {/* Profile info */}
@@ -149,6 +212,13 @@ export default function UserProfileModal({
                     <Store className="w-3.5 h-3.5 text-emerald-500" />
                     {userProducts.length} produit{userProducts.length !== 1 ? 's' : ''}
                   </span>
+                  <button
+                    onClick={() => setActiveTab('relations')}
+                    className="flex items-center gap-1 hover:text-[#0a66c2] transition-colors"
+                  >
+                    <Users className="w-3.5 h-3.5 text-violet-500" />
+                    {followerUsers.length} abonné{followerUsers.length !== 1 ? 's' : ''} · {followingUsers.length} abonnement{followingUsers.length !== 1 ? 's' : ''}
+                  </button>
                 </div>
               </div>
 
@@ -208,6 +278,7 @@ export default function UserProfileModal({
             {[
               { id: 'posts', label: `Publications (${userPosts.length})`, icon: Users },
               { id: 'products', label: `Produits (${userProducts.length})`, icon: Store },
+              { id: 'relations', label: `Relations (${relationsCount})`, icon: Users },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -308,6 +379,24 @@ export default function UserProfileModal({
                   </div>
                 )}
               </>
+            )}
+
+            {/* ── RELATIONS TAB ── */}
+            {activeTab === 'relations' && (
+              <div className="space-y-5">
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
+                    Abonnés ({followerUsers.length})
+                  </h4>
+                  {renderPersonList(followerUsers, 'Aucun abonné pour le moment.')}
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
+                    Abonnements ({followingUsers.length})
+                  </h4>
+                  {renderPersonList(followingUsers, 'Ne suit encore personne.')}
+                </div>
+              </div>
             )}
           </div>
         </div>

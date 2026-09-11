@@ -23,6 +23,7 @@ import {
 import { saveMedia } from '../utils/db';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
+import Avatar from './Avatar';
 
 export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
   const [newPostText, setNewPostText] = useState('');
@@ -243,10 +244,12 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
       <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs mb-6">
         <form onSubmit={handlePostSubmit}>
           <div className="flex items-center gap-3 mb-3">
-            <img 
-              src={currentUser?.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=250&q=80'} 
-              alt="Mon Profil"
-              className="w-11 h-11 rounded-full object-cover border border-[#0a66c2]"
+            <Avatar
+              src={currentUser?.avatar}
+              name={currentUser?.name || 'Mon Profil'}
+              seed={currentUser?.id || currentUser?.name}
+              className="w-11 h-11"
+              textClassName="text-sm"
             />
             <input
               type="text"
@@ -406,10 +409,12 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
 
               <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
-                  <img 
-                    src={post.repostOf ? post.repostOf.authorAvatar : post.authorAvatar} 
-                    alt={post.repostOf ? post.repostOf.authorName : post.authorName}
-                    className="w-11 h-11 rounded-full object-cover border-2 border-[#0a66c2] cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
+                  <Avatar
+                    src={post.repostOf ? post.repostOf.authorAvatar : post.authorAvatar}
+                    name={post.repostOf ? post.repostOf.authorName : post.authorName}
+                    seed={post.repostOf ? (post.repostOf.authorId || post.authorId) : post.authorId}
+                    textClassName="text-sm"
+                    className="w-11 h-11 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
                     onClick={() => onOpenProfile({
                       authorId: post.repostOf ? (post.repostOf.authorId || post.authorId) : post.authorId,
                       authorName: post.repostOf ? post.repostOf.authorName : post.authorName,
@@ -538,7 +543,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
               {post.repostOf && (
                 <div className="border border-slate-200 rounded-xl p-3 mb-4 bg-slate-50">
                   <div className="flex items-center gap-2 mb-2">
-                    <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover" />
+                    <Avatar src={post.authorAvatar} name={post.authorName} seed={post.authorId} className="w-6 h-6" textClassName="text-[8px]" />
                     <span className="text-xs font-bold text-slate-700">{post.authorName}</span>
                     <span className="text-[10px] text-slate-400">(publication originale)</span>
                   </div>
@@ -586,10 +591,12 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                   <div key={c.id}>
                     {/* Comment bubble */}
                     <div className="flex items-start gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                      <img 
-                        src={c.avatar} 
-                        alt={c.user} 
-                        className="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
+                      <Avatar
+                        src={c.avatar}
+                        name={c.user}
+                        seed={c.userId || c.user}
+                        textClassName="text-[9px]"
+                        className="w-7 h-7 mt-0.5 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
                         onClick={() => onOpenProfile({ authorId: c.userId || c.user, authorName: c.user, authorAvatar: c.avatar, authorRole: 'Membre Réseau' })}
                       />
                       <div className="flex-1 min-w-0">
@@ -683,10 +690,12 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                       <div className="ml-8 mt-1 space-y-1">
                         {c.replies.map(r => (
                           <div key={r.id} className="flex items-start gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
-                            <img 
-                              src={r.avatar} 
-                              alt={r.user} 
-                              className="w-5 h-5 rounded-full object-cover shrink-0 mt-0.5 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
+                            <Avatar
+                              src={r.avatar}
+                              name={r.user}
+                              seed={r.userId || r.user}
+                              textClassName="text-[7px]"
+                              className="w-5 h-5 mt-0.5 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
                               onClick={() => onOpenProfile({ authorId: r.userId || r.user, authorName: r.user, authorAvatar: r.avatar, authorRole: 'Membre Réseau' })}
                             />
                             <div>

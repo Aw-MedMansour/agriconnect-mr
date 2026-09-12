@@ -18,7 +18,7 @@ import SplashScreen from './components/SplashScreen';
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
 
-import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, upsertData, deleteData } from './utils/dbSync';
+import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, insertData, upsertData, deleteData } from './utils/dbSync';
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
@@ -178,7 +178,7 @@ export default function App() {
       read: false,
       ts,
     };
-    upsertData('notifications', notification.id, notification);
+    insertData('notifications', notification.id, notification);
   };
 
   const openCreateModal = (defaultTab = 'product', defaultCategory = null) => {

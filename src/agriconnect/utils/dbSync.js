@@ -7,6 +7,13 @@ export async function upsertData(table, id, data) {
   if (error) console.error(`[DB] upsert ${table}:`, error.message);
 }
 
+// Plain insert: used where update rights differ from insert rights (notifications).
+export async function insertData(table, id, data) {
+  const { error } = await supabase.from(table).insert({ id: String(id), data });
+  if (error) console.error(`[DB] insert ${table}:`, error.message);
+}
+
+
 export async function deleteData(table, id) {
   const { error } = await supabase.from(table).delete().eq('id', String(id));
   if (error) console.error(`[DB] delete ${table}:`, error.message);

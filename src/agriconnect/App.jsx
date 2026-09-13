@@ -26,9 +26,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Auth
-  const [currentUser, setCurrentUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('agriconnect_user')) || null; } catch { return null; }
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const userRestoredRef = useRef(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   // Data

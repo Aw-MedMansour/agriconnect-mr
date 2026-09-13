@@ -134,8 +134,18 @@ export default function App() {
   }, [currentUser]);
 
 
+  // ── Restore currentUser from localStorage (client-only, avoids SSR mismatch)
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('agriconnect_user'));
+      if (stored) setCurrentUser(stored);
+    } catch { /* ignore */ }
+    userRestoredRef.current = true;
+  }, []);
+
   // ── Persist currentUser locally ────────────────────────────────
-  useEffect(() => { 
+  useEffect(() => {
+    if (!userRestoredRef.current) return;
     if (currentUser) localStorage.setItem('agriconnect_user', JSON.stringify(currentUser));
     else localStorage.removeItem('agriconnect_user');
   }, [currentUser]);

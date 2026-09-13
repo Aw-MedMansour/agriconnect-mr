@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import MarketplaceProducts from './components/MarketplaceProducts';
 import MarketplaceServices from './components/MarketplaceServices';
@@ -26,9 +26,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Auth
-  const [currentUser, setCurrentUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('agriconnect_user')) || null; } catch { return null; }
-  });
+  const [currentUser, setCurrentUser] = useState(null);
+  const userRestoredRef = useRef(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   // Data
@@ -135,8 +134,18 @@ export default function App() {
   }, [currentUser]);
 
 
+  // ── Restore currentUser from localStorage (client-only, avoids SSR mismatch)
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('agriconnect_user'));
+      if (stored) setCurrentUser(stored);
+    } catch { /* ignore */ }
+    userRestoredRef.current = true;
+  }, []);
+
   // ── Persist currentUser locally ────────────────────────────────
-  useEffect(() => { 
+  useEffect(() => {
+    if (!userRestoredRef.current) return;
     if (currentUser) localStorage.setItem('agriconnect_user', JSON.stringify(currentUser));
     else localStorage.removeItem('agriconnect_user');
   }, [currentUser]);

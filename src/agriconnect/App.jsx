@@ -892,7 +892,7 @@ export default function App() {
         isOpen={!!contactTarget}
         onClose={() => setContactTarget(null)}
         targetData={contactTarget}
-        onSendMessage={(msg) => showToast(msg)}
+        onSendMessage={(text) => sendDirectMessage(contactTarget, text)}
       />
 
       {/* User Profile Modal */}

@@ -550,7 +550,7 @@ export default function App() {
     if (!body) return false;
     const convId = ensureConversation(participant);
     if (!convId) return false;
-    handleSendMessage(convId, body, { id: convId });
+    handleSendMessage(convId, body);
     const target = resolveParticipant(participant);
     showToast(`✅ Message envoyé à ${target?.name || 'ce membre'}.`);
     return true;

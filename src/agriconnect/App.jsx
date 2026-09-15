@@ -489,52 +489,71 @@ export default function App() {
   // { id, participantIds: [a, b], participants: { [id]: {id,name,avatar} }, messages: [], reads: { [id]: ts } }
   const convIdFor = (a, b) => `conv-${[String(a), String(b)].sort().join('__')}`;
 
-  const startOrOpenConversation = (participant) => {
-    if (!currentUser) { setIsAuthModalOpen(true); return; }
-
-    // Build resolved fields from various shapes of participant objects.
-    // IMPORTANT: for a listing (product/service/post) the owner id must win over
-    // the listing's own id, otherwise the message is sent to a non-existing account.
-    const participantId =
+  // Resolve the real account behind a listing (product / service / post) or a user card.
+  const resolveParticipant = (participant) => {
+    if (!participant) return null;
+    const id =
       participant.sellerId || participant.authorId || participant.providerId || participant.id;
-    const participantName =
+    const name =
       participant.sellerName || participant.authorName || participant.providerName ||
       participant.name || 'Inconnu';
-    const participantAvatar =
+    const avatar =
       participant.sellerAvatar || participant.authorAvatar || participant.providerAvatar ||
       participant.avatar || '';
+    if (!id) return null;
+    return { id: String(id), name, avatar };
+  };
 
-    if (!participantId) {
+  // Creates the conversation if needed and returns its id (null when impossible).
+  const ensureConversation = (participant) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return null; }
+    const target = resolveParticipant(participant);
+    if (!target) {
       showToast("⚠️ Impossible d'identifier le destinataire de ce message.");
-      return;
+      return null;
     }
-
-    // ❌ Block sending a message to yourself
-    if (String(participantId) === String(currentUser.id) || participantName === currentUser.name) {
+    if (target.id === String(currentUser.id)) {
       showToast('⚠️ Vous ne pouvez pas vous envoyer un message à vous-même.');
-      return;
+      return null;
     }
 
-    const id = convIdFor(currentUser.id, participantId);
-    if (conversations.some(c => c.id === id)) {
-      showToast(`💬 Conversation avec ${participantName} déjà ouverte dans votre messagerie.`);
-      return;
-    }
+    const id = convIdFor(currentUser.id, target.id);
+    const existing = conversations.find(c => c.id === id);
+    if (existing) return id;
 
     const newConv = {
       id,
-      participantIds: [String(currentUser.id), String(participantId)],
+      participantIds: [String(currentUser.id), target.id],
       participants: {
         [String(currentUser.id)]: { id: String(currentUser.id), name: currentUser.name, avatar: currentUser.avatar || '' },
-        [String(participantId)]: { id: String(participantId), name: participantName, avatar: participantAvatar },
+        [target.id]: { id: target.id, name: target.name, avatar: target.avatar },
       },
       messages: [],
       reads: {},
     };
     setConversations(prev => [newConv, ...prev.filter(c => c.id !== id)]);
     upsertData('conversations', newConv.id, newConv);
+    return id;
+  };
+
+  const startOrOpenConversation = (participant) => {
+    const target = resolveParticipant(participant);
+    const convId = ensureConversation(participant);
+    if (!convId) return;
     setIsMessagingOpen(true);
-    showToast(`✅ Conversation avec ${participantName} ouverte dans votre messagerie.`);
+    showToast(`💬 Conversation avec ${target?.name || 'ce membre'} ouverte dans votre messagerie.`);
+  };
+
+  // Used by the contact form (services, eau & énergie, etc.): really delivers the text.
+  const sendDirectMessage = (participant, text) => {
+    const body = (text || '').trim();
+    if (!body) return false;
+    const convId = ensureConversation(participant);
+    if (!convId) return false;
+    handleSendMessage(convId, body);
+    const target = resolveParticipant(participant);
+    showToast(`✅ Message envoyé à ${target?.name || 'ce membre'}.`);
+    return true;
   };
 
   const handleSendMessage = (convId, text) => {
@@ -544,7 +563,11 @@ export default function App() {
     // delivered = false tant que le message n'est pas enregistré côté serveur (1 coche)
     const newMsg = { id: msgId, senderId: String(currentUser.id), text, ts, delivered: false };
     const sourceConversation = conversations.find(c => c.id === convId);
-    const recipientId = sourceConversation?.participantIds?.map(String).find(id => id !== String(currentUser.id));
+    // Fallback: a conversation created in the same tick isn't in state yet, so read the ids from the conv id.
+    const idsFromConvId = String(convId).replace(/^conv-/, '').split('__');
+    const recipientId =
+      sourceConversation?.participantIds?.map(String).find(id => id !== String(currentUser.id)) ||
+      idsFromConvId.find(id => id && id !== String(currentUser.id));
     setConversations(prev => {
       const updated = prev.map(c =>
         c.id === convId
@@ -869,7 +892,7 @@ export default function App() {
         isOpen={!!contactTarget}
         onClose={() => setContactTarget(null)}
         targetData={contactTarget}
-        onSendMessage={(msg) => showToast(msg)}
+        onSendMessage={(text) => sendDirectMessage(contactTarget, text)}
       />
 
       {/* User Profile Modal */}

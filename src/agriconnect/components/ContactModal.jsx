@@ -10,9 +10,13 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
 
   const handleSend = (e) => {
     e.preventDefault();
+    const text = message.trim();
+    if (!text) return;
+    // Le message part réellement dans la messagerie du destinataire.
+    const sent = onSendMessage ? onSendMessage(text) : false;
+    if (sent === false) return;
     setSentSuccess(true);
     setTimeout(() => {
-      if (onSendMessage) onSendMessage(`Message transmis avec succès à ${targetData.name || targetData.sellerName || targetData.providerName || 'l\'utilisateur'}`);
       setSentSuccess(false);
       setMessage('');
       onClose();

@@ -563,7 +563,11 @@ export default function App() {
     // delivered = false tant que le message n'est pas enregistré côté serveur (1 coche)
     const newMsg = { id: msgId, senderId: String(currentUser.id), text, ts, delivered: false };
     const sourceConversation = conversations.find(c => c.id === convId);
-    const recipientId = sourceConversation?.participantIds?.map(String).find(id => id !== String(currentUser.id));
+    // Fallback: a conversation created in the same tick isn't in state yet, so read the ids from the conv id.
+    const idsFromConvId = String(convId).replace(/^conv-/, '').split('__');
+    const recipientId =
+      sourceConversation?.participantIds?.map(String).find(id => id !== String(currentUser.id)) ||
+      idsFromConvId.find(id => id && id !== String(currentUser.id));
     setConversations(prev => {
       const updated = prev.map(c =>
         c.id === convId

@@ -660,6 +660,18 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             <CornerDownRight className="w-3 h-3" />
                             Répondre
                           </button>
+
+                          {/* Delete comment */}
+                          {currentUser && (String(c.userId) === String(currentUser.id) || String(post.authorId) === String(currentUser.id)) && (
+                            <button
+                              onClick={() => { if (window.confirm('Supprimer ce commentaire ?')) onDeleteComment(post.id, c.id, null); }}
+                              className="flex items-center gap-0.5 text-[11px] text-slate-400 hover:text-rose-600 transition-colors font-semibold"
+                              title="Supprimer le commentaire"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Supprimer
+                            </button>
+                          )}
                         </div>
 
                         {/* Reply input */}

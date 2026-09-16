@@ -374,6 +374,40 @@ export default function App() {
     sendNotification(recipientId, replyToId ? 'comment_reply' : 'post_comment', replyToId ? 'a répondu à votre commentaire.' : 'a commenté votre publication.', { module: 'social', postId });
   };
 
+  // Suppression d'un commentaire (ou d'une réponse) par son auteur ou l'auteur de la publication
+  const handleDeleteComment = (postId, commentId, parentId = null) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    setSocialPosts(prev => {
+      const updated = prev.map(p => {
+        if (p.id !== postId) return p;
+        const canModerate = String(p.authorId) === String(currentUser.id);
+        if (parentId) {
+          return {
+            ...p,
+            comments: (p.comments || []).map(c =>
+              c.id !== parentId ? c : {
+                ...c,
+                replies: (c.replies || []).filter(r =>
+                  !(r.id === commentId && (canModerate || String(r.userId) === String(currentUser.id)))
+                )
+              }
+            )
+          };
+        }
+        return {
+          ...p,
+          comments: (p.comments || []).filter(c =>
+            !(c.id === commentId && (canModerate || String(c.userId) === String(currentUser.id)))
+          )
+        };
+      });
+      const post = updated.find(p => p.id === postId);
+      if (post) upsertData('posts', postId, post);
+      return updated;
+    });
+    showToast('🗑️ Commentaire supprimé.');
+  };
+
   const handleAddCommentReaction = (postId, commentId, emoji) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
     const sourceComment = socialPosts.find(p => p.id === postId)?.comments?.find(c => c.id === commentId);

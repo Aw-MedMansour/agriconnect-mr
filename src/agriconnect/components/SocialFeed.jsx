@@ -25,7 +25,7 @@ import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
 
-export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
+export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onDeleteComment = () => {}, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
   const [newPostText, setNewPostText] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [commentInputs, setCommentInputs] = useState({});
@@ -660,6 +660,18 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             <CornerDownRight className="w-3 h-3" />
                             Répondre
                           </button>
+
+                          {/* Delete comment */}
+                          {currentUser && (String(c.userId) === String(currentUser.id) || String(post.authorId) === String(currentUser.id)) && (
+                            <button
+                              onClick={() => { if (window.confirm('Supprimer ce commentaire ?')) onDeleteComment(post.id, c.id, null); }}
+                              className="flex items-center gap-0.5 text-[11px] text-slate-400 hover:text-rose-600 transition-colors font-semibold"
+                              title="Supprimer le commentaire"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              Supprimer
+                            </button>
+                          )}
                         </div>
 
                         {/* Reply input */}
@@ -698,7 +710,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                               className="w-5 h-5 mt-0.5 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
                               onClick={() => onOpenProfile({ authorId: r.userId || r.user, authorName: r.user, authorAvatar: r.avatar, authorRole: 'Membre Réseau' })}
                             />
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <div 
                                 className="text-[11px] font-bold text-slate-800 cursor-pointer hover:text-[#0a66c2] transition-colors inline-block"
                                 onClick={() => onOpenProfile({ authorId: r.userId || r.user, authorName: r.user, authorAvatar: r.avatar, authorRole: 'Membre Réseau' })}
@@ -707,6 +719,15 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                               </div>
                               <p className="text-[11px] text-slate-700">{r.text}</p>
                             </div>
+                            {currentUser && (String(r.userId) === String(currentUser.id) || String(post.authorId) === String(currentUser.id)) && (
+                              <button
+                                onClick={() => { if (window.confirm('Supprimer cette réponse ?')) onDeleteComment(post.id, r.id, c.id); }}
+                                className="shrink-0 p-1 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                title="Supprimer la réponse"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>

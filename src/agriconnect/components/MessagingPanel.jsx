@@ -10,7 +10,9 @@ import {
   Video,
   Smile,
   ArrowLeft,
-  Trash2
+  Trash2,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import Avatar from './Avatar';
 

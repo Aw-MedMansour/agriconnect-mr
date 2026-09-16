@@ -45,6 +45,7 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showEmojiBar, setShowEmojiBar] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {

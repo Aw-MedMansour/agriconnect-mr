@@ -10,7 +10,9 @@ import {
   Video,
   Smile,
   ArrowLeft,
-  Trash2
+  Trash2,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import Avatar from './Avatar';
 
@@ -43,6 +45,7 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
   const [inputText, setInputText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showEmojiBar, setShowEmojiBar] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -81,8 +84,12 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
     <>
       {/* Panneau ancré en haut à droite (comme Facebook) */}
       {isOpen && (
-        <div className="fixed top-16 right-3 sm:right-5 z-50 w-[calc(100vw-1.5rem)] max-w-[380px] bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
-          style={{ maxHeight: 'min(75vh, 560px)' }}
+        <div className={`fixed z-50 bg-white flex flex-col overflow-hidden transition-all ${
+          isFullScreen
+            ? 'inset-0 z-[60] w-screen h-screen max-w-none rounded-none shadow-none'
+            : 'top-16 right-3 sm:right-5 w-[calc(100vw-1.5rem)] max-w-[380px] rounded-2xl shadow-2xl border border-slate-200'
+        }`}
+          style={isFullScreen ? {} : { maxHeight: 'min(75vh, 560px)' }}
         >
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100">
@@ -110,6 +117,13 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
                   </button>
                 </>
               )}
+              <button
+                onClick={() => setIsFullScreen(v => !v)}
+                aria-label={isFullScreen ? 'Réduire la messagerie' : 'Agrandir la messagerie'}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+              >
+                {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+              </button>
               <button
                 onClick={onClose}
                 aria-label="Fermer la messagerie"

@@ -25,7 +25,7 @@ import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
 
-export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
+export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onDeleteComment = () => {}, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
   const [newPostText, setNewPostText] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [commentInputs, setCommentInputs] = useState({});

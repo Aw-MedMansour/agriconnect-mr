@@ -829,6 +829,7 @@ export default function App() {
             onEditPost={handleEditPost}
             onDeletePost={handleDeletePost}
             onAddComment={handleAddComment}
+            onDeleteComment={handleDeleteComment}
             onToggleLike={handleToggleLikePost}
             onRepost={handleRepost}
             onToggleFollow={handleToggleFollow}

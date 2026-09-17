@@ -547,8 +547,20 @@ export default function App() {
     showToast('✅ Commentaire ajouté au produit !');
   };
 
+  // Incrémente et enregistre le compteur de partages du contenu concerné
+  const bumpShareCount = (table, id) => {
+    const setter = table === 'posts' ? setSocialPosts : table === 'products' ? setProducts : setServices;
+    setter(prev => {
+      const updated = prev.map(item => (item.id === id ? { ...item, sharesCount: (item.sharesCount || 0) + 1 } : item));
+      const target = updated.find(item => item.id === id);
+      if (target) upsertData(table, id, target);
+      return updated;
+    });
+  };
+
   const handleShare = async (item, type = 'post') => {
-    const text = type === 'post' ? `Post de ${item.authorName}` : `Produit: ${item.title}`;
+    const text = type === 'post' ? `Post de ${item.authorName}` : `Annonce : ${item.title}`;
+    const table = type === 'post' ? 'posts' : type === 'service' ? 'services' : 'products';
     try {
       if (navigator.share) {
         await navigator.share({
@@ -560,6 +572,7 @@ export default function App() {
         await navigator.clipboard.writeText(window.location.href);
         showToast('✅ Lien copié dans le presse-papier !');
       }
+      bumpShareCount(table, item.id);
     } catch (err) {
       console.log('Erreur de partage', err);
     }

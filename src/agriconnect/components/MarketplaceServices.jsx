@@ -131,96 +131,122 @@ export default function MarketplaceServices({ services, onContactProvider, onOpe
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredServices.map((serv) => {
-            const isOffer = serv.type === 'offer';
-            return (
-              <div 
-                key={serv.id} 
-                className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-              >
-                <div>
-                  {/* Top Badge Banner */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${
-                      isOffer 
-                        ? 'bg-blue-100 text-[#0a66c2] border border-blue-200' 
-                        : 'bg-amber-100 text-amber-800 border border-amber-200'
-                    }`}>
-                      {isOffer ? 'Offre de Service' : 'Demande d\'Agriculteur'}
-                    </span>
-
-                    <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
-                      {serv.categoryLabel}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-slate-900 text-base leading-snug mb-2">
-                    {serv.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-600 mb-4 line-clamp-2 font-medium">
-                    {serv.description}
-                  </p>
-
-                  {/* Service Specs Box */}
-                  <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5 text-[#0a66c2]" /> Zone:
-                      </span>
-                      <span className="font-bold text-slate-900">{serv.location}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-amber-600" /> Disponibilité:
-                      </span>
-                      <span className="font-bold text-slate-900">{serv.availability}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-500 flex items-center gap-1.5">
-                        <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Tarif / Estimation:
-                      </span>
-                      <span className="font-black text-emerald-700">{serv.pricing}</span>
-                    </div>
-                  </div>
-
-                  <div className="text-[11px] text-slate-600 italic bg-white p-2.5 rounded-lg border border-slate-200 mb-4 font-medium">
-                    💡 <strong>Spécifications:</strong> {serv.specs}
-                  </div>
-                </div>
-
-                {/* Provider Details & Contact */}
-                <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <img 
-                      src={serv.providerAvatar} 
-                      alt={serv.providerName}
-                      className="w-9 h-9 rounded-full object-cover border border-[#0a66c2] shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <div className="text-xs font-bold text-slate-900 truncate flex items-center gap-1">
-                        {serv.providerName}
-                        {serv.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#0a66c2] shrink-0" />}
-                      </div>
-                      <div className="text-[10px] text-slate-500 truncate">{serv.providerRole}</div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => onContactProvider(serv)}
-                    className="group/msg flex items-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer shrink-0"
-                  >
-                    <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
-                    <span>Répondre</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {filteredServices.map((serv) => (
+            <ServiceCard
+              key={serv.id}
+              serv={serv}
+              currentUser={currentUser}
+              onContactProvider={onContactProvider}
+              onDeleteService={onDeleteService}
+              onRegisterView={onRegisterView}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Carte service ─────────────────────────────────────────────────────────────
+function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, onRegisterView }) {
+  const cardRef = useViewTracker(serv.id, onRegisterView);
+  const isOffer = serv.type === 'offer';
+  const isOwner = currentUser && String(serv.providerId) === String(currentUser.id);
+  const viewsCount = serv.viewsCount || 0;
+
+  return (
+    <div
+      ref={cardRef}
+      className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+    >
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className={`text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider ${
+            isOffer
+              ? 'bg-blue-100 text-[#0a66c2] border border-blue-200'
+              : 'bg-amber-100 text-amber-800 border border-amber-200'
+          }`}>
+            {isOffer ? 'Offre de Service' : "Demande d'Agriculteur"}
+          </span>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded border border-slate-200">
+              {serv.categoryLabel}
+            </span>
+            {isOwner && (
+              <button
+                onClick={() => { if (window.confirm('Supprimer définitivement cette annonce ?')) onDeleteService(serv.id); }}
+                aria-label="Supprimer mon annonce"
+                className="p-1.5 rounded-full text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <h3 className="font-bold text-slate-900 text-base leading-snug mb-2">{serv.title}</h3>
+
+        <p className="text-xs text-slate-600 mb-4 line-clamp-2 font-medium">{serv.description}</p>
+
+        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 mb-4">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#0a66c2]" /> Zone :
+            </span>
+            <span className="font-bold text-slate-900">{serv.location}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-amber-600" /> Disponibilité :
+            </span>
+            <span className="font-bold text-slate-900">{serv.availability}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-slate-500 flex items-center gap-1.5">
+              <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Tarif / Estimation :
+            </span>
+            <span className="font-black text-emerald-700">{serv.pricing}</span>
+          </div>
+        </div>
+
+        <div className="text-[11px] text-slate-600 italic bg-white p-2.5 rounded-lg border border-slate-200 mb-3 font-medium">
+          💡 <strong>Spécifications :</strong> {serv.specs}
+        </div>
+
+        <div className="flex items-center gap-1 text-[11px] text-slate-500 font-semibold mb-3">
+          <Eye className="w-3.5 h-3.5" /> {viewsCount} vue{viewsCount > 1 ? 's' : ''}
+        </div>
+      </div>
+
+      <div className="pt-3 border-t border-slate-200 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Avatar
+            src={serv.providerAvatar}
+            name={serv.providerName}
+            seed={serv.providerId || serv.providerName}
+            className="w-9 h-9 shrink-0"
+            textClassName="text-[11px]"
+          />
+          <div className="min-w-0">
+            <div className="text-xs font-bold text-slate-900 truncate flex items-center gap-1">
+              {serv.providerName}
+              {serv.verified && <CheckCircle2 className="w-3.5 h-3.5 text-[#0a66c2] shrink-0" />}
+            </div>
+            <div className="text-[10px] text-slate-500 truncate">{serv.providerRole}</div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onContactProvider(serv)}
+          className="group/msg flex items-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer shrink-0"
+        >
+          <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
+          <span>Répondre</span>
+        </button>
+      </div>
     </div>
   );
 }

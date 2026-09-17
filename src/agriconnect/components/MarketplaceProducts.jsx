@@ -34,7 +34,7 @@ export function formatQuantity(value) {
 }
 
 // Enregistre une vue lorsque la carte devient réellement visible à l'écran.
-function useViewTracker(id, onRegisterView) {
+export function useViewTracker(id, onRegisterView) {
   const ref = useRef(null);
   useEffect(() => {
     if (!onRegisterView || !ref.current || typeof IntersectionObserver === 'undefined') return;

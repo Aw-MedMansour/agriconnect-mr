@@ -140,5 +140,24 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    overflow-x: hidden;
   }
+
+  html[dir="rtl"] body {
+    font-family: Arial, "Noto Sans Arabic", sans-serif;
+  }
+
+  html[dir="rtl"] .text-left {
+    text-align: right;
+  }
+
+  html[dir="rtl"] .text-right {
+    text-align: left;
+  }
+}
+
+@utility stable-page {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
 }

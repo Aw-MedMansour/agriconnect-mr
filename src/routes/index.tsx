@@ -1,5 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import App from "../agriconnect/App";
+import { LanguageProvider } from "../agriconnect/i18n";
+
+function LocalizedApp() {
+  return (
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -81,5 +90,5 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: App,
+  component: LocalizedApp,
 });

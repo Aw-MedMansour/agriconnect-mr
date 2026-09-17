@@ -12,6 +12,7 @@ import NotificationPanel from './components/NotificationPanel';
 import UserProfileModal from './components/UserProfileModal';
 import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
+import { useLanguage } from './i18n';
 
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { CheckCircle2, X, Info } from 'lucide-react';
@@ -20,6 +21,7 @@ import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updat
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
+  const { t, language } = useLanguage();
   const [activeModule, setActiveModule] = useState('products');
   const [aiDefaultTab, setAiDefaultTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
@@ -781,7 +783,7 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900">
+    <div className="stable-page min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900" data-language={language}>
 
       {showSplash && <SplashScreen done={!isLoading} />}
 
@@ -831,11 +833,10 @@ export default function App() {
       {/* ── Titre principal (SEO) ── */}
       <section className="max-w-7xl mx-auto px-4 pt-5 w-full">
         <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-          AgriConnect — le réseau professionnel agricole
+          {t('AgriConnect — le réseau professionnel agricole')}
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium max-w-3xl">
-          Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec
-          les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.
+          {t("Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.")}
         </p>
       </section>
 
@@ -998,24 +999,24 @@ export default function App() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-[#0a66c2]">AgriConnect 🌱</span>
-            <span>— Le réseau professionnel agricole</span>
+            <span>— {t('Le réseau professionnel agricole')}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-slate-600">
             <span>Marketplace Produits</span>
             <span>Services & Logistique</span>
             <span>Matching IA Pro</span>
             <a href="/conditions" className="font-bold text-[#0a66c2] hover:underline">
-              Conditions d'utilisation
+              {t("Conditions d'utilisation")}
             </a>
             <a href="/mentions-legales" className="font-bold text-[#0a66c2] hover:underline">
-              Mentions légales
+              {t('Mentions légales')}
             </a>
             <a href="/politique-d-utilisation" className="font-bold text-[#0a66c2] hover:underline">
-              Politique d'utilisation
+              {t("Politique d'utilisation")}
             </a>
           </div>
           <div className="flex flex-col items-center gap-1 text-slate-400 md:items-end">
-            <span>© 2026 AgriConnect. Tous droits réservés.</span>
+            <span>© 2026 AgriConnect. {t('Tous droits réservés.')}</span>
             <span>
               Développé en partenariat par{' '}
               <a

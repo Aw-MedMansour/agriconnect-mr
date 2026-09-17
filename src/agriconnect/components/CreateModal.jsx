@@ -92,17 +92,17 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
     const videosList = processedMedia.filter(m => m.type === 'video').map(m => m.url || '');
 
     if (formType === 'product') {
-      if (!prodTitle || !prodQuantity || !prodPrice) return;
+      if (!prodTitle.trim() || !prodQuantity || !prodPrice) { setIsPublishing(false); return; }
       onCreateProduct({
         id: `prod-${Date.now()}`,
-        title: prodTitle,
+        title: prodTitle.trim(),
         sellerId: currentUser.id,
         sellerName: currentUser.name,
         sellerRole: currentUser.roleLabel || 'Agriculteur',
         sellerAvatar: currentUser.avatar,
         category: prodCategory,
-        quantity: prodQuantity,
-        price: prodPrice,
+        quantity: `${prodQuantity} ${prodQuantityUnit}`,
+        price: `${prodPrice} ${prodPriceUnit}`,
         location: prodLocation,
         availabilityDate: 'Immédiate (Nouvelle publication)',
         images: imagesList.length > 0 ? imagesList : ['https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=800&q=80'],

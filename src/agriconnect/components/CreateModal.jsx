@@ -10,7 +10,9 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
   const [prodTitle, setProdTitle] = useState('');
   const [prodCategory, setProdCategory] = useState('Légumes');
   const [prodQuantity, setProdQuantity] = useState('');
+  const [prodQuantityUnit, setProdQuantityUnit] = useState('kg');
   const [prodPrice, setProdPrice] = useState('');
+  const [prodPriceUnit, setProdPriceUnit] = useState('MRU / kg');
   const [prodLocation, setProdLocation] = useState('Rosso, Trarza');
   const [prodDescription, setProdDescription] = useState('');
 

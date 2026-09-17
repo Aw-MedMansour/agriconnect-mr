@@ -29,6 +29,13 @@
       "when": 1789609287291,
       "tag": "0003_increment_content_views",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789609343208,
+      "tag": "0004_interaction_updates_rpc",
+      "breakpoints": true
     }
   ]
 }

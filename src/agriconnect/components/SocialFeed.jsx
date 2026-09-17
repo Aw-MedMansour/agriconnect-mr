@@ -182,10 +182,10 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
     if (gallery.length === 1) {
       const item = gallery[0];
       return (
-        <div className="rounded-xl overflow-hidden mb-4 border border-slate-200 bg-black">
+        <div className="mb-4 aspect-[4/3] max-h-[500px] overflow-hidden rounded-xl border border-slate-200 bg-black">
           <AsyncMediaItem 
             item={item} 
-            className="w-full max-h-[500px]" 
+            className="h-full w-full" 
             style={{ display: 'block', objectFit: 'contain' }}
             onClick={() => openViewer(gallery, 0)}
           />
@@ -244,7 +244,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+     <div className="mx-auto min-h-[720px] max-w-4xl px-4 py-8">
       {/* Media Viewer Modal */}
 
 
@@ -260,7 +260,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-            Partagez plusieurs photos, vidéos et actualités avec la communauté (Cliquez pour agrandir).
+             {t('Partagez plusieurs photos, vidéos et actualités avec la communauté (Cliquez pour agrandir).')}
           </p>
         </div>
       </div>
@@ -300,7 +300,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 {mediaItems.map((item) => (
                   <div key={item.id} className="relative aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-300 group">
                     {item.type === 'image' ? (
-                      <img src={item.url} alt="Aperçu Photo" className="w-full h-full object-cover" />
+                       <img src={item.url} alt={t('Aperçu Photo')} className="w-full h-full object-cover" />
                     ) : (
                       <div className="relative w-full h-full bg-slate-950 flex items-center justify-center">
                         <video src={item.url} className="w-full h-full object-cover" />
@@ -318,7 +318,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                       type="button"
                       onClick={() => removeMediaItem(item.id)}
                       className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 transition-colors shadow-xs"
-                      title="Supprimer ce média"
+                       title={t('Supprimer ce média')}
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -437,7 +437,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
               {post.repostOf && (
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold mb-3 -mt-1">
                   <Repeat2 className="w-3.5 h-3.5" />
-                  <span>{post.authorName} a republié</span>
+                   <span>{post.authorName} {t('a republié')}</span>
                 </div>
               )}
 

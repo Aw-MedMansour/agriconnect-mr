@@ -5,8 +5,10 @@ import { saveUser, findUserById } from '../utils/dbSync';
 import { supabase } from '../utils/supabaseClient';
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
+  const { t } = useLanguage();
   const [mode, setMode] = useState('signup');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -113,8 +115,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-3xl border border-slate-200 overflow-hidden shadow-2xl animate-scaleIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-900/70 p-3 backdrop-blur-xs sm:p-4">
+      <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
         {/* Header */}
         <div className="p-6 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -123,9 +125,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             </div>
             <div>
               <h3 className="text-lg font-black text-slate-900">
-                {mode === 'signup' ? 'Créer un Compte AgriConnect' : 'Se Connecter à AgriConnect'}
+                 {mode === 'signup' ? t('Créer un Compte AgriConnect') : t('Se Connecter à AgriConnect')}
               </h3>
-              <p className="text-xs text-slate-500 font-medium">Rejoignez le réseau professionnel agricole</p>
+               <p className="text-xs text-slate-500 font-medium">{t('Rejoignez le réseau professionnel agricole')}</p>
             </div>
           </div>
           <button onClick={onClose} aria-label="Fermer" className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
@@ -139,13 +141,13 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             onClick={() => { setMode('signup'); setError(''); }}
             className={`py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${mode === 'signup' ? 'bg-[#0a66c2] text-white shadow-xs' : 'text-slate-700 hover:bg-slate-200'}`}
           >
-            S'inscrire (Nouveau Compte)
+             {t("S'inscrire (Nouveau Compte)")}
           </button>
           <button
             onClick={() => { setMode('login'); setError(''); }}
             className={`py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${mode === 'login' ? 'bg-[#0a66c2] text-white shadow-xs' : 'text-slate-700 hover:bg-slate-200'}`}
           >
-            Se Connecter
+             {t('Se Connecter')}
           </button>
         </div>
 
@@ -155,7 +157,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
           {mode === 'signup' && (
             <>
               {/* Profile Photo */}
@@ -174,13 +176,13 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
                   </label>
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-800 block">Photo de profil</span>
-                  <span className="text-[11px] text-slate-500 font-medium">Ajoutez une photo claire pour votre badge vérifié.</span>
+                   <span className="text-xs font-bold text-slate-800 block">{t('Photo de profil')}</span>
+                   <span className="text-[11px] text-slate-500 font-medium">{t('Ajoutez une photo claire pour votre badge vérifié.')}</span>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Nom Complet / Entreprise</label>
+                 <label className="block text-xs font-bold text-slate-700 mb-1">{t('Nom Complet / Entreprise')}</label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input type="text" value={fullName} onChange={e => setFullName(e.target.value)}
@@ -189,9 +191,9 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Rôle Professionnel</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Rôle Professionnel')}</label>
                   <select value={role} onChange={e => setRole(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white cursor-pointer font-medium">
                     {ACTOR_CATEGORIES.filter(c => c.id !== 'all').map(c => (
@@ -200,7 +202,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Nom Exploitation / Société</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Nom Exploitation / Société')}</label>
                   <input type="text" value={company} onChange={e => setCompany(e.target.value)}
                     placeholder="Ex: Ferme du Fleuve"
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
@@ -208,7 +210,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Région / Localisation</label>
+                 <label className="block text-xs font-bold text-slate-700 mb-1">{t('Région / Localisation')}</label>
                 <div className="relative">
                   <MapPin className="w-4 h-4 text-[#0a66c2] absolute left-3.5 top-3" />
                   <input type="text" value={location} onChange={e => setLocation(e.target.value)}
@@ -220,7 +222,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Adresse Email</label>
+             <label className="block text-xs font-bold text-slate-700 mb-1">{t('Adresse Email')}</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -230,7 +232,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Mot de passe</label>
+             <label className="block text-xs font-bold text-slate-700 mb-1">{t('Mot de passe')}</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
@@ -259,7 +261,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           <div className="pt-2">
             <button type="submit" disabled={loading || (mode === 'signup' && !acceptTerms)}
               className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-xs py-3 rounded-full shadow-md transition-all cursor-pointer">
-              <span>{loading ? 'Chargement...' : mode === 'signup' ? 'Créer mon Compte & Continuer' : 'Se Connecter'}</span>
+               <span>{loading ? t('Chargement...') : mode === 'signup' ? t('Créer mon Compte & Continuer') : t('Se Connecter')}</span>
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>

@@ -83,7 +83,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
       setDataUrl(url);
       setPreview(url);
     } catch (err) {
-      setError("Impossible de lire cette image. Essayez une autre photo (JPG ou PNG).");
+       setError(t("Impossible de lire cette image. Essayez une autre photo (JPG ou PNG)."));
     }
   };
 
@@ -97,7 +97,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
       const res = await analyzePlant({ data: { image: dataUrl, note: note.trim() || undefined } });
       setResult(res);
     } catch (err) {
-      setError(err?.message || "L'analyse a échoué. Réessayez dans un instant.");
+       setError(err?.message || t("L'analyse a échoué. Réessayez dans un instant."));
     } finally {
       setLoading(false);
     }
@@ -125,11 +125,11 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
 
           {preview ? (
             <div className="relative">
-              <img src={preview} alt="Plante à analyser" className="w-full h-64 object-cover rounded-xl border border-slate-200" />
+             <img src={preview} alt={t('Plante à analyser')} className="w-full h-64 object-cover rounded-xl border border-slate-200" />
               <button
                 onClick={reset}
                 className="absolute top-2 right-2 bg-white/90 hover:bg-white p-1.5 rounded-full shadow text-slate-600"
-                title="Retirer la photo"
+                 title={t('Retirer la photo')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -234,11 +234,11 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
               </div>
 
                <Section icon={Stethoscope} color="text-rose-600" title={t('Maladies / symptômes')}
-                items={result.diseases} empty="Aucune maladie clairement visible sur la photo." />
+                 items={result.diseases} empty={t('Aucune maladie clairement visible sur la photo.')} />
                <Section icon={Bug} color="text-orange-600" title={t('Parasites')}
-                items={result.pests} empty="Aucun parasite visible détecté." />
+                 items={result.pests} empty={t('Aucun parasite visible détecté.')} />
                <Section icon={Droplets} color="text-blue-600" title={t('Carences / anomalies')}
-                items={result.deficiencies} empty="Aucune carence évidente détectée." />
+                 items={result.deficiencies} empty={t('Aucune carence évidente détectée.')} />
 
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
                 <h4 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-emerald-700 mb-3">
@@ -251,7 +251,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-emerald-800">Poursuivez vos pratiques habituelles et surveillez l'évolution.</p>
+                   <p className="text-xs text-emerald-800">{t("Poursuivez vos pratiques habituelles et surveillez l'évolution.")}</p>
                 )}
               </div>
 

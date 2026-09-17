@@ -88,10 +88,9 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
       {isOpen && (
         <div className={`fixed z-50 bg-white flex flex-col overflow-hidden transition-all ${
           isFullScreen
-            ? 'inset-0 z-[60] w-screen h-screen max-w-none rounded-none shadow-none'
-            : 'top-[128px] end-3 sm:top-[148px] sm:end-5 w-[calc(100vw-1.5rem)] max-w-[380px] rounded-2xl shadow-2xl border border-slate-200'
+            ? 'inset-0 z-[60] h-[100dvh] w-full max-w-none rounded-none shadow-none'
+            : 'top-[128px] end-3 h-[min(75dvh,560px)] w-[calc(100%-1.5rem)] max-w-[380px] rounded-2xl shadow-2xl border border-slate-200 sm:top-[148px] sm:end-5'
         }`}
-          style={isFullScreen ? {} : { maxHeight: 'min(75vh, 560px)' }}
         >
           {/* Panel header */}
           <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100">
@@ -148,7 +147,7 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                      placeholder={t('Rechercher une conversation...')}
-                    className="bg-transparent text-xs text-slate-700 placeholder-slate-400 focus:outline-none flex-1"
+                    className="min-w-0 flex-1 bg-transparent text-xs text-slate-700 placeholder-slate-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -335,7 +334,7 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
                     onChange={e => setInputText(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
                      placeholder={t('Écrire un message...')}
-                    className="flex-1 bg-slate-100 rounded-full px-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/30 transition-all"
+                    className="min-w-0 flex-1 rounded-full bg-slate-100 px-4 py-2 text-xs text-slate-900 placeholder-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-[#0a66c2]/30"
                   />
                   <button
                     onClick={handleSend}

@@ -75,19 +75,19 @@ export default function MatchingEngine({ onDispatchSuccess }) {
       {/* Title */}
       <div className="text-center max-w-2xl mx-auto mb-8">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0a66c2] text-xs font-bold mb-3">
-          <Sparkles className="w-4 h-4 fill-[#0a66c2]" /> Algorithme de Matching LinkedIn Pro
+           <Sparkles className="w-4 h-4 fill-[#0a66c2]" /> {t('Algorithme de Matching LinkedIn Pro')}
         </div>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
            {t('Mise en Relation Automatique')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-2 font-medium">
-          AgriConnect identifie en temps réel les prestataires disponibles les plus qualifiés à proximité de votre exploitation.
+           {t('AgriConnect identifie en temps réel les prestataires disponibles les plus qualifiés à proximité de votre exploitation.')}
         </p>
       </div>
 
       {/* Preset Quick-Buttons */}
       <div className="mb-6 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">Exemples de recherches fréquentes:</span>
+         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2">{t('Exemples de recherches fréquentes:')}</span>
         <div className="flex flex-wrap gap-2">
           {MOCK_MATCHING_PRESETS.map((preset) => (
             <button
@@ -199,7 +199,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
             <div>
               <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-[#0a66c2]" />
-                {matchedResults.length} Prestataires Correspondants Identifiés
+                 {matchedResults.length} {t('Prestataires Correspondants Identifiés')}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5 font-medium">
                 Zone: <strong className="text-slate-800">{location}</strong> | Volume: <strong className="text-[#0a66c2]">{quantity}</strong>
@@ -212,7 +212,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                 className="flex items-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white font-bold text-xs px-5 py-2.5 rounded-full shadow-xs transition-all cursor-pointer"
               >
                 <Send className="w-4 h-4" />
-                <span>Envoyer la demande à tous ({matchedResults.length})</span>
+                 <span>{t('Envoyer la demande à tous')} ({matchedResults.length})</span>
               </button>
             ) : (
               <div className="flex items-center gap-2 text-xs font-bold text-[#0a66c2] bg-blue-50 px-4 py-2.5 rounded-full border border-blue-200">
@@ -227,7 +227,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
                     <span className="bg-blue-100 text-[#0a66c2] border border-blue-200 text-xs font-mono font-bold px-2.5 py-1 rounded-full">
-                      🔥 Score Matching: {actor.matchScore}%
+                       🔥 {t('Score Matching')}: {actor.matchScore}%
                     </span>
                     <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 text-[#0a66c2]" /> ~{actor.distanceKm} km
@@ -245,7 +245,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                       <div className="flex items-center gap-1 text-xs text-amber-500 mt-0.5">
                         <Star className="w-3.5 h-3.5 fill-amber-400" />
                         <span className="font-bold">{actor.rating}</span>
-                        <span className="text-slate-500">({actor.reviewsCount} avis)</span>
+                         <span className="text-slate-500">({actor.reviewsCount} {t('avis')})</span>
                       </div>
                     </div>
                   </div>

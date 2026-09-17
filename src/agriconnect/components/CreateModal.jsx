@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Store, Truck, PlusCircle, Image as ImageIcon, Video as VideoIcon, Lock, Play } from 'lucide-react';
 import { uploadMedia } from '../utils/dbSync';
+import { useLanguage } from '../i18n';
 
 export default function CreateModal({ isOpen, onClose, defaultTab = 'product', defaultCategory = null, currentUser, onCreateProduct, onCreateService, onRequireAuth }) {
+  const { t } = useLanguage();
   const [formType, setFormType] = useState(defaultTab);
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -151,13 +153,13 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-2xl rounded-3xl border border-slate-200 overflow-hidden shadow-2xl animate-scaleIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-900/60 p-3 backdrop-blur-xs sm:p-4">
+      <div className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
         {/* Modal Header */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
             <PlusCircle className="w-5 h-5 text-[#0a66c2]" />
-            <h3 className="text-lg font-bold text-slate-900">Nouvelle Publication AgriConnect</h3>
+             <h3 className="text-base font-bold text-slate-900 sm:text-lg">{t('Nouvelle Publication AgriConnect')}</h3>
           </div>
           <button 
             onClick={onClose}
@@ -171,12 +173,12 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
         {!currentUser && (
           <div className="bg-amber-50 border-b border-amber-200 p-3 text-center flex items-center justify-center gap-2 text-amber-800 text-xs font-bold">
             <Lock className="w-4 h-4 text-amber-600" />
-            <span>Vous devez être connecté à un compte professionnel pour publier.</span>
+             <span>{t('Vous devez être connecté à un compte professionnel pour publier.')}</span>
             <button 
               onClick={onRequireAuth}
               className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded-full text-[11px] font-bold"
             >
-              Créer compte / Connexion
+               {t('Créer compte / Connexion')}
             </button>
           </div>
         )}
@@ -192,7 +194,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                   : 'text-slate-700 hover:bg-slate-200'
               }`}
             >
-              <Store className="w-4 h-4" /> Vendre Récolte / Produit
+               <Store className="w-4 h-4" /> {t('Vendre Récolte / Produit')}
             </button>
             <button
               onClick={() => setFormType('service')}
@@ -202,17 +204,17 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                   : 'text-slate-700 hover:bg-slate-200'
               }`}
             >
-              <Truck className="w-4 h-4" /> Publier Offre / Demande Service
+               <Truck className="w-4 h-4" /> {t('Publier Offre / Demande Service')}
             </button>
           </div>
         )}
 
         {/* Modal Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
           {formType === 'product' ? (
             <>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Titre de la récolte / produit</label>
+                 <label className="block text-xs font-bold text-slate-700 mb-1">{t('Titre de la récolte / produit')}</label>
                 <input
                   type="text"
                   value={prodTitle}
@@ -223,9 +225,9 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Catégorie</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Catégorie')}</label>
                   <select
                     value={prodCategory}
                     onChange={(e) => setProdCategory(e.target.value)}
@@ -239,7 +241,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Quantité disponible (unité obligatoire)</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Quantité disponible (unité obligatoire)')}</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
@@ -268,9 +270,9 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Prix (MRU) et base de facturation</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Prix (MRU) et base de facturation')}</label>
                   <div className="flex gap-2">
                     <input
                       type="number"
@@ -299,7 +301,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Localisation</label>
+                   <label className="block text-xs font-bold text-slate-700 mb-1">{t('Localisation')}</label>
                   <input
                     type="text"
                     value={prodLocation}
@@ -312,7 +314,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
 
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Description & conditions de livraison</label>
+                 <label className="block text-xs font-bold text-slate-700 mb-1">{t('Description & conditions de livraison')}</label>
                 <textarea
                   rows={3}
                   value={prodDescription}
@@ -336,7 +338,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Type d'annonce</label>
                   <select
@@ -368,7 +370,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Tarif / Budget estimé</label>
                   <input
@@ -419,7 +421,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
 
           {/* Photos & Videos Upload Area (Shared for both Product and Service) */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Ajouter des Photos et/ou Vidéos (Plusieurs autorisées)</label>
+             <label className="block text-xs font-bold text-slate-700 mb-1">{t('Ajouter des Photos et/ou Vidéos (Plusieurs autorisées)')}</label>
             <div className="flex flex-wrap items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-300">
               <input 
                 type="file" 
@@ -489,7 +491,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
               onClick={onClose}
               className="px-4 py-2.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
             >
-              Annuler
+               {t('Annuler')}
             </button>
             <button
               type="submit"
@@ -498,7 +500,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 formType === 'product' ? 'bg-[#0a66c2] hover:bg-[#004182]' : 'bg-emerald-600 hover:bg-emerald-700'
               }`}
             >
-              {isPublishing ? 'Publication...' : 'Publier l\'Annonce'}
+               {isPublishing ? t('Publication...') : t('Publier l’Annonce')}
             </button>
           </div>
         </form>

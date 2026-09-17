@@ -168,7 +168,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+     <div className="mx-auto min-h-[720px] max-w-7xl px-4 py-8">
       {/* Media Viewer Modal */}
       <MediaViewerModal 
         isOpen={viewerState.isOpen}
@@ -189,7 +189,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-            « Je produis → je publie avec photos/vidéos → un acheteur me contacte direct ». Ventes sans intermédiaire.
+             {t('« Je produis → je publie avec photos/vidéos → un acheteur me contacte direct ». Ventes sans intermédiaire.')}
           </p>
         </div>
 

@@ -16,7 +16,7 @@ export default function AIHub({ currentUser, onRequireAuth, onDispatchSuccess, d
   const { t } = useLanguage();
 
   return (
-    <div className="stable-page mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
+    <div className="stable-page mx-auto min-h-[720px] max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
       <div className="relative mb-5 overflow-hidden rounded-3xl bg-gradient-to-br from-[#073b63] via-[#0a66c2] to-[#0b8f79] p-6 text-white shadow-lg sm:p-8">
         <div className="absolute -end-10 -top-16 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
         <div className="relative flex items-start gap-4">
@@ -50,17 +50,19 @@ export default function AIHub({ currentUser, onRequireAuth, onDispatchSuccess, d
         })}
       </div>
 
+      <div className="min-h-[520px]">
       {tab === 'chat' && <PlantAIChat currentUser={currentUser} onRequireAuth={onRequireAuth} />}
       {tab === 'analysis' && (
-        <div className="-mx-4">
+        <div className="-mx-3 sm:-mx-4">
           <PlantAnalysis currentUser={currentUser} onRequireAuth={onRequireAuth} />
         </div>
       )}
       {tab === 'matching' && (
-        <div className="-mx-4">
+        <div className="-mx-3 sm:-mx-4">
           <MatchingEngine onDispatchSuccess={onDispatchSuccess} />
         </div>
       )}
+      </div>
     </div>
   );
 }

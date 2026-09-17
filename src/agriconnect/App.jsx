@@ -268,6 +268,53 @@ export default function App() {
     showToast('🗑️ Publication supprimée.');
   };
 
+  // Suppression d'une annonce produit par son propre auteur
+  const handleDeleteProduct = (productId) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const prod = products.find(p => p.id === productId);
+    if (!prod || String(prod.sellerId) !== String(currentUser.id)) {
+      showToast("⚠️ Vous ne pouvez supprimer que vos propres annonces.");
+      return;
+    }
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    deleteData('products', productId);
+    showToast('🗑️ Annonce supprimée de la Marketplace Produits.');
+  };
+
+  // Suppression d'une annonce de service par son propre auteur
+  const handleDeleteService = (serviceId) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const serv = services.find(s => s.id === serviceId);
+    if (!serv || String(serv.providerId) !== String(currentUser.id)) {
+      showToast("⚠️ Vous ne pouvez supprimer que vos propres annonces.");
+      return;
+    }
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    deleteData('services', serviceId);
+    showToast('🗑️ Annonce supprimée de la Marketplace Services.');
+  };
+
+  // Compteur de vues : une vue par contenu et par session de navigation
+  const handleRegisterView = (kind, id) => {
+    if (typeof window === 'undefined' || !id) return;
+    const key = `agriconnect_view_${kind}_${id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch { /* stockage indisponible */ }
+
+    const bump = (item) => ({ ...item, viewsCount: (item.viewsCount || 0) + 1 });
+    const apply = (setter) => setter(prev => {
+      const updated = prev.map(item => (item.id === id ? bump(item) : item));
+      const target = updated.find(item => item.id === id);
+      if (target) upsertData(kind, id, target);
+      return updated;
+    });
+    if (kind === 'products') apply(setProducts);
+    else if (kind === 'services') apply(setServices);
+    else if (kind === 'posts') apply(setSocialPosts);
+  };
+
   const handleRepost = (post) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
     const alreadyReposted = post.repostedBy?.includes(currentUser.id);

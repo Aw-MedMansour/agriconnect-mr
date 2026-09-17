@@ -315,7 +315,7 @@ export default function UserProfileModal({
                     return (
                       <div key={post.id} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                         <div className="flex items-center gap-2 mb-3">
-                          <img src={authorAvatar} alt={authorName} className="w-8 h-8 rounded-full object-cover border-2 border-[#0a66c2]" />
+                          <Avatar src={authorAvatar} name={authorName} seed={authorId || authorName} className="h-8 w-8 border-2 border-[#0a66c2]" textClassName="text-[9px]" />
                           <div>
                             <p className="text-xs font-bold text-slate-900">{authorName}</p>
                             <p className="text-[10px] text-slate-400">{post.timestamp}</p>

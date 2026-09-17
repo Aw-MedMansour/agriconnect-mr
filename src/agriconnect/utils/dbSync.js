@@ -119,3 +119,9 @@ export async function uploadMedia(file, folder = 'media') {
     return URL.createObjectURL(file);
   }
 }
+
+// ── Compteur de vues (fonction sécurisée côté base) ──────────────────────────
+export async function registerView(table, id) {
+  const { error } = await supabase.rpc('increment_content_view', { _table: table, _id: String(id) });
+  if (error) console.error('[DB] view:', error.message);
+}

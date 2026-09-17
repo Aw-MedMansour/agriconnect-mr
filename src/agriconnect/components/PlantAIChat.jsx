@@ -78,7 +78,7 @@ export default function PlantAIChat({ currentUser, onRequireAuth }) {
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden flex flex-col h-[70vh] min-h-[440px]">
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden flex flex-col h-[70vh] min-h-[440px] max-h-[680px]">
       {/* En-tête */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-gradient-to-r from-[#0a66c2]/5 to-emerald-500/5">
         <div className="w-9 h-9 rounded-xl bg-[#0a66c2] text-white flex items-center justify-center shrink-0">

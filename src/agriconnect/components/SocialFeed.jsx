@@ -25,8 +25,10 @@ import { saveMedia } from '../utils/db';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onDeleteComment = () => {}, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile, onRegisterView }) {
+  const { t } = useLanguage();
   const [newPostText, setNewPostText] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [commentInputs, setCommentInputs] = useState({});
@@ -72,11 +74,11 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
   const videoInputRef = useRef(null);
 
   const filters = [
-    { id: 'all', label: 'Toutes les actualités' },
-    { id: 'harvest', label: '🌾 Récoltes & Production' },
-    { id: 'tech', label: '⚡ Eau & Pompage Solaire' },
-    { id: 'logistics', label: '🚛 Disponibilité Transport' },
-    { id: 'advice', label: '👨‍🔬 Conseils Agronomiques' }
+    { id: 'all', label: t('Toutes les actualités') },
+    { id: 'harvest', label: `🌾 ${t('Récoltes & Production')}` },
+    { id: 'tech', label: `⚡ ${t('Eau & Pompage Solaire')}` },
+    { id: 'logistics', label: `🚛 ${t('Disponibilité Transport')}` },
+    { id: 'advice', label: `👨‍🔬 ${t('Conseils Agronomiques')}` }
   ];
 
   const handleMultipleFilesUpload = (e, type) => {
@@ -254,7 +256,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
               <Users className="w-5 h-5" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-              Fil d'Actualités <span className="text-[#0a66c2]">Agricoles</span>
+               {t("Fil d'Actualités Agricoles")}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
@@ -278,7 +280,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
               type="text"
               value={newPostText}
               onChange={(e) => setNewPostText(e.target.value)}
-              placeholder={currentUser ? "Commencer un post (plusieurs photos/vidéos possibles)..." : "🔒 Veuillez vous connecter pour publier..."}
+               placeholder={currentUser ? t('Commencer un post (plusieurs photos/vidéos possibles)...') : `🔒 ${t('Veuillez vous connecter pour publier...')}`}
               onClick={() => {
                 if (!currentUser) onRequireAuth();
               }}
@@ -290,8 +292,8 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
           {mediaItems.length > 0 && (
             <div className="mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-                <span>Médias sélectionnés ({mediaItems.length})</span>
-                <span className="text-[11px] text-slate-500 font-normal">Vous pouvez ajouter d'autres photos ou vidéos</span>
+                 <span>{t('Médias sélectionnés')} ({mediaItems.length})</span>
+                 <span className="text-[11px] text-slate-500 font-normal">{t("Vous pouvez ajouter d'autres photos ou vidéos")}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -345,7 +347,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 className="flex items-center gap-1.5 text-xs text-slate-600 hover:bg-slate-100 px-3 py-2 rounded-lg font-semibold transition-colors cursor-pointer"
               >
                 <ImageIcon className="w-4 h-4 text-[#0a66c2]" />
-                <span>+ Photos</span>
+                 <span>+ {t('Photos')}</span>
               </button>
 
               <input 
@@ -365,7 +367,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 className="flex items-center gap-1.5 text-xs text-slate-600 hover:bg-slate-100 px-3 py-2 rounded-lg font-semibold transition-colors cursor-pointer"
               >
                 <VideoIcon className="w-4 h-4 text-emerald-600" />
-                <span>+ Vidéos</span>
+                 <span>+ {t('Vidéos')}</span>
               </button>
             </div>
 
@@ -376,7 +378,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 className="flex items-center gap-1.5 bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-40 text-white text-xs font-bold px-5 py-2 rounded-full transition-all cursor-pointer shadow-xs"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>{isPublishing ? 'Publication...' : 'Publier'}</span>
+                 <span>{isPublishing ? t('Publication...') : t('Publier')}</span>
               </button>
             ) : (
               <button
@@ -385,7 +387,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-full transition-all cursor-pointer shadow-xs"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Créer compte pour publier</span>
+                 <span>{t('Créer compte pour publier')}</span>
               </button>
             )}
           </div>
@@ -496,7 +498,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                       }`}
                     >
                       {isFollowing ? <UserCheck className="w-3 h-3" /> : <UserPlus className="w-3 h-3" />}
-                      {isFollowing ? 'Suivi' : '+ Suivre'}
+                       {isFollowing ? t('Suivi') : `+ ${t('Suivre')}`}
                     </button>
                   )}
 
@@ -519,7 +521,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             }}
                             className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
                           >
-                            <Pencil className="w-4 h-4" /> Modifier
+                             <Pencil className="w-4 h-4" /> {t('Modifier')}
                           </button>
                           <button
                             onClick={() => {
@@ -530,7 +532,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             }}
                             className="w-full flex items-center gap-2 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
                           >
-                            <Trash2 className="w-4 h-4" /> Supprimer
+                             <Trash2 className="w-4 h-4" /> {t('Supprimer')}
                           </button>
                         </div>
                       )}
@@ -551,7 +553,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                       onClick={() => setEditingPostId(null)}
                       className="px-4 py-1.5 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors"
                     >
-                      Annuler
+                       {t('Annuler')}
                     </button>
                     <button
                       onClick={() => {
@@ -560,7 +562,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                       }}
                       className="px-4 py-1.5 rounded-full text-xs font-bold bg-[#0a66c2] text-white hover:bg-[#004182] transition-colors"
                     >
-                      Enregistrer
+                       {t('Enregistrer')}
                     </button>
                   </div>
                 </div>
@@ -601,7 +603,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                   }`}
                 >
                   <ThumbsUp className={`w-4 h-4 ${isLiked ? 'fill-[#0a66c2] text-[#0a66c2]' : ''}`} />
-                  <span>J'aime ({likesCount})</span>
+                   <span>{t("J'aime")} ({likesCount})</span>
                 </button>
 
                 <button
@@ -610,7 +612,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                   className={`flex items-center justify-center gap-2 flex-1 py-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isCommentsOpen ? 'text-[#0a66c2]' : ''}`}
                 >
                   <MessageCircle className={`w-4 h-4 ${isCommentsOpen ? 'text-[#0a66c2]' : 'text-slate-500'}`} />
-                  <span>Commenter ({commentsCount})</span>
+                   <span>{t('Commenter')} ({commentsCount})</span>
                 </button>
 
                 <button 
@@ -618,7 +620,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                   className={`flex items-center justify-center gap-2 flex-1 py-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${ isReposted ? 'text-emerald-600' : ''}`}
                 >
                   <Repeat2 className={`w-4 h-4 ${isReposted ? 'text-emerald-600' : 'text-slate-500'}`} />
-                  <span>Repub. ({repostsCount})</span>
+                   <span>{t('Repub.')} ({repostsCount})</span>
                 </button>
 
                 <button 
@@ -626,7 +628,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                   className="flex items-center justify-center gap-2 flex-1 py-2 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <Share2 className="w-4 h-4 text-slate-500" />
-                  <span>Partager ({sharesCount})</span>
+                   <span>{t('Partager')} ({sharesCount})</span>
                 </button>
               </div>
 
@@ -682,7 +684,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             <button
                               onClick={() => setEmojiPickerFor(emojiPickerFor === c.id ? null : c.id)}
                               className="flex items-center gap-0.5 text-[11px] text-slate-400 hover:text-slate-600 px-1 py-0.5 rounded-full hover:bg-slate-100 transition-colors"
-                              title="Réagir"
+                             title={t('Réagir')}
                             >
                               <SmilePlus className="w-3 h-3" />
                             </button>
@@ -707,7 +709,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                             className="flex items-center gap-0.5 text-[11px] text-slate-400 hover:text-[#0a66c2] transition-colors font-semibold"
                           >
                             <CornerDownRight className="w-3 h-3" />
-                            Répondre
+                             {t('Répondre')}
                           </button>
 
                           {/* Delete comment */}
@@ -718,7 +720,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                               title="Supprimer le commentaire"
                             >
                               <Trash2 className="w-3 h-3" />
-                              Supprimer
+                               {t('Supprimer')}
                             </button>
                           )}
                         </div>
@@ -790,7 +792,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                     type="text"
                     value={commentInputs[post.id] || ''}
                     onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
-                    placeholder={currentUser ? "Ajouter un commentaire..." : "Connectez-vous pour commenter..."}
+                     placeholder={currentUser ? t('Ajouter un commentaire...') : t('Connectez-vous pour commenter...')}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleCommentSubmit(post.id);
                     }}
@@ -800,7 +802,7 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                     onClick={() => handleCommentSubmit(post.id)}
                     className="bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-bold px-4 py-2 rounded-full transition-colors cursor-pointer"
                   >
-                    Envoyer
+                     {t('Envoyer')}
                   </button>
                 </div>
               </div>

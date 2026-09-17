@@ -11,8 +11,11 @@ import {
   ThumbsUp
 } from 'lucide-react';
 import { MOCK_ACTORS, MOCK_MATCHING_PRESETS } from '../data/mockData';
+import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function MatchingEngine({ onDispatchSuccess }) {
+  const { t } = useLanguage();
   const [selectedNeed, setSelectedNeed] = useState('transporteur_terrestre');
   const [quantity, setQuantity] = useState('15 Tonnes');
   const [location, setLocation] = useState('Rosso, Trarza');
@@ -75,7 +78,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
           <Sparkles className="w-4 h-4 fill-[#0a66c2]" /> Algorithme de Matching LinkedIn Pro
         </div>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-          Mise en Relation <span className="text-[#0a66c2]">Automatique</span>
+           {t('Mise en Relation Automatique')}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-2 font-medium">
           AgriConnect identifie en temps réel les prestataires disponibles les plus qualifiés à proximité de votre exploitation.
@@ -106,7 +109,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
             {/* Need Selection */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                1. Quel est votre besoin ?
+                 1. {t('Quel est votre besoin ?')}
               </label>
               <select
                 value={selectedNeed}
@@ -122,7 +125,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
             {/* Quantity / Specs */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                2. Détail / Spécifications
+                 2. {t('Détail / Spécifications')}
               </label>
               <input
                 type="text"
@@ -136,7 +139,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
             {/* Location */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                3. Zone d'intervention
+                 3. {t("Zone d'intervention")}
               </label>
               <div className="relative">
                 <MapPin className="w-4 h-4 text-[#0a66c2] absolute left-3.5 top-3.5" />
@@ -153,7 +156,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
             {/* Urgency */}
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                4. Délai requis
+                 4. {t('Délai requis')}
               </label>
               <select
                 value={urgency}
@@ -176,12 +179,12 @@ export default function MatchingEngine({ onDispatchSuccess }) {
               {isScanning ? (
                 <>
                   <Radio className="w-5 h-5 animate-spin" />
-                  <span>Analyse des profils en cours...</span>
+                   <span>{t('Analyse des profils en cours...')}</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5 fill-white" />
-                  <span>Lancer le Matching Automatique</span>
+                   <span>{t('Lancer le Matching Automatique')}</span>
                 </>
               )}
             </button>
@@ -213,7 +216,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
               </button>
             ) : (
               <div className="flex items-center gap-2 text-xs font-bold text-[#0a66c2] bg-blue-50 px-4 py-2.5 rounded-full border border-blue-200">
-                <ThumbsUp className="w-4 h-4" /> Demande envoyée avec succès !
+                 <ThumbsUp className="w-4 h-4" /> {t('Demande envoyée avec succès !')}
               </div>
             )}
           </div>
@@ -232,11 +235,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                   </div>
 
                   <div className="flex items-center gap-3 mb-3">
-                    <img 
-                      src={actor.avatar} 
-                      alt={actor.name}
-                      className="w-12 h-12 rounded-full object-cover border-2 border-[#0a66c2]"
-                    />
+                     <Avatar src={actor.avatar} name={actor.name} seed={actor.id} className="w-12 h-12 border-2 border-[#0a66c2]" textClassName="text-xs" />
                     <div>
                       <h4 className="font-bold text-slate-900 text-base flex items-center gap-1.5">
                         {actor.name}
@@ -272,7 +271,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                     }}
                     className="text-xs bg-[#0a66c2] hover:bg-[#004182] text-white font-bold px-4 py-1.5 rounded-full transition-colors cursor-pointer shadow-xs"
                   >
-                    Demande Directe
+                     {t('Demande Directe')}
                   </button>
                 </div>
               </div>

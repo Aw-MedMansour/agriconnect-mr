@@ -89,7 +89,7 @@ export default function MessagingPanel({ isOpen = false, onClose = () => {}, cur
         <div className={`fixed z-50 bg-white flex flex-col overflow-hidden transition-all ${
           isFullScreen
             ? 'inset-0 z-[60] w-screen h-screen max-w-none rounded-none shadow-none'
-            : 'top-[145px] end-3 sm:top-[160px] sm:end-5 w-[calc(100vw-1.5rem)] max-w-[380px] rounded-2xl shadow-2xl border border-slate-200'
+            : 'top-[128px] end-3 sm:top-[148px] sm:end-5 w-[calc(100vw-1.5rem)] max-w-[380px] rounded-2xl shadow-2xl border border-slate-200'
         }`}
           style={isFullScreen ? {} : { maxHeight: 'min(75vh, 560px)' }}
         >

@@ -807,15 +807,20 @@ export default function App() {
             onRepost={handleRepostProduct}
             onOpenProfile={setProfileModalTarget}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onDeleteProduct={handleDeleteProduct}
+            onRegisterView={(id) => handleRegisterView('products', id)}
           />
         )}
 
         {activeModule === 'services' && (
           <MarketplaceServices
             services={services}
+            currentUser={currentUser}
             onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
             onOpenCreate={() => openCreateModal('service')}
             searchQuery={searchQuery}
+            onDeleteService={handleDeleteService}
+            onRegisterView={(id) => handleRegisterView('services', id)}
           />
         )}
 
@@ -837,18 +842,18 @@ export default function App() {
             onOpenProfile={setProfileModalTarget}
             allProducts={products}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onRegisterView={(id) => handleRegisterView('posts', id)}
           />
         )}
 
-        {activeModule === 'plantai' && (
-          <PlantAnalysis
+        {activeModule === 'ai' && (
+          <AIHub
             currentUser={currentUser}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onDispatchSuccess={(msg) => showToast(msg)}
+            defaultTab={aiDefaultTab}
+            key={aiDefaultTab}
           />
-        )}
-
-        {activeModule === 'matching' && (
-          <MatchingEngine onDispatchSuccess={(msg) => showToast(msg)} />
         )}
 
         {activeModule === 'reputation' && (
@@ -856,48 +861,6 @@ export default function App() {
             actors={allAvailableUsers.filter(u => !currentUser || u.id !== currentUser.id)}
             onContactActor={(actor) => { if (!currentUser) setIsAuthModalOpen(true); else startOrOpenConversation(actor); }}
             searchQuery={searchQuery}
-          />
-        )}
-
-        {/* New Modules Placeholders */}
-        {activeModule === 'energy' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'energie_eau')}
-            searchQuery={searchQuery}
-            predefinedCategory="energie_eau"
-            moduleTitle="Énergie & Eau"
-          />
-        )}
-        {activeModule === 'finance' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'banque_assurance')}
-            searchQuery={searchQuery}
-            predefinedCategory="banque_assurance"
-            moduleTitle="Banque & Assurance"
-          />
-        )}
-        {activeModule === 'land' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'terrain')}
-            searchQuery={searchQuery}
-            predefinedCategory="terrain"
-            moduleTitle="Terrain à louer & vendre"
-          />
-        )}
-        {activeModule === 'workers' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'agronome')}
-            searchQuery={searchQuery}
-            predefinedCategory="agronome"
-            moduleTitle="Agronome & Ouvrier"
           />
         )}
       </main>

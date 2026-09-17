@@ -18,14 +18,15 @@ import {
   CornerDownRight,
   MoreHorizontal,
   Pencil,
-  Trash2
+  Trash2,
+  Eye
 } from 'lucide-react';
 import { saveMedia } from '../utils/db';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
 
-export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onDeleteComment = () => {}, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile }) {
+export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, onDeletePost, onAddComment, onDeleteComment = () => {}, onToggleLike, onRepost, onToggleFollow, onAddCommentReaction, onShare, onContactUser, onRequireAuth, allProducts, onOpenProfile, onRegisterView }) {
   const [newPostText, setNewPostText] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [commentInputs, setCommentInputs] = useState({});
@@ -33,6 +34,28 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
   const [replyingTo, setReplyingTo] = useState({}); // { postId: commentId }
   const [emojiPickerFor, setEmojiPickerFor] = useState(null); // commentId
   const [isPublishing, setIsPublishing] = useState(false);
+  const [openComments, setOpenComments] = useState({}); // { postId: bool }
+
+  // Compteur de vues : une publication est vue lorsqu'elle apparaît à l'écran
+  const postNodesRef = useRef(new Map());
+  const setPostRef = useCallback((id) => (node) => {
+    if (node) postNodesRef.current.set(id, node);
+    else postNodesRef.current.delete(id);
+  }, []);
+
+  useEffect(() => {
+    if (!onRegisterView || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          onRegisterView(entry.target.dataset.postId);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    postNodesRef.current.forEach(node => observer.observe(node));
+    return () => observer.disconnect();
+  }, [posts.length, onRegisterView]);
   
   // Post edit/delete state
   const [editingPostId, setEditingPostId] = useState(null);

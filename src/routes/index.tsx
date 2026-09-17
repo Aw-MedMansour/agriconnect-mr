@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import App from "../agriconnect/App";
+// The application UI is progressively localized from its existing JSX components.
+// @ts-expect-error JSX context module has no standalone declaration file.
 import { LanguageProvider } from "../agriconnect/i18n";
 
 function LocalizedApp() {

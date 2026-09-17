@@ -21,6 +21,7 @@ import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updat
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeModule, setActiveModule] = useState('products');
+  const [aiDefaultTab, setAiDefaultTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Auth

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import logo from '../assets/agriconnect-logo.png';
+import { useLanguage } from '../i18n';
 
 export default function SplashScreen({ done }) {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState(8);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function SplashScreen({ done }) {
             Agri<span className="text-[#0a66c2]">Connect</span>
           </div>
           <p className="mt-1 text-xs font-medium text-slate-500">
-            Le réseau professionnel agricole
+            {t('Le réseau professionnel agricole')}
           </p>
         </div>
 

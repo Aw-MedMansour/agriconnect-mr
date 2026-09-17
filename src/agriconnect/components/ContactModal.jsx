@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { X, Phone, MessageSquare, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function ContactModal({ isOpen, onClose, targetData, onSendMessage }) {
+  const { t } = useLanguage();
   const [message, setMessage] = useState('');
   const [sentSuccess, setSentSuccess] = useState(false);
 
@@ -64,7 +66,7 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
               className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-[#0a66c2] border border-blue-200 p-3 rounded-full text-xs font-bold transition-all"
             >
               <Phone className="w-4 h-4 text-[#0a66c2]" />
-              <span>Appel Direct</span>
+               <span>{t('Appel Direct')}</span>
             </a>
             <a 
               href={`https://wa.me/${phone.replace(/[^0-9]/g, '')}`}
@@ -73,7 +75,7 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
               className="flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 p-3 rounded-full text-xs font-bold transition-all"
             >
               <MessageSquare className="w-4 h-4 text-emerald-700" />
-              <span>WhatsApp Direct</span>
+               <span>{t('WhatsApp Direct')}</span>
             </a>
           </div>
 
@@ -81,13 +83,13 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
           <form onSubmit={handleSend} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Envoyer un message InMail sécurisé
+                 {t('Envoyer un message sécurisé')}
               </label>
               <textarea
                 rows={4}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder={`Bonjour ${recipientName}, je vous contacte concernant votre annonce...`}
+                 placeholder={`${t('Bonjour')} ${recipientName}, ${t('je vous contacte concernant votre annonce...')}`}
                 required
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-[#0a66c2] focus:bg-white transition-colors"
               />
@@ -95,13 +97,13 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
 
             {targetData.title && (
               <div className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200 flex items-center justify-between font-medium">
-                <span>Annonce concernée: <strong className="text-slate-900">{targetData.title}</strong></span>
+                 <span>{t('Annonce concernée')}: <strong className="text-slate-900">{targetData.title}</strong></span>
               </div>
             )}
 
             {sentSuccess ? (
               <div className="p-3 bg-blue-50 text-[#0a66c2] border border-blue-200 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-                <CheckCircle2 className="w-4 h-4" /> Message transmis instantanément !
+                 <CheckCircle2 className="w-4 h-4" /> {t('Message transmis instantanément !')}
               </div>
             ) : (
               <button
@@ -109,7 +111,7 @@ export default function ContactModal({ isOpen, onClose, targetData, onSendMessag
                 className="w-full flex items-center justify-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white font-bold text-xs py-3 rounded-full transition-colors cursor-pointer shadow-xs"
               >
                 <Send className="w-4 h-4" />
-                <span>Envoyer le Message InMail</span>
+                 <span>{t('Envoyer le message')}</span>
               </button>
             )}
           </form>

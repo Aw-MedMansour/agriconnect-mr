@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Loader2, Bot, Lock, RefreshCw } from 'lucide-react';
+import { Bot, Lock, RefreshCw, Send, Sprout } from 'lucide-react';
 import { askPlantAI } from '@/lib/agri-chat.functions';
+import { Conversation, ConversationContent, ConversationScrollButton } from '@/components/ai-elements/conversation';
+import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message';
+import { Shimmer } from '@/components/ai-elements/shimmer';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 const SUGGESTIONS = [
   'Mes feuilles de tomate jaunissent, que faire ?',
@@ -9,191 +13,66 @@ const SUGGESTIONS = [
   'Comment vendre ma récolte sur AgriConnect ?',
   'Comment fonctionne le Matching IA ?',
 ];
-
-const WELCOME = {
-  role: 'assistant',
-  content:
-    "Bonjour 👋 Je suis **Plant AI**, votre agronome virtuel AgriConnect (sous la tutelle de FulanIA).\nPosez-moi vos questions sur vos cultures, vos sols, vos maladies de plantes — ou sur l'utilisation de la plateforme.",
-};
-
-// Rendu léger du gras markdown (**texte**) et des retours à la ligne.
-function RichText({ text }) {
-  return (
-    <>
-      {String(text).split('\n').map((line, i) => (
-        <p key={i} className={i ? 'mt-1.5' : ''}>
-          {line.split(/(\*\*[^*]+\*\*)/g).map((part, j) =>
-            part.startsWith('**') && part.endsWith('**') ? (
-              <strong key={j} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>
-            ) : (
-              <React.Fragment key={j}>{part}</React.Fragment>
-            )
-          )}
-        </p>
-      ))}
-    </>
-  );
-}
+const WELCOME_TEXT = "Bonjour 👋 Je suis **Plant AI**, votre agronome virtuel AgriConnect (sous la tutelle de FulanIA).\nPosez-moi vos questions sur vos cultures, vos sols, vos maladies de plantes — ou sur l'utilisation de la plateforme.";
 
 export default function PlantAIChat({ currentUser, onRequireAuth }) {
-  const [messages, setMessages] = useState([WELCOME]);
+  const { t } = useLanguage();
+  const welcome = { role: 'assistant', content: t(WELCOME_TEXT) };
+  const [messages, setMessages] = useState([welcome]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState(null);
-  const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, isThinking]);
+  useEffect(() => { if (currentUser) inputRef.current?.focus(); }, [currentUser]);
 
-  useEffect(() => {
-    if (currentUser) inputRef.current?.focus();
-  }, [currentUser]);
-
+  const reset = () => { setMessages([{ role: 'assistant', content: t(WELCOME_TEXT) }]); setError(null); };
   const send = async (text) => {
     const body = (text ?? input).trim();
     if (!body || isThinking) return;
     if (!currentUser) { onRequireAuth?.(); return; }
-
     const next = [...messages, { role: 'user', content: body }];
-    setMessages(next);
-    setInput('');
-    setError(null);
-    setIsThinking(true);
-
+    setMessages(next); setInput(''); setError(null); setIsThinking(true);
     try {
-      const history = next
-        .filter((m, i) => !(i === 0 && m === WELCOME))
-        .slice(-20)
-        .map(m => ({ role: m.role, content: m.content }));
-      const res = await askPlantAI({ data: { messages: history } });
-      setMessages(prev => [...prev, { role: 'assistant', content: res.reply }]);
+      const history = next.slice(-20).map(message => ({ role: message.role, content: message.content }));
+      const response = await askPlantAI({ data: { messages: history } });
+      setMessages(previous => [...previous, { role: 'assistant', content: response.reply }]);
     } catch (err) {
-      setError(err?.message || "Plant AI est momentanément indisponible.");
+      setError(err?.message || 'Plant AI est momentanément indisponible.');
     } finally {
-      setIsThinking(false);
-      inputRef.current?.focus();
+      setIsThinking(false); inputRef.current?.focus();
     }
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden flex flex-col h-[70vh] min-h-[440px] max-h-[680px]">
-      {/* En-tête */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-200 bg-gradient-to-r from-[#0a66c2]/5 to-emerald-500/5">
-        <div className="w-9 h-9 rounded-xl bg-[#0a66c2] text-white flex items-center justify-center shrink-0">
-          <Bot className="w-5 h-5" />
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-bold text-slate-900">Plant AI</div>
-          <div className="text-[11px] text-slate-500 font-medium truncate">
-            Agronome virtuel AgriConnect — sous la tutelle de FulanIA
-          </div>
-        </div>
-        <button
-          onClick={() => { setMessages([WELCOME]); setError(null); }}
-          className="ml-auto flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-[#0a66c2] px-2 py-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
-          title="Nouvelle conversation"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Nouvelle
-        </button>
+    <section className="flex h-[min(72vh,700px)] min-h-[500px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+      <div className="flex items-center gap-3 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-blue-50 px-4 py-3 sm:px-5">
+        <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-[#0a66c2] text-white shadow-md"><Bot className="h-5 w-5" /><span className="absolute -bottom-1 -end-1 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" /></span>
+        <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-slate-900">Plant AI</h3><p className="truncate text-[10px] font-semibold text-slate-500 sm:text-[11px]">{t('Agronome virtuel AgriConnect — sous la tutelle de FulanIA')}</p></div>
+        <button onClick={reset} title={t('Nouvelle conversation')} className="flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-2 text-[10px] font-bold text-slate-600 hover:text-[#0a66c2]"><RefreshCw className="h-3.5 w-3.5" /><span className="hidden sm:inline">{t('Nouvelle')}</span></button>
       </div>
 
-      {/* Transcription */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {messages.map((m, i) => (
-          <div key={i} className={`flex items-start gap-2.5 ${m.role === 'user' ? 'justify-end' : ''}`}>
-            {m.role === 'assistant' && (
-              <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5">
-                <Bot className="w-4 h-4" />
+      <Conversation className="bg-[radial-gradient(circle_at_top,_rgba(14,165,160,0.07),_transparent_35%)]">
+        <ConversationContent className="gap-4 p-4 sm:p-5">
+          {messages.map((message, index) => (
+            <Message key={`${message.role}-${index}`} from={message.role} className={message.role === 'user' ? 'ms-auto' : ''}>
+              <div className="flex items-start gap-2.5">
+                {message.role === 'assistant' && <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white"><Sprout className="h-4 w-4" /></span>}
+                <MessageContent className={message.role === 'user' ? 'rounded-2xl rounded-ee-sm bg-[#0a66c2] px-4 py-3 text-white' : 'rounded-2xl rounded-es-sm border border-slate-200 bg-white px-4 py-3 text-slate-800 shadow-sm'}><MessageResponse>{message.content}</MessageResponse></MessageContent>
+                {message.role === 'user' && <Avatar src={currentUser?.avatar} name={currentUser?.name || 'Moi'} seed={currentUser?.id} className="h-8 w-8 shrink-0" textClassName="text-[9px]" />}
               </div>
-            )}
-            <div
-              className={
-                m.role === 'user'
-                  ? 'max-w-[80%] bg-[#0a66c2] text-white text-xs leading-relaxed px-3.5 py-2.5 rounded-2xl rounded-tr-sm'
-                  : 'max-w-[85%] text-xs leading-relaxed text-slate-800'
-              }
-            >
-              <RichText text={m.content} />
-            </div>
-            {m.role === 'user' && (
-              <Avatar
-                src={currentUser?.avatar}
-                name={currentUser?.name || 'Moi'}
-                seed={currentUser?.id || currentUser?.name}
-                className="w-7 h-7 shrink-0 mt-0.5"
-                textClassName="text-[9px]"
-              />
-            )}
-          </div>
-        ))}
+            </Message>
+          ))}
+          {isThinking && <div className="flex items-center gap-2 rounded-xl px-1 text-xs font-semibold"><Bot className="h-4 w-4 text-emerald-600" /><Shimmer>{t('Plant AI réfléchit…')}</Shimmer></div>}
+          {error && <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">{error}</div>}
+          {messages.length === 1 && <div className="flex flex-wrap gap-2 pt-2">{SUGGESTIONS.map(suggestion => <button key={suggestion} onClick={() => send(t(suggestion))} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-[11px] font-semibold text-slate-700 shadow-sm hover:border-[#0a66c2] hover:text-[#0a66c2]">{t(suggestion)}</button>)}</div>}
+        </ConversationContent>
+        <ConversationScrollButton aria-label="Scroll" />
+      </Conversation>
 
-        {isThinking && (
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <Loader2 className="w-4 h-4 animate-spin text-[#0a66c2]" />
-            Plant AI réfléchit…
-          </div>
-        )}
-
-        {error && (
-          <div className="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
-            {error}
-          </div>
-        )}
-
-        {messages.length === 1 && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            {SUGGESTIONS.map(s => (
-              <button
-                key={s}
-                onClick={() => send(s)}
-                className="text-[11px] font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-full px-3 py-1.5 transition-colors cursor-pointer"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Zone de saisie */}
-      <form
-        onSubmit={(e) => { e.preventDefault(); send(); }}
-        className="border-t border-slate-200 p-3 bg-slate-50"
-      >
-        {!currentUser ? (
-          <button
-            type="button"
-            onClick={onRequireAuth}
-            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 rounded-full transition-colors cursor-pointer"
-          >
-            <Lock className="w-4 h-4" /> Connectez-vous pour discuter avec Plant AI
-          </button>
-        ) : (
-          <div className="flex items-end gap-2">
-            <textarea
-              ref={inputRef}
-              rows={1}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-              }}
-              placeholder="Posez votre question agricole…"
-              className="flex-1 resize-none max-h-32 bg-white border border-slate-300 rounded-2xl px-4 py-2.5 text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:border-[#0a66c2]"
-            />
-            <button
-              type="submit"
-              disabled={isThinking || !input.trim()}
-              aria-label="Envoyer le message à Plant AI"
-              className="w-10 h-10 shrink-0 flex items-center justify-center rounded-full bg-[#0a66c2] hover:bg-[#004182] disabled:opacity-40 text-white transition-colors cursor-pointer"
-            >
-              {isThinking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </button>
-          </div>
-        )}
+      <form onSubmit={event => { event.preventDefault(); send(); }} className="border-t border-slate-200 bg-white p-3 sm:p-4">
+        {!currentUser ? <button type="button" onClick={onRequireAuth} className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-500 py-3 text-xs font-bold text-white hover:bg-amber-600"><Lock className="h-4 w-4" />{t('Connectez-vous pour discuter avec Plant AI')}</button> : <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-slate-50 p-1.5 focus-within:border-[#0a66c2] focus-within:ring-2 focus-within:ring-blue-100"><textarea ref={inputRef} rows={1} value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); send(); } }} placeholder={t('Posez votre question agricole…')} className="max-h-28 min-h-10 min-w-0 flex-1 resize-none bg-transparent px-3 py-2 text-xs outline-none" /><button type="submit" disabled={isThinking || !input.trim()} aria-label={t('Envoyer le message à Plant AI')} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0a66c2] text-white disabled:opacity-40"><Send className="h-4 w-4" /></button></div>}
       </form>
-    </div>
+    </section>
   );
 }

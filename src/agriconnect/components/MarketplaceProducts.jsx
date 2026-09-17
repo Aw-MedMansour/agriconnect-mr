@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Store, 
   MapPin, 
@@ -7,19 +7,52 @@ import {
   MessageSquare, 
   PlusCircle, 
   CheckCircle2, 
-  Heart, 
   Filter,
-  ChevronLeft,
-  ChevronRight,
-  Play,
   Image as ImageIcon,
   ThumbsUp,
   MessageCircle,
   Share2,
-  Repeat2
+  Repeat2,
+  Eye,
+  Trash2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
+import Avatar from './Avatar';
+
+// Une quantité doit toujours porter une unité lisible (kg, tonne, litre, sac…).
+export function formatQuantity(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return 'Quantité non précisée';
+  if (/^\d+([.,]\d+)?$/.test(raw)) return `${raw} unité${Number(raw.replace(',', '.')) > 1 ? 's' : ''}`;
+  return raw
+    .replace(/(\d)\s*t\b/i, '$1 Tonnes')
+    .replace(/(\d)\s*kgs?\b/i, '$1 kg')
+    .replace(/(\d)\s*l\b/i, '$1 litres');
+}
+
+// Enregistre une vue lorsque la carte devient réellement visible à l'écran.
+function useViewTracker(id, onRegisterView) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!onRegisterView || !ref.current || typeof IntersectionObserver === 'undefined') return;
+    const el = ref.current;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          onRegisterView(id);
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [id, onRegisterView]);
+  return ref;
+}
+
 
 // ── Sub-component: Product Media Grid ────────────────────────────────────
 function ProductMediaGrid({ prod, onOpenViewer }) {

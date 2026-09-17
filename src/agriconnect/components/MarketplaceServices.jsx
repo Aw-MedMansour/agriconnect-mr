@@ -14,10 +14,14 @@ import {
   MessageSquare,
   Filter,
   Landmark,
-  Map
+  Map,
+  Eye,
+  Trash2
 } from 'lucide-react';
+import Avatar from './Avatar';
+import { useViewTracker } from './MarketplaceProducts';
 
-export default function MarketplaceServices({ services, onContactProvider, onOpenCreate, searchQuery, predefinedCategory, moduleTitle }) {
+export default function MarketplaceServices({ services, currentUser, onContactProvider, onOpenCreate, searchQuery, predefinedCategory, moduleTitle, onDeleteService = () => {}, onRegisterView }) {
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'offer', 'request'
   const [selectedCategory, setSelectedCategory] = useState(predefinedCategory || 'all');
 

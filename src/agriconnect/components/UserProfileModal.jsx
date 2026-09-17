@@ -21,6 +21,7 @@ import {
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function UserProfileModal({
   isOpen,
@@ -39,6 +40,7 @@ export default function UserProfileModal({
   onOpenProfile,
   onRequireAuth
 }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('posts');
   const [viewerState, setViewerState] = useState({ isOpen: false, items: [], initialIndex: 0 });
 
@@ -153,11 +155,11 @@ export default function UserProfileModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black/50 p-3 backdrop-blur-sm sm:p-4"
         onClick={onClose}
       >
         <div
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
+          className="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[calc(100dvh-2rem)]"
           onClick={e => e.stopPropagation()}
         >
           {/* ── Profile Header ── */}
@@ -184,9 +186,9 @@ export default function UserProfileModal({
           </div>
 
           {/* Profile info */}
-          <div className="px-5 pt-12 pb-4 border-b border-slate-100">
-            <div className="flex items-start justify-between gap-3">
-              <div>
+            <div className="border-b border-slate-100 px-4 pb-4 pt-12 sm:px-5">
+            <div className="flex min-w-0 flex-col items-start justify-between gap-3 sm:flex-row">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-lg font-extrabold text-slate-900">{authorName}</h2>
                   <CheckCircle2 className="w-5 h-5 text-[#0a66c2] shrink-0" />
@@ -199,31 +201,31 @@ export default function UserProfileModal({
                 <p className="text-sm text-slate-500 mt-0.5">{authorRole}</p>
 
                 {/* Stats row */}
-                <div className="flex items-center gap-4 mt-2 text-[11px] text-slate-500 font-semibold">
+                <div className="mt-2 flex max-w-full flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-semibold text-slate-500">
                   <span className="flex items-center gap-1">
                     <MessageCircle className="w-3.5 h-3.5 text-[#0a66c2]" />
-                    {userPosts.length} publication{userPosts.length !== 1 ? 's' : ''}
+                     {userPosts.length} {t('Publications')}
                   </span>
                   <span className="flex items-center gap-1">
                     <ThumbsUp className="w-3.5 h-3.5 text-rose-400" />
-                    {totalLikes} j'aime reçus
+                     {totalLikes} {t("J'aime reçus")}
                   </span>
                   <span className="flex items-center gap-1">
                     <Store className="w-3.5 h-3.5 text-emerald-500" />
-                    {userProducts.length} produit{userProducts.length !== 1 ? 's' : ''}
+                     {userProducts.length} {t('Produits')}
                   </span>
                   <button
                     onClick={() => setActiveTab('relations')}
                     className="flex items-center gap-1 hover:text-[#0a66c2] transition-colors"
                   >
                     <Users className="w-3.5 h-3.5 text-violet-500" />
-                    {followerUsers.length} abonné{followerUsers.length !== 1 ? 's' : ''} · {followingUsers.length} abonnement{followingUsers.length !== 1 ? 's' : ''}
+                     {followerUsers.length} {t('Abonnés')} · {followingUsers.length} {t('Abonnements')}
                   </button>
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex max-w-full flex-wrap items-center gap-2">
                 <button
                   onClick={() => {
                     const url = `${window.location.origin}${window.location.pathname}?profile=${authorId}`;
@@ -249,7 +251,7 @@ export default function UserProfileModal({
                       }`}
                     >
                       {isFollowing ? <UserCheck className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
-                      {isFollowing ? 'Suivi' : '+ Suivre'}
+                       {isFollowing ? t('Suivi') : `+ ${t('Suivre')}`}
                     </button>
                     <button
                       onClick={() => {
@@ -260,13 +262,13 @@ export default function UserProfileModal({
                       className="group/msg flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                     >
                       <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
-                      Message
+                       {t('Message')}
                     </button>
                   </>
                 )}
                 {isOwnProfile && (
                   <span className="text-xs text-slate-400 italic font-medium bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
-                    Votre profil
+                     {t('Votre profil')}
                   </span>
                 )}
               </div>
@@ -274,16 +276,16 @@ export default function UserProfileModal({
           </div>
 
           {/* ── Tabs ── */}
-          <div className="flex border-b border-slate-100">
+          <div className="flex min-w-0 overflow-x-auto border-b border-slate-100 no-scrollbar">
             {[
-              { id: 'posts', label: `Publications (${userPosts.length})`, icon: Users },
-              { id: 'products', label: `Produits (${userProducts.length})`, icon: Store },
-              { id: 'relations', label: `Relations (${relationsCount})`, icon: Users },
+              { id: 'posts', label: `${t('Publications')} (${userPosts.length})`, icon: Users },
+              { id: 'products', label: `${t('Produits')} (${userProducts.length})`, icon: Store },
+              { id: 'relations', label: `${t('Relations')} (${relationsCount})`, icon: Users },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 flex-1 py-3 text-xs font-bold transition-all border-b-2 ${
+                className={`flex shrink-0 items-center justify-center gap-2 px-4 py-3 text-xs font-bold transition-all border-b-2 sm:flex-1 ${
                   activeTab === tab.id
                     ? 'border-[#0a66c2] text-[#0a66c2]'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
@@ -304,7 +306,7 @@ export default function UserProfileModal({
                 {userPosts.length === 0 ? (
                   <div className="flex flex-col items-center py-12 text-center">
                     <MessageCircle className="w-10 h-10 text-slate-300 mb-3" />
-                    <p className="text-sm font-semibold text-slate-500">Aucune publication encore.</p>
+                     <p className="text-sm font-semibold text-slate-500">{t('Aucune publication encore.')}</p>
                   </div>
                 ) : (
                   userPosts.map(post => {
@@ -350,7 +352,7 @@ export default function UserProfileModal({
                 {userProducts.length === 0 ? (
                   <div className="flex flex-col items-center py-12 text-center">
                     <Store className="w-10 h-10 text-slate-300 mb-3" />
-                    <p className="text-sm font-semibold text-slate-500">Aucun produit publié.</p>
+                     <p className="text-sm font-semibold text-slate-500">{t('Aucun produit publié.')}</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -386,15 +388,15 @@ export default function UserProfileModal({
               <div className="space-y-5">
                 <div>
                   <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
-                    Abonnés ({followerUsers.length})
+                     {t('Abonnés')} ({followerUsers.length})
                   </h4>
-                  {renderPersonList(followerUsers, 'Aucun abonné pour le moment.')}
+                   {renderPersonList(followerUsers, t('Aucun abonné pour le moment.'))}
                 </div>
                 <div>
                   <h4 className="text-xs font-black text-slate-800 uppercase tracking-wide mb-2">
-                    Abonnements ({followingUsers.length})
+                     {t('Abonnements')} ({followingUsers.length})
                   </h4>
-                  {renderPersonList(followingUsers, 'Ne suit encore personne.')}
+                   {renderPersonList(followingUsers, t('Ne suit encore personne.'))}
                 </div>
               </div>
             )}

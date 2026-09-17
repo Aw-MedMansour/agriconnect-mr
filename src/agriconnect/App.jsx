@@ -790,7 +790,7 @@ export default function App() {
 
       {/* Toast Banner */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 bg-white border border-[#0a66c2] text-slate-900 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 max-w-md">
+        <div className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-[#0a66c2] bg-white px-4 py-3 text-slate-900 shadow-xl sm:inset-x-auto sm:bottom-5 sm:end-5">
           <CheckCircle2 className="w-5 h-5 text-[#0a66c2] shrink-0" />
           <span className="text-xs font-bold">{toastMessage}</span>
           <button onClick={() => setToastMessage(null)} aria-label="Fermer la notification" className="text-slate-400 hover:text-slate-700 p-1">
@@ -846,7 +846,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 pt-4 w-full">
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-2.5 flex items-center gap-3 text-xs text-blue-800 font-medium">
             <Info className="w-4 h-4 text-[#0a66c2] shrink-0" />
-            <span>Pour publier une récolte ici, cliquez sur <strong>"Vendre ma récolte"</strong> ci-dessous. Les publications du Réseau Social sont distinctes.</span>
+             <span>{t('Pour publier une récolte ici, cliquez sur « Vendre ma récolte » ci-dessous. Les publications du Réseau Social sont distinctes.')}</span>
           </div>
         </div>
       )}
@@ -1002,9 +1002,9 @@ export default function App() {
             <span>— {t('Le réseau professionnel agricole')}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-slate-600">
-            <span>Marketplace Produits</span>
-            <span>Services & Logistique</span>
-            <span>Matching IA Pro</span>
+             <span>{t('Marketplace Produits')}</span>
+             <span>{t('Services & Logistique')}</span>
+             <span>{t('Matching IA Pro')}</span>
             <a href="/conditions" className="font-bold text-[#0a66c2] hover:underline">
               {t("Conditions d'utilisation")}
             </a>
@@ -1018,7 +1018,7 @@ export default function App() {
           <div className="flex flex-col items-center gap-1 text-slate-400 md:items-end">
             <span>© 2026 AgriConnect. {t('Tous droits réservés.')}</span>
             <span>
-              Développé en partenariat par{' '}
+               {t('Développé en partenariat par')}{' '}
               <a
                 href="https://3A55.Fulania.com"
                 target="_blank"

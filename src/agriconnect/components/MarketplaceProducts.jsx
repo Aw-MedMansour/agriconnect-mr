@@ -140,10 +140,11 @@ function ProductMediaGrid({ prod, onOpenViewer }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function MarketplaceProducts({ products, currentUser, onContactSeller, onRequestTransport, onOpenCreate, searchQuery, onToggleLike, onAddComment, onShare, onRepost, onOpenProfile, onRequireAuth }) {
+export default function MarketplaceProducts({ products, currentUser, onContactSeller, onRequestTransport, onOpenCreate, searchQuery, onToggleLike, onAddComment, onShare, onRepost, onOpenProfile, onRequireAuth, onDeleteProduct = () => {}, onRegisterView }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewerState, setViewerState] = useState({ isOpen: false, items: [], initialIndex: 0 });
   const [commentInputs, setCommentInputs] = useState({});
+  const [openComments, setOpenComments] = useState({});
 
   const categories = [
     { id: 'all', label: 'Toutes les récoltes' },

@@ -395,9 +395,18 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
           const repostsCount = post.repostedBy?.length || 0;
           const isFollowing = currentUser?.following?.includes(post.authorId);
           const isOwnPost = currentUser?.id === post.authorId;
+          const commentsCount = post.comments?.length || 0;
+          const sharesCount = post.sharesCount || 0;
+          const viewsCount = post.viewsCount || 0;
+          const isCommentsOpen = !!openComments[post.id];
 
           return (
-            <div key={post.id} className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs">
+            <div
+              key={post.id}
+              ref={setPostRef(post.id)}
+              data-post-id={post.id}
+              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs"
+            >
 
               {/* Repost badge if this is a repost */}
               {post.repostOf && (

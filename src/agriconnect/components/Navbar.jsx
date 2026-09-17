@@ -23,7 +23,7 @@ function Counter({ children }) {
   return <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-black text-white ring-2 ring-white">{children > 99 ? '99+' : children}</span>;
 }
 
-export default function Navbar({ activeModule, setActiveModule, onOpenAuth, currentUser, onLogout, onOpenCreate, searchQuery, setSearchQuery, onOpenMessaging, unreadMessages = 0, onOpenNotifications, unreadNotifications = 0, onOpenProfile }) {
+export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal, currentUser, onLogout, onOpenCreateModal, searchQuery, setSearchQuery, onToggleMessaging, unreadCount = 0, onToggleNotifications, notificationCount = 0, onOpenMyProfile }) {
   const { language, setLanguage, t } = useLanguage();
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuth, curr
         </div>
 
         <div className="relative flex min-h-[58px] items-center justify-between gap-2 border-t border-slate-100 py-2">
-          <button onClick={onOpenCreate} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#0a66c2] px-3 py-2.5 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#004182] sm:px-4 sm:text-xs">
+          <button onClick={onOpenCreateModal} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#0a66c2] px-3 py-2.5 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#004182] sm:px-4 sm:text-xs">
             <Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('Publier une annonce')}</span><span className="sm:hidden">{t('Publier une annonce').split(' ')[0]}</span>
           </button>
 
@@ -72,11 +72,11 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuth, curr
                   <ChevronDown className="hidden h-3 w-3 text-slate-400 md:block" />
                 </button>
               ) : (
-                <button onClick={onOpenAuth} className="flex h-10 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 sm:px-3"><UserCircle2 className="h-4 w-4" /><span className="hidden sm:inline">{t('Connexion')}</span></button>
+                <button onClick={onOpenAuthModal} className="flex h-10 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 sm:px-3"><UserCircle2 className="h-4 w-4" /><span className="hidden sm:inline">{t('Connexion')}</span></button>
               )}
               {profileOpen && currentUser && (
                 <div className="absolute start-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 text-start shadow-xl">
-                  <button onClick={() => { onOpenProfile?.(currentUser); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Mon profil & mes publications')}</button>
+                  <button onClick={() => { onOpenMyProfile?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Mon profil & mes publications')}</button>
                   <button onClick={() => { onLogout?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />{t('Se déconnecter')}</button>
                 </div>
               )}
@@ -87,8 +87,8 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuth, curr
               {searchOpen && <div className="absolute end-0 top-full z-50 mt-2 flex w-[min(88vw,360px)] items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"><Search className="ms-2 h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery || ''} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-1.5 text-xs outline-none" /><button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button></div>}
             </div>
 
-            <button onClick={onOpenNotifications} className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label={t('Ouvrir les notifications')}><Bell className="h-4 w-4" /><Counter>{unreadNotifications}</Counter></button>
-            <button onClick={onOpenMessaging} className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-md" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-4 w-4 fill-white/15" /><Counter>{unreadMessages}</Counter></button>
+            <button onClick={onToggleNotifications} className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label={t('Ouvrir les notifications')}><Bell className="h-4 w-4" /><Counter>{notificationCount}</Counter></button>
+            <button onClick={onToggleMessaging} className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-md" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-4 w-4 fill-white/15" /><Counter>{unreadCount}</Counter></button>
 
             <label className="relative flex h-10 shrink-0 items-center rounded-full border border-slate-200 bg-white px-1.5 text-[10px] font-black text-slate-600 hover:bg-slate-50" aria-label={t('Choisir la langue')}>
               <span className="pointer-events-none w-6 text-center">{languages.find(item => item.id === language)?.short}</span>

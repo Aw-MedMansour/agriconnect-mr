@@ -22,6 +22,13 @@
       "when": 1789181315406,
       "tag": "0002_grant_notifications_access",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789609287291,
+      "tag": "0003_increment_content_views",
+      "breakpoints": true
     }
   ]
 }

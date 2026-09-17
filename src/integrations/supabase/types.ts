@@ -145,6 +145,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_content_view: {
+        Args: { _id: string; _table: string }
+        Returns: undefined
+      }
       public_profile_fields: { Args: { d: Json }; Returns: Json }
       strip_contact_keys: { Args: { d: Json }; Returns: Json }
     }

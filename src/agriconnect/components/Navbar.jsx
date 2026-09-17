@@ -58,15 +58,10 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
           </button>
         </div>
 
-        <div className="relative flex min-h-[44px] items-center justify-between gap-2 border-t border-slate-100 py-1.5 sm:min-h-[48px]">
-          <button onClick={onOpenCreateModal} className="flex shrink-0 items-center gap-1.5 rounded-full bg-[#0a66c2] px-2.5 py-2 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#004182] sm:px-4 sm:text-xs">
-            <Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('Publier une annonce')}</span><span className="sm:hidden">{t('Publier une annonce').split(' ')[0]}</span>
-          </button>
-
-          <div className="flex min-w-0 items-center justify-end gap-1 sm:gap-2">
-            <div ref={profileRef} className="relative">
+        <div className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 border-t border-slate-100 py-1.5 sm:min-h-[48px] sm:gap-2">
+          <div ref={profileRef} className="relative min-w-0 justify-self-start">
               {currentUser ? (
-                <button onClick={() => setProfileOpen(v => !v)} className="flex h-9 max-w-[150px] items-center gap-2 rounded-full border border-slate-200 bg-white px-1.5 pe-2 text-start hover:bg-slate-50" aria-expanded={profileOpen}>
+                <button onClick={() => setProfileOpen(v => !v)} className="flex h-9 max-w-[120px] items-center gap-2 rounded-full border border-slate-200 bg-white px-1.5 pe-2 text-start hover:bg-slate-50 sm:max-w-[170px]" aria-expanded={profileOpen} aria-label={t('Mon profil')}>
                   <Avatar src={currentUser.avatar} name={currentUser.name} seed={currentUser.id} className="h-6 w-6 shrink-0" textClassName="text-[8px]" />
                   <span className="hidden min-w-0 md:block"><span className="block truncate text-[10px] font-extrabold text-slate-800">{currentUser.name}</span><span className="block truncate text-[9px] text-slate-500">{currentUser.roleLabel || t('Membre')}</span></span>
                   <ChevronDown className="hidden h-3 w-3 text-slate-400 md:block" />
@@ -75,13 +70,14 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
                 <button onClick={onOpenAuthModal} className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 sm:px-3"><UserCircle2 className="h-4 w-4" /><span className="hidden sm:inline">{t('Connexion')}</span></button>
               )}
               {profileOpen && currentUser && (
-                <div className="absolute start-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 text-start shadow-xl">
+                <div className="absolute start-0 top-full z-50 mt-2 w-[min(14rem,88vw)] overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 text-start shadow-xl">
                   <button onClick={() => { onOpenMyProfile?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Mon profil & mes publications')}</button>
                   <button onClick={() => { onLogout?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />{t('Se déconnecter')}</button>
                 </div>
               )}
-            </div>
+          </div>
 
+          <div className="flex min-w-0 items-center justify-center gap-1 sm:gap-2">
             <div className="relative">
               <button onClick={() => setSearchOpen(v => !v)} className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${searchOpen ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`} aria-label={t('Rechercher')}><Search className="h-4 w-4" /></button>
               {searchOpen && <div className="absolute end-0 top-full z-50 mt-2 flex w-[min(88vw,360px)] items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"><Search className="ms-2 h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery || ''} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-1.5 text-xs outline-none" /><button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button></div>}
@@ -95,6 +91,10 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
               <select value={language} onChange={e => setLanguage(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label={t('Choisir la langue')}>{languages.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
             </label>
           </div>
+
+          <button onClick={onOpenCreateModal} className="flex h-9 shrink-0 items-center justify-center gap-1.5 justify-self-end rounded-full bg-[#0a66c2] px-2.5 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#004182] sm:px-4 sm:text-xs" aria-label={t('Publier une annonce')}>
+            <Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('Publier une annonce')}</span>
+          </button>
         </div>
       </div>
 

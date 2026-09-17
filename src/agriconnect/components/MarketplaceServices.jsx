@@ -20,8 +20,10 @@ import {
 } from 'lucide-react';
 import Avatar from './Avatar';
 import { useViewTracker } from './MarketplaceProducts';
+import { useLanguage } from '../i18n';
 
 export default function MarketplaceServices({ services, currentUser, onContactProvider, onOpenCreate, searchQuery, predefinedCategory, moduleTitle, onDeleteService = () => {}, onRegisterView }) {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState('all'); // 'all', 'offer', 'request'
   const [selectedCategory, setSelectedCategory] = useState(predefinedCategory || 'all');
 
@@ -32,7 +34,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
   }, [predefinedCategory]);
 
   const categories = [
-    { id: 'all', label: 'Tous les services', icon: null },
+    { id: 'all', label: t('Tous les services'), icon: null },
     { id: 'transporteur_terrestre', label: '🚚 Transport Terrestre', icon: Truck },
     { id: 'transporteur_maritime', label: '🚢 Services Maritimes', icon: Ship },
     { id: 'energie_eau', label: '💧 Énergie & Eau', icon: Droplets },
@@ -62,7 +64,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
               <Truck className="w-5 h-5" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-              Marketplace des <span className="text-emerald-700">Services Agricoles</span>
+              {t('Marketplace des Services Agricoles')}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
@@ -75,7 +77,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-full shadow-sm transition-all cursor-pointer"
         >
           <PlusCircle className="w-4 h-4 stroke-[2.5]" />
-          <span>{moduleTitle ? `Publier ${moduleTitle}` : 'Publier Offre / Demande Service'}</span>
+          <span>{moduleTitle ? `Publier ${moduleTitle}` : t('Publier Offre / Demande Service')}</span>
         </button>
       </div>
 
@@ -88,7 +90,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
               activeTab === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Toutes les annonces ({services.length})
+            {t('Toutes les annonces')} ({services.length})
           </button>
           <button
             onClick={() => setActiveTab('offer')}
@@ -96,7 +98,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
               activeTab === 'offer' ? 'bg-blue-100 text-[#0a66c2]' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            🚚 Offres de Prestataires
+            🚚 {t('Offres de Prestataires')}
           </button>
           <button
             onClick={() => setActiveTab('request')}
@@ -104,7 +106,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
               activeTab === 'request' ? 'bg-amber-100 text-amber-800' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            📢 Demandes d'Agriculteurs
+            📢 {t("Demandes d'Agriculteurs")}
           </button>
         </div>
       </div>
@@ -130,8 +132,8 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
       {filteredServices.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs">
           <Truck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-900 mb-1">Aucune annonce trouvée</h3>
-          <p className="text-xs text-slate-500">Essayez de modifier les filtres ou la recherche.</p>
+          <h3 className="text-lg font-bold text-slate-900 mb-1">{t('Aucune annonce trouvée')}</h3>
+          <p className="text-xs text-slate-500">{t('Essayez de modifier les filtres ou la recherche.')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -143,6 +145,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
               onContactProvider={onContactProvider}
               onDeleteService={onDeleteService}
               onRegisterView={onRegisterView}
+              t={t}
             />
           ))}
         </div>
@@ -152,7 +155,7 @@ export default function MarketplaceServices({ services, currentUser, onContactPr
 }
 
 // ── Carte service ─────────────────────────────────────────────────────────────
-function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, onRegisterView }) {
+function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, onRegisterView, t }) {
   const cardRef = useViewTracker(serv.id, onRegisterView);
   const isOffer = serv.type === 'offer';
   const isOwner = currentUser && String(serv.providerId) === String(currentUser.id);
@@ -170,7 +173,7 @@ function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, on
               ? 'bg-blue-100 text-[#0a66c2] border border-blue-200'
               : 'bg-amber-100 text-amber-800 border border-amber-200'
           }`}>
-            {isOffer ? 'Offre de Service' : "Demande d'Agriculteur"}
+            {isOffer ? t('Offre de Service') : t("Demande d'Agriculteur")}
           </span>
 
           <div className="flex items-center gap-2">
@@ -196,28 +199,28 @@ function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, on
         <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 mb-4">
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#0a66c2]" /> Zone :
+              <MapPin className="w-3.5 h-3.5 text-[#0a66c2]" /> {t('Zone :')}
             </span>
             <span className="font-bold text-slate-900">{serv.location}</span>
           </div>
 
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-amber-600" /> Disponibilité :
+              <Clock className="w-3.5 h-3.5 text-amber-600" /> {t('Disponibilité :')}
             </span>
             <span className="font-bold text-slate-900">{serv.availability}</span>
           </div>
 
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 flex items-center gap-1.5">
-              <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Tarif / Estimation :
+              <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> {t('Tarif / Estimation :')}
             </span>
             <span className="font-black text-emerald-700">{serv.pricing}</span>
           </div>
         </div>
 
         <div className="text-[11px] text-slate-600 italic bg-white p-2.5 rounded-lg border border-slate-200 mb-3 font-medium">
-          💡 <strong>Spécifications :</strong> {serv.specs}
+          💡 <strong>{t('Spécifications :')}</strong> {serv.specs}
         </div>
 
         <div className="flex items-center gap-1 text-[11px] text-slate-500 font-semibold mb-3">
@@ -248,7 +251,7 @@ function ServiceCard({ serv, currentUser, onContactProvider, onDeleteService, on
           className="group/msg flex items-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold px-4 py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer shrink-0"
         >
           <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
-          <span>Répondre</span>
+          <span>{t('Répondre')}</span>
         </button>
       </div>
     </div>

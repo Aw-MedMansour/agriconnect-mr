@@ -21,6 +21,7 @@ import {
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
 import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 // Une quantité doit toujours porter une unité lisible (kg, tonne, litre, sac…).
 export function formatQuantity(value) {
@@ -141,13 +142,14 @@ function ProductMediaGrid({ prod, onOpenViewer }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function MarketplaceProducts({ products, currentUser, onContactSeller, onRequestTransport, onOpenCreate, searchQuery, onToggleLike, onAddComment, onShare, onRepost, onOpenProfile, onRequireAuth, onDeleteProduct = () => {}, onRegisterView }) {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewerState, setViewerState] = useState({ isOpen: false, items: [], initialIndex: 0 });
   const [commentInputs, setCommentInputs] = useState({});
   const [openComments, setOpenComments] = useState({});
 
   const categories = [
-    { id: 'all', label: 'Toutes les récoltes' },
+    { id: 'all', label: t('Toutes les récoltes') },
     { id: 'Légumes', label: '🍅 Légumes' },
     { id: 'Fruits & Dattes', label: '🌴 Fruits & Dattes' },
     { id: 'Céréales', label: '🌾 Céréales (Riz, Maïs)' },
@@ -183,7 +185,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
               <Store className="w-5 h-5" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-              Marketplace des <span className="text-[#0a66c2]">Produits Agricoles</span>
+              {t('Marketplace des Produits Agricoles')}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
@@ -196,7 +198,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
           className="flex items-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white font-bold text-xs px-4 py-2.5 rounded-full shadow-sm transition-all cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
-          <span>Vendre ma récolte</span>
+          <span>{t('Vendre ma récolte')}</span>
         </button>
       </div>
 
@@ -222,13 +224,13 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs">
           <Store className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun produit trouvé</h3>
-          <p className="text-xs text-slate-500 mb-4">Essayez d'ajuster votre recherche ou filtre par catégorie.</p>
+          <h3 className="text-lg font-bold text-slate-900 mb-1">{t('Aucun produit trouvé')}</h3>
+          <p className="text-xs text-slate-500 mb-4">{t("Essayez d'ajuster votre recherche ou filtre par catégorie.")}</p>
           <button 
             onClick={() => { setSelectedCategory('all'); }}
             className="text-xs text-[#0a66c2] underline font-bold"
           >
-            Réinitialiser les filtres
+            {t('Réinitialiser les filtres')}
           </button>
         </div>
       ) : (
@@ -252,6 +254,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
               setCommentValue={(v) => setCommentInputs(prev => ({ ...prev, [prod.id]: v }))}
               isCommentsOpen={!!openComments[prod.id]}
               toggleComments={() => setOpenComments(prev => ({ ...prev, [prod.id]: !prev[prod.id] }))}
+              t={t}
             />
           ))}
         </div>
@@ -264,7 +267,7 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
 function ProductCard({
   prod, currentUser, onContactSeller, onRequestTransport, onToggleLike, onAddComment,
   onShare, onRepost, onOpenProfile, onDeleteProduct, onRegisterView, onOpenViewer,
-  commentValue, setCommentValue, isCommentsOpen, toggleComments,
+  commentValue, setCommentValue, isCommentsOpen, toggleComments, t,
 }) {
   const cardRef = useViewTracker(prod.id, onRegisterView);
   const isLiked = currentUser && prod.likedBy?.includes(currentUser.id);
@@ -292,7 +295,7 @@ function ProductCard({
           </span>
           {prod.verifiedSeller && (
             <span className="bg-[#0a66c2] text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Vérifié
+              <CheckCircle2 className="w-3.5 h-3.5" /> {t('Vérifié')}
             </span>
           )}
         </div>
@@ -311,7 +314,7 @@ function ProductCard({
 
         {/* Quantité disponible, toujours avec son unité */}
         <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-900/90 to-transparent p-3 pt-6 flex items-center justify-between z-10">
-          <span className="text-xs font-semibold text-slate-200">Quantité :</span>
+          <span className="text-xs font-semibold text-slate-200">{t('Quantité :')}</span>
           <span className="text-xs font-extrabold text-white bg-[#0a66c2] px-2.5 py-0.5 rounded-md">
             {formatQuantity(prod.quantity)}
           </span>
@@ -376,7 +379,7 @@ function ProductCard({
               className="group/msg flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
             >
               <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
-              <span>Contacter</span>
+              <span>{t('Contacter')}</span>
             </button>
 
             <button
@@ -384,7 +387,7 @@ function ProductCard({
               className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold py-2.5 rounded-full shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
             >
               <Truck className="w-3.5 h-3.5 text-[#0a66c2]" />
-              <span>Transport</span>
+              <span>{t('Transport')}</span>
             </button>
           </div>
         </div>
@@ -439,7 +442,7 @@ function ProductCard({
             <div className="mt-2 border-t border-slate-100 pt-2">
               <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
                 {commentsCount === 0 && (
-                  <p className="text-[11px] text-slate-400 font-medium py-1">Aucun commentaire pour le moment.</p>
+                  <p className="text-[11px] text-slate-400 font-medium py-1">{t('Aucun commentaire pour le moment.')}</p>
                 )}
                 {prod.comments?.map((c) => (
                   <div key={c.id} className="flex items-start gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
@@ -470,7 +473,7 @@ function ProductCard({
                   type="text"
                   value={commentValue}
                   onChange={(e) => setCommentValue(e.target.value)}
-                  placeholder={currentUser ? 'Votre commentaire…' : 'Connectez-vous…'}
+                  placeholder={currentUser ? t('Votre commentaire…') : t('Connectez-vous…')}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && commentValue.trim()) {
                       onAddComment(prod.id, commentValue);
@@ -485,7 +488,7 @@ function ProductCard({
                   }}
                   className="shrink-0 bg-[#0a66c2] hover:bg-[#004182] text-white text-[11px] font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                 >
-                  Envoyer
+                  {t('Envoyer')}
                 </button>
               </div>
             </div>

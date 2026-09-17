@@ -586,7 +586,12 @@ export default function SocialFeed({ posts, currentUser, onAddPost, onEditPost, 
                 </button>
               </div>
 
-              <div className="space-y-2 pt-2">
+              <div
+                className={`space-y-2 pt-2 overflow-y-auto overflow-x-hidden transition-[max-height] duration-200 ease-out ${
+                  isCommentsOpen ? 'max-h-96' : 'max-h-0 pt-0 pointer-events-none opacity-0'
+                }`}
+                aria-hidden={!isCommentsOpen}
+              >
                 {post.comments && post.comments.map((c) => (
                   <div key={c.id}>
                     {/* Comment bubble */}

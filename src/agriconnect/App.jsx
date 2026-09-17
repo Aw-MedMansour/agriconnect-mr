@@ -439,8 +439,9 @@ export default function App() {
 
 
   const handleRequestTransportForProduct = (prod) => {
-    setActiveModule('matching');
-    showToast(`Matching pré-rempli pour le transport de : ${prod.title}`);
+    setAiDefaultTab('matching');
+    setActiveModule('ai');
+    showToast(`Matching IA ouvert pour le transport de : ${prod.title}`);
   };
 
   const handleToggleLikePost = (postId) => {

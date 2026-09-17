@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Store, 
   MapPin, 
@@ -7,19 +7,52 @@ import {
   MessageSquare, 
   PlusCircle, 
   CheckCircle2, 
-  Heart, 
   Filter,
-  ChevronLeft,
-  ChevronRight,
-  Play,
   Image as ImageIcon,
   ThumbsUp,
   MessageCircle,
   Share2,
-  Repeat2
+  Repeat2,
+  Eye,
+  Trash2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import AsyncMediaItem from './AsyncMediaItem';
 import MediaViewerModal from './MediaViewerModal';
+import Avatar from './Avatar';
+
+// Une quantité doit toujours porter une unité lisible (kg, tonne, litre, sac…).
+export function formatQuantity(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return 'Quantité non précisée';
+  if (/^\d+([.,]\d+)?$/.test(raw)) return `${raw} unité${Number(raw.replace(',', '.')) > 1 ? 's' : ''}`;
+  return raw
+    .replace(/(\d)\s*t\b/i, '$1 Tonnes')
+    .replace(/(\d)\s*kgs?\b/i, '$1 kg')
+    .replace(/(\d)\s*l\b/i, '$1 litres');
+}
+
+// Enregistre une vue lorsque la carte devient réellement visible à l'écran.
+export function useViewTracker(id, onRegisterView) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!onRegisterView || !ref.current || typeof IntersectionObserver === 'undefined') return;
+    const el = ref.current;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          onRegisterView(id);
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [id, onRegisterView]);
+  return ref;
+}
+
 
 // ── Sub-component: Product Media Grid ────────────────────────────────────
 function ProductMediaGrid({ prod, onOpenViewer }) {
@@ -107,10 +140,11 @@ function ProductMediaGrid({ prod, onOpenViewer }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function MarketplaceProducts({ products, currentUser, onContactSeller, onRequestTransport, onOpenCreate, searchQuery, onToggleLike, onAddComment, onShare, onRepost, onOpenProfile, onRequireAuth }) {
+export default function MarketplaceProducts({ products, currentUser, onContactSeller, onRequestTransport, onOpenCreate, searchQuery, onToggleLike, onAddComment, onShare, onRepost, onOpenProfile, onRequireAuth, onDeleteProduct = () => {}, onRegisterView }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewerState, setViewerState] = useState({ isOpen: false, items: [], initialIndex: 0 });
   const [commentInputs, setCommentInputs] = useState({});
+  const [openComments, setOpenComments] = useState({});
 
   const categories = [
     { id: 'all', label: 'Toutes les récoltes' },
@@ -199,204 +233,265 @@ export default function MarketplaceProducts({ products, currentUser, onContactSe
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProducts.map((prod) => {
-            const isLiked = currentUser && prod.likedBy?.includes(currentUser.id);
-            const likesCount = (prod.likesCount || 0) + (prod.likedBy?.length || 0);
-            const isReposted = currentUser && prod.repostedBy?.includes(currentUser.id);
-            const repostsCount = prod.repostedBy?.length || 0;
-            const mediaCount = prod.media?.length || prod.images?.length || 1;
-
-            return (
-              <div 
-                key={prod.id} 
-                className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-              >
-                {/* ── Media Carousel (photos + videos) ── */}
-                <div className="relative">
-                  <ProductMediaGrid 
-                    prod={prod} 
-                    onOpenViewer={(items, index) => setViewerState({ isOpen: true, items, initialIndex: index })}
-                  />
-
-                  {/* Badge Category & Verified */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10 pointer-events-none">
-                    <span className="bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs border border-slate-200">
-                      {prod.category}
-                    </span>
-                    {prod.verifiedSeller && (
-                      <span className="bg-[#0a66c2] text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Vérifié
-                      </span>
-                    )}
-                  </div>
-
-
-
-                  {/* Volume Banner at bottom of media */}
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-900/90 to-transparent p-3 pt-6 flex items-center justify-between z-10">
-                    <span className="text-xs font-semibold text-slate-200">Volume:</span>
-                    <span className="text-xs font-extrabold text-white bg-[#0a66c2] px-2.5 py-0.5 rounded-md">
-                      {prod.quantity}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-slate-900 text-base leading-snug group-hover:text-[#0a66c2] transition-colors line-clamp-2 mb-2">
-                      {prod.title}
-                    </h3>
-
-                    <div className="text-lg font-black text-[#0a66c2] mb-3">
-                      {prod.price}
-                    </div>
-
-                    <div className="space-y-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4 font-medium">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-[#0a66c2] shrink-0" />
-                        <span className="truncate">{prod.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                        <span>{prod.availabilityDate}</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Truck className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="line-clamp-1">{prod.deliveryConditions}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Seller Info & Actions */}
-                  <div className="pt-3 border-t border-slate-200 space-y-3">
-                    <div className="flex items-center gap-2.5">
-                      <img 
-                        src={prod.sellerAvatar} 
-                        alt={prod.sellerName}
-                        className="w-8 h-8 rounded-full object-cover border border-[#0a66c2] cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
-                        onClick={() => onOpenProfile && onOpenProfile({ authorId: prod.sellerName, authorName: prod.sellerName, authorAvatar: prod.sellerAvatar, authorRole: prod.sellerRole })}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div 
-                          className="text-xs font-bold text-slate-900 truncate cursor-pointer hover:text-[#0a66c2] transition-colors inline-block"
-                          onClick={() => onOpenProfile && onOpenProfile({ authorId: prod.sellerName, authorName: prod.sellerName, authorAvatar: prod.sellerAvatar, authorRole: prod.sellerRole })}
-                        >
-                          {prod.sellerName}
-                        </div>
-                        <div className="text-[10px] text-slate-500 truncate">{prod.sellerRole}</div>
-                      </div>
-                      {mediaCount > 1 && (
-                        <span className="text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded font-semibold">
-                          📷 {mediaCount} médias
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        onClick={() => onContactSeller(prod)}
-                        className="group/msg flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
-                        <span>Contacter</span>
-                      </button>
-
-                      <button
-                        onClick={() => onRequestTransport(prod)}
-                        className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold py-2.5 rounded-full shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
-                      >
-                        <Truck className="w-3.5 h-3.5 text-[#0a66c2]" />
-                        <span>Transport</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* ── Social Actions ── */}
-                  <div className="pt-3 mt-3 border-t border-slate-200">
-                    <div className="flex items-center justify-around py-1 text-[11px] font-semibold text-slate-600">
-                      <button 
-                        onClick={() => onToggleLike(prod.id)}
-                        className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isLiked ? 'text-[#0a66c2]' : ''}`}
-                      >
-                        <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-[#0a66c2] text-[#0a66c2]' : ''}`} />
-                        <span>J'aime ({likesCount})</span>
-                      </button>
-
-                      <button 
-                        onClick={() => {
-                          const input = document.getElementById(`comment-input-${prod.id}`);
-                          if(input) input.focus();
-                        }}
-                        className="flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Commenter ({prod.comments?.length || 0})</span>
-                      </button>
-
-                      <button 
-                        onClick={() => onShare(prod)}
-                        className="flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                      >
-                        <Share2 className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Partager</span>
-                      </button>
-
-                      <button 
-                        onClick={() => onRepost && onRepost(prod)}
-                        className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isReposted ? 'text-emerald-600' : ''}`}
-                      >
-                        <Repeat2 className={`w-3.5 h-3.5 ${isReposted ? 'text-emerald-600' : 'text-slate-500'}`} />
-                        <span>Repub. ({repostsCount})</span>
-                      </button>
-                    </div>
-
-                    {/* Comments preview */}
-                    <div className="space-y-2 mt-2">
-                      {prod.comments?.map((c) => (
-                        <div key={c.id} className="flex items-start gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                          <img 
-                            src={c.avatar} 
-                            alt={c.user} 
-                            className="w-5 h-5 rounded-full object-cover shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
-                            onClick={() => onOpenProfile && onOpenProfile({ authorId: c.userId || c.user, authorName: c.user, authorAvatar: c.avatar, authorRole: 'Membre Réseau' })}
-                          />
-                          <div>
-                            <div 
-                              className="text-[10px] font-bold text-slate-900 cursor-pointer hover:text-[#0a66c2] transition-colors inline-block"
-                              onClick={() => onOpenProfile && onOpenProfile({ authorId: c.userId || c.user, authorName: c.user, authorAvatar: c.avatar, authorRole: 'Membre Réseau' })}
-                            >
-                              {c.user}
-                            </div>
-                            <p className="text-[10px] text-slate-700 leading-tight">{c.text}</p>
-                          </div>
-                        </div>
-                      ))}
-                      <div className="flex items-center gap-2 pt-1">
-                        <input
-                          id={`comment-input-${prod.id}`}
-                          type="text"
-                          value={commentInputs[prod.id] || ''}
-                          onChange={(e) => setCommentInputs({ ...commentInputs, [prod.id]: e.target.value })}
-                          placeholder={currentUser ? "Votre commentaire..." : "Connectez-vous..."}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && commentInputs[prod.id]?.trim()) {
-                              onAddComment(prod.id, commentInputs[prod.id]);
-                              setCommentInputs({ ...commentInputs, [prod.id]: '' });
-                            }
-                          }}
-                          className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#0a66c2]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            );
-          })}
+          {filteredProducts.map((prod) => (
+            <ProductCard
+              key={prod.id}
+              prod={prod}
+              currentUser={currentUser}
+              onContactSeller={onContactSeller}
+              onRequestTransport={onRequestTransport}
+              onToggleLike={onToggleLike}
+              onAddComment={onAddComment}
+              onShare={onShare}
+              onRepost={onRepost}
+              onOpenProfile={onOpenProfile}
+              onDeleteProduct={onDeleteProduct}
+              onRegisterView={onRegisterView}
+              onOpenViewer={(items, index) => setViewerState({ isOpen: true, items, initialIndex: index })}
+              commentValue={commentInputs[prod.id] || ''}
+              setCommentValue={(v) => setCommentInputs(prev => ({ ...prev, [prod.id]: v }))}
+              isCommentsOpen={!!openComments[prod.id]}
+              toggleComments={() => setOpenComments(prev => ({ ...prev, [prod.id]: !prev[prod.id] }))}
+            />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Carte produit ─────────────────────────────────────────────────────────────
+function ProductCard({
+  prod, currentUser, onContactSeller, onRequestTransport, onToggleLike, onAddComment,
+  onShare, onRepost, onOpenProfile, onDeleteProduct, onRegisterView, onOpenViewer,
+  commentValue, setCommentValue, isCommentsOpen, toggleComments,
+}) {
+  const cardRef = useViewTracker(prod.id, onRegisterView);
+  const isLiked = currentUser && prod.likedBy?.includes(currentUser.id);
+  const likesCount = (prod.likesCount || 0) + (prod.likedBy?.length || 0);
+  const isReposted = currentUser && prod.repostedBy?.includes(currentUser.id);
+  const repostsCount = prod.repostedBy?.length || 0;
+  const commentsCount = prod.comments?.length || 0;
+  const sharesCount = prod.sharesCount || 0;
+  const viewsCount = prod.viewsCount || 0;
+  const mediaCount = prod.media?.length || prod.images?.length || 1;
+  const isOwner = currentUser && String(prod.sellerId) === String(currentUser.id);
+
+  return (
+    <div
+      ref={cardRef}
+      className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+    >
+      {/* ── Médias ── */}
+      <div className="relative">
+        <ProductMediaGrid prod={prod} onOpenViewer={onOpenViewer} />
+
+        <div className="absolute top-3 left-3 flex flex-wrap gap-2 z-10 pointer-events-none">
+          <span className="bg-white/90 backdrop-blur-md text-slate-800 text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs border border-slate-200">
+            {prod.category}
+          </span>
+          {prod.verifiedSeller && (
+            <span className="bg-[#0a66c2] text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Vérifié
+            </span>
+          )}
+        </div>
+
+        {isOwner && (
+          <button
+            onClick={() => {
+              if (window.confirm('Supprimer définitivement cette annonce ?')) onDeleteProduct(prod.id);
+            }}
+            aria-label="Supprimer mon annonce"
+            className="absolute top-3 right-3 z-20 p-2 rounded-full bg-white/90 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white shadow-xs transition-colors cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Quantité disponible, toujours avec son unité */}
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-900/90 to-transparent p-3 pt-6 flex items-center justify-between z-10">
+          <span className="text-xs font-semibold text-slate-200">Quantité :</span>
+          <span className="text-xs font-extrabold text-white bg-[#0a66c2] px-2.5 py-0.5 rounded-md">
+            {formatQuantity(prod.quantity)}
+          </span>
+        </div>
+      </div>
+
+      {/* Contenu */}
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="font-bold text-slate-900 text-base leading-snug group-hover:text-[#0a66c2] transition-colors line-clamp-2 mb-2">
+            {prod.title}
+          </h3>
+
+          <div className="text-lg font-black text-[#0a66c2] mb-3">{prod.price}</div>
+
+          <div className="space-y-2 text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4 font-medium">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-3.5 h-3.5 text-[#0a66c2] shrink-0" />
+              <span className="truncate">{prod.location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span>{prod.availabilityDate}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <Truck className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+              <span className="line-clamp-1">{prod.deliveryConditions}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Vendeur & actions principales */}
+        <div className="pt-3 border-t border-slate-200 space-y-3">
+          <div className="flex items-center gap-2.5">
+            <Avatar
+              src={prod.sellerAvatar}
+              name={prod.sellerName}
+              seed={prod.sellerId || prod.sellerName}
+              className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-[#0a66c2]/40 transition-all"
+              textClassName="text-[10px]"
+              onClick={() => onOpenProfile && onOpenProfile({ authorId: prod.sellerId || prod.sellerName, authorName: prod.sellerName, authorAvatar: prod.sellerAvatar, authorRole: prod.sellerRole })}
+            />
+            <div className="flex-1 min-w-0">
+              <div
+                className="text-xs font-bold text-slate-900 truncate cursor-pointer hover:text-[#0a66c2] transition-colors inline-block"
+                onClick={() => onOpenProfile && onOpenProfile({ authorId: prod.sellerId || prod.sellerName, authorName: prod.sellerName, authorAvatar: prod.sellerAvatar, authorRole: prod.sellerRole })}
+              >
+                {prod.sellerName}
+              </div>
+              <div className="text-[10px] text-slate-500 truncate">{prod.sellerRole}</div>
+            </div>
+            {mediaCount > 1 && (
+              <span className="text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded font-semibold">
+                📷 {mediaCount} médias
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => onContactSeller(prod)}
+              className="group/msg flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white text-xs font-bold py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+            >
+              <MessageSquare className="w-3.5 h-3.5 transition-transform group-hover/msg:scale-110" />
+              <span>Contacter</span>
+            </button>
+
+            <button
+              onClick={() => onRequestTransport(prod)}
+              className="flex items-center justify-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold py-2.5 rounded-full shadow-xs hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
+            >
+              <Truck className="w-3.5 h-3.5 text-[#0a66c2]" />
+              <span>Transport</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ── Compteurs & interactions ── */}
+        <div className="pt-3 mt-3 border-t border-slate-200">
+          <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold pb-2">
+            <span className="flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" /> {viewsCount} vue{viewsCount > 1 ? 's' : ''}
+            </span>
+            <span>{likesCount} j'aime · {commentsCount} commentaire{commentsCount > 1 ? 's' : ''} · {sharesCount} partage{sharesCount > 1 ? 's' : ''}</span>
+          </div>
+
+          <div className="flex items-center justify-around py-1 text-[11px] font-semibold text-slate-600 border-t border-slate-100">
+            <button
+              onClick={() => onToggleLike(prod.id)}
+              className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isLiked ? 'text-[#0a66c2]' : ''}`}
+            >
+              <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-[#0a66c2] text-[#0a66c2]' : ''}`} />
+              <span>{likesCount}</span>
+            </button>
+
+            <button
+              onClick={toggleComments}
+              aria-expanded={isCommentsOpen}
+              className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isCommentsOpen ? 'text-[#0a66c2]' : ''}`}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              <span>{commentsCount}</span>
+              {isCommentsOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+
+            <button
+              onClick={() => onShare(prod)}
+              className="flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5 text-slate-500" />
+              <span>{sharesCount}</span>
+            </button>
+
+            <button
+              onClick={() => onRepost && onRepost(prod)}
+              className={`flex items-center justify-center gap-1.5 flex-1 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer ${isReposted ? 'text-emerald-600' : ''}`}
+            >
+              <Repeat2 className={`w-3.5 h-3.5 ${isReposted ? 'text-emerald-600' : 'text-slate-500'}`} />
+              <span>{repostsCount}</span>
+            </button>
+          </div>
+
+          {/* Espace commentaires dédié : hauteur bornée, sans déformer la carte */}
+          {isCommentsOpen && (
+            <div className="mt-2 border-t border-slate-100 pt-2">
+              <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
+                {commentsCount === 0 && (
+                  <p className="text-[11px] text-slate-400 font-medium py-1">Aucun commentaire pour le moment.</p>
+                )}
+                {prod.comments?.map((c) => (
+                  <div key={c.id} className="flex items-start gap-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                    <Avatar
+                      src={c.avatar}
+                      name={c.user}
+                      seed={c.userId || c.user}
+                      className="w-5 h-5 shrink-0 cursor-pointer"
+                      textClassName="text-[7px]"
+                      onClick={() => onOpenProfile && onOpenProfile({ authorId: c.userId || c.user, authorName: c.user, authorAvatar: c.avatar, authorRole: 'Membre Réseau' })}
+                    />
+                    <div className="min-w-0">
+                      <div
+                        className="text-[10px] font-bold text-slate-900 cursor-pointer hover:text-[#0a66c2] transition-colors inline-block"
+                        onClick={() => onOpenProfile && onOpenProfile({ authorId: c.userId || c.user, authorName: c.user, authorAvatar: c.avatar, authorRole: 'Membre Réseau' })}
+                      >
+                        {c.user}
+                      </div>
+                      <p className="text-[10px] text-slate-700 leading-snug break-words">{c.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  id={`comment-input-${prod.id}`}
+                  type="text"
+                  value={commentValue}
+                  onChange={(e) => setCommentValue(e.target.value)}
+                  placeholder={currentUser ? 'Votre commentaire…' : 'Connectez-vous…'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && commentValue.trim()) {
+                      onAddComment(prod.id, commentValue);
+                      setCommentValue('');
+                    }
+                  }}
+                  className="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-[11px] focus:outline-none focus:border-[#0a66c2]"
+                />
+                <button
+                  onClick={() => {
+                    if (commentValue.trim()) { onAddComment(prod.id, commentValue); setCommentValue(''); }
+                  }}
+                  className="shrink-0 bg-[#0a66c2] hover:bg-[#004182] text-white text-[11px] font-bold px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+                >
+                  Envoyer
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

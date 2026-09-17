@@ -1,220 +1,160 @@
 import React, { useState } from 'react';
-import { 
-  Sprout, 
-  Store, 
-  Truck, 
-  Users, 
-  Sparkles, 
-  ShieldCheck, 
-  PlusCircle, 
-  Search, 
+import {
+  Store,
+  Truck,
+  Users,
+  ShieldCheck,
+  PlusCircle,
+  Search,
   Bell,
-  CheckCircle2,
   User,
   UserCircle,
   LogOut,
-  ChevronDown,
   MessageSquare,
-  Droplets,
-  Landmark,
-  Map,
-  HardHat
+  BrainCircuit,
+  X,
 } from 'lucide-react';
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
 
-export default function Navbar({ activeModule, setActiveModule, onOpenCreateModal, currentUser, onOpenAuthModal, onLogout, searchQuery, setSearchQuery, products = [], members = [], unreadCount = 0, isMessagingOpen = false, onToggleMessaging = () => {}, notificationCount = 0, isNotificationsOpen = false, onToggleNotifications = () => {}, onOpenMyProfile = () => {} }) {
+export default function Navbar({
+  activeModule,
+  setActiveModule,
+  onOpenCreateModal,
+  currentUser,
+  onOpenAuthModal,
+  onLogout,
+  searchQuery,
+  setSearchQuery,
+  unreadCount = 0,
+  isMessagingOpen = false,
+  onToggleMessaging = () => {},
+  notificationCount = 0,
+  isNotificationsOpen = false,
+  onToggleNotifications = () => {},
+  onOpenMyProfile = () => {},
+}) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-
-  const totalTonnes = Math.round(
-    products.reduce((sum, p) => {
-      const label = String(p?.quantity ?? '');
-      const amount = Number(p?.quantityAvailable) || 0;
-      if (!/tonne/i.test(label) || !amount) return sum;
-      return sum + amount / 1000;
-    }, 0)
-  );
-
-  const transporterCount = members.filter((u) =>
-    String(u?.role ?? '').startsWith('transporteur')
-  ).length;
-
+  const [showSearch, setShowSearch] = useState(false);
 
   const modules = [
     { id: 'products', label: 'Marketplace Produits', icon: Store },
     { id: 'services', label: 'Marketplace Services', icon: Truck },
     { id: 'social', label: 'Réseau Social Agricole', icon: Users },
-    { id: 'energy', label: 'Energie & Eau', icon: Droplets },
-    { id: 'finance', label: 'Banque & Assurance', icon: Landmark },
-    { id: 'land', label: 'Terrain à louer & vendre', icon: Map },
-    { id: 'workers', label: 'Agronome & ouvrier', icon: HardHat },
-    { id: 'plantai', label: 'Analyse des Plantes IA', icon: Sprout },
-    { id: 'matching', label: 'Mise en Relation IA', icon: Sparkles },
+    { id: 'ai', label: 'Intelligence artificielle', icon: BrainCircuit },
     { id: 'reputation', label: 'Acteurs & Réputation', icon: ShieldCheck },
   ];
 
+  const iconButton =
+    'relative flex h-9 w-9 items-center justify-center rounded-full transition-colors cursor-pointer';
+
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
-      {/* Top Ticker & Role Bar */}
-      <div className="bg-slate-100 border-b border-slate-200 px-3 py-1 text-[10px] sm:px-4 sm:py-1.5 sm:text-xs">
-        <div className="max-w-7xl mx-auto grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:flex sm:justify-between sm:gap-3">
-          <div className="flex min-w-0 items-center gap-4 text-slate-600">
-            <span className="flex min-w-0 items-center gap-1.5 text-[#0a66c2] font-semibold">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0a66c2]"></span>
-              </span>
-              <span className="truncate">AgriConnect Réseau Pro</span>
-            </span>
-            {totalTonnes > 0 && (
-              <>
-                <span className="hidden md:inline text-slate-300">|</span>
-                <span className="hidden md:inline text-slate-700">
-                  <strong className="text-[#0a66c2]">{totalTonnes} Tonnes</strong> de récoltes en ligne
-                </span>
-              </>
-            )}
-            {transporterCount > 0 && (
-              <span className="hidden lg:inline text-slate-700">
-                <strong className="text-emerald-700">{transporterCount} Transporteur{transporterCount > 1 ? 's' : ''}</strong> actif{transporterCount > 1 ? 's' : ''}
-              </span>
-            )}
-
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3 sm:ml-auto">
-            {currentUser ? (
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-md px-1.5 py-0.5 text-slate-700 hover:bg-slate-50 transition-colors shadow-xs cursor-pointer sm:gap-2 sm:px-2.5 sm:py-1"
-                >
-                  <Avatar
-                    src={currentUser.avatar}
-                    name={currentUser.name}
-                    seed={currentUser.id || currentUser.name}
-                    className="w-5 h-5"
-                    textClassName="text-[8px]"
-                  />
-                  <span className="hidden max-w-24 truncate text-xs font-bold text-slate-900 sm:inline">{currentUser.name}</span>
-                  <span className="hidden text-[10px] bg-blue-100 text-[#0a66c2] font-bold px-1.5 py-0.5 rounded md:inline">
-                    {currentUser.roleLabel || 'Membre'}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                </button>
-
-                {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
-                    <div className="px-4 py-2 border-b border-slate-100">
-                      <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
-                      <div className="text-[11px] text-slate-500 truncate">{currentUser.email}</div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        onOpenMyProfile();
-                      }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 font-bold hover:bg-slate-50 transition-colors text-left cursor-pointer"
-                    >
-                      <UserCircle className="w-4 h-4 text-[#0a66c2]" />
-                      <span>Mon profil & mes publications</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowProfileMenu(false);
-                        onLogout();
-                      }}
-                      className="w-full flex items-center gap-2 px-4 py-2 text-xs text-rose-600 font-bold hover:bg-rose-50 transition-colors text-left cursor-pointer"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Se Déconnecter</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                onClick={onOpenAuthModal}
-                className="flex items-center gap-1 bg-[#0a66c2] hover:bg-[#004182] text-white text-[10px] font-bold px-2 py-1 rounded-full transition-all cursor-pointer shadow-xs sm:gap-1.5 sm:px-3 sm:text-xs"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span className="sm:hidden">Connexion</span>
-                <span className="hidden sm:inline">Créer un compte / Connexion</span>
-              </button>
-            )}
-
-            <div className="hidden items-center gap-1 bg-blue-50 text-[#0a66c2] border border-blue-200 px-2 py-0.5 rounded text-[11px] font-semibold sm:flex">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Compte Vérifié
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Navbar Header */}
-      <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
-        {/* Logo */}
-        <div 
-          onClick={() => setActiveModule('products')}
-          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
-        >
-          <div className="w-9 h-9 rounded-xl overflow-hidden bg-white ring-1 ring-slate-200 shadow-sm group-hover:ring-[#0a66c2] transition-all">
-            <img src={agriLogo} alt="Logo AgriConnect" className="w-full h-full object-cover" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1">
-              <span className="text-xl font-bold tracking-tight text-slate-900">Agri<span className="text-[#0a66c2]">Connect</span></span>
-              <span className="bg-blue-100 text-[#0a66c2] text-[10px] uppercase font-bold px-1.5 py-0.5 rounded">Pro</span>
-            </div>
-            <p className="text-[10px] text-slate-500 font-medium -mt-1">Le réseau professionnel agricole</p>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="hidden md:flex items-center flex-1 max-w-md relative mx-2">
-          <Search className="w-4 h-4 absolute left-3.5 text-slate-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Rechercher des récoltes, transporteurs, agronomes..."
-            className="w-full pl-9 pr-4 py-1.5 bg-[#edf3f8] border border-transparent rounded-md text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-[#0a66c2] transition-all"
-          />
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex items-center gap-3">
-          <button 
+      {/* Ligne principale : publication | identité centrée | actions utilisateur */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        {/* Gauche : publier */}
+        <div className="flex items-center min-w-0">
+          <button
             onClick={() => {
               if (!currentUser) onOpenAuthModal();
               else onOpenCreateModal();
             }}
-            className="flex items-center gap-2 bg-[#0a66c2] hover:bg-[#004182] text-white text-xs font-bold px-4 py-2 rounded-full shadow-sm transition-all cursor-pointer"
+            className="flex items-center gap-1.5 bg-[#0a66c2] hover:bg-[#004182] text-white text-[11px] sm:text-xs font-bold px-2.5 sm:px-4 py-2 rounded-full shadow-sm transition-all cursor-pointer"
           >
-            <PlusCircle className="w-4 h-4" />
-            <span className="hidden sm:inline">Commencer un post / Annonce</span>
+            <PlusCircle className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Publier une annonce</span>
           </button>
+        </div>
 
-          {/* Bulle messagerie (style Facebook, en haut à droite) */}
+        {/* Centre : logo + nom */}
+        <button
+          onClick={() => setActiveModule('products')}
+          className="flex items-center gap-2 justify-center cursor-pointer group"
+          aria-label="Accueil AgriConnect"
+        >
+          <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden bg-white ring-1 ring-slate-200 shadow-sm group-hover:ring-[#0a66c2] transition-all">
+            <img src={agriLogo} alt="Logo AgriConnect" className="w-full h-full object-cover" />
+          </span>
+          <span className="text-lg sm:text-2xl font-bold tracking-tight text-slate-900">
+            Agri<span className="text-[#0a66c2]">Connect</span>
+          </span>
+        </button>
+
+        {/* Droite : profil · recherche · notifications · messagerie */}
+        <div className="flex items-center justify-end gap-0.5 sm:gap-1.5">
+          {currentUser ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                aria-label="Mon profil"
+                className={`${iconButton} ${showProfileMenu ? 'bg-blue-50' : 'hover:bg-slate-100'}`}
+              >
+                <Avatar
+                  src={currentUser.avatar}
+                  name={currentUser.name}
+                  seed={currentUser.id || currentUser.name}
+                  className="w-7 h-7"
+                  textClassName="text-[9px]"
+                />
+              </button>
+
+              {showProfileMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-2xl shadow-xl py-2 z-50 animate-fadeIn">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
+                    <div className="text-[11px] text-slate-500 truncate">
+                      {currentUser.roleLabel || 'Membre'}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      onOpenMyProfile();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs text-slate-700 font-bold hover:bg-slate-50 transition-colors text-left cursor-pointer"
+                  >
+                    <UserCircle className="w-4 h-4 text-[#0a66c2]" />
+                    <span>Mon profil & mes publications</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      onLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-4 py-2 text-xs text-rose-600 font-bold hover:bg-rose-50 transition-colors text-left cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Se déconnecter</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={onOpenAuthModal}
+              className="flex items-center gap-1 bg-white border border-[#0a66c2] text-[#0a66c2] hover:bg-blue-50 text-[11px] font-bold px-2.5 py-1.5 rounded-full transition-all cursor-pointer"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Connexion</span>
+            </button>
+          )}
+
+          {/* Recherche */}
           <button
-            onClick={onToggleMessaging}
-            aria-label="Ouvrir la messagerie"
-            className={`relative p-2 rounded-full transition-colors cursor-pointer ${
-              isMessagingOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'
-            }`}
+            onClick={() => setShowSearch(open => !open)}
+            aria-label="Rechercher"
+            aria-expanded={showSearch}
+            className={`${iconButton} ${showSearch ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'}`}
           >
-            <MessageSquare className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
+            {showSearch ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
           </button>
 
+          {/* Notifications */}
           <button
             onClick={onToggleNotifications}
             aria-label="Ouvrir les notifications"
             aria-expanded={isNotificationsOpen}
-            className={`relative cursor-pointer rounded-full p-2 transition-colors ${isNotificationsOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'}`}
+            className={`${iconButton} ${isNotificationsOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'}`}
           >
             <Bell className="w-5 h-5" />
             {notificationCount > 0 && (
@@ -223,12 +163,43 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
               </span>
             )}
           </button>
+
+          {/* Messagerie */}
+          <button
+            onClick={onToggleMessaging}
+            aria-label="Ouvrir la messagerie"
+            className={`${iconButton} ${isMessagingOpen ? 'bg-blue-50 text-[#0a66c2]' : 'text-slate-600 hover:bg-slate-100'}`}
+          >
+            <MessageSquare className="w-5 h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Primary Module Navigation Tabs */}
+      {/* Barre de recherche dépliable (n'altère pas la mise en page des autres éléments) */}
+      {showSearch && (
+        <div className="border-t border-slate-100 bg-white">
+          <div className="max-w-7xl mx-auto px-4 py-2 relative">
+            <Search className="w-4 h-4 absolute left-7 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              type="search"
+              autoFocus
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher une récolte, un service, un membre…"
+              className="w-full pl-9 pr-4 py-2 bg-[#edf3f8] border border-transparent rounded-full text-xs text-slate-900 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-[#0a66c2] transition-all"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Navigation principale */}
       <div className="border-t border-slate-200 bg-white">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center md:justify-start gap-2 overflow-x-auto no-scrollbar">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-start md:justify-center gap-1 overflow-x-auto no-scrollbar">
           {modules.map((m) => {
             const Icon = m.icon;
             const isActive = activeModule === m.id;
@@ -236,7 +207,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenCreateModa
               <button
                 key={m.id}
                 onClick={() => setActiveModule(m.id)}
-                className={`flex flex-col items-center justify-center px-4 py-2 border-b-2 text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                className={`flex flex-col items-center justify-center px-3 sm:px-4 py-2 border-b-2 text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   isActive
                     ? 'border-[#0a66c2] text-[#0a66c2]'
                     : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'

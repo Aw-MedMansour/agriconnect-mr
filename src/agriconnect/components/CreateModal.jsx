@@ -10,7 +10,9 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
   const [prodTitle, setProdTitle] = useState('');
   const [prodCategory, setProdCategory] = useState('Légumes');
   const [prodQuantity, setProdQuantity] = useState('');
+  const [prodQuantityUnit, setProdQuantityUnit] = useState('kg');
   const [prodPrice, setProdPrice] = useState('');
+  const [prodPriceUnit, setProdPriceUnit] = useState('MRU / kg');
   const [prodLocation, setProdLocation] = useState('Rosso, Trarza');
   const [prodDescription, setProdDescription] = useState('');
 
@@ -92,17 +94,17 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
     const videosList = processedMedia.filter(m => m.type === 'video').map(m => m.url || '');
 
     if (formType === 'product') {
-      if (!prodTitle || !prodQuantity || !prodPrice) return;
+      if (!prodTitle.trim() || !prodQuantity || !prodPrice) { setIsPublishing(false); return; }
       onCreateProduct({
         id: `prod-${Date.now()}`,
-        title: prodTitle,
+        title: prodTitle.trim(),
         sellerId: currentUser.id,
         sellerName: currentUser.name,
         sellerRole: currentUser.roleLabel || 'Agriculteur',
         sellerAvatar: currentUser.avatar,
         category: prodCategory,
-        quantity: prodQuantity,
-        price: prodPrice,
+        quantity: `${prodQuantity} ${prodQuantityUnit}`,
+        price: `${prodPrice} ${prodPriceUnit}`,
         location: prodLocation,
         availabilityDate: 'Immédiate (Nouvelle publication)',
         images: imagesList.length > 0 ? imagesList : ['https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=800&q=80'],
@@ -237,29 +239,63 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Quantité disponible</label>
-                  <input
-                    type="text"
-                    value={prodQuantity}
-                    onChange={(e) => setProdQuantity(e.target.value)}
-                    placeholder="Ex: 15 Tonnes ou 500 kg"
-                    required
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
-                  />
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Quantité disponible (unité obligatoire)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={prodQuantity}
+                      onChange={(e) => setProdQuantity(e.target.value)}
+                      placeholder="Ex: 500"
+                      required
+                      className="w-1/2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
+                    />
+                    <select
+                      value={prodQuantityUnit}
+                      onChange={(e) => setProdQuantityUnit(e.target.value)}
+                      aria-label="Unité de quantité"
+                      className="w-1/2 bg-slate-50 border border-slate-300 rounded-xl px-2 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
+                    >
+                      <option value="kg">kg</option>
+                      <option value="Tonnes">Tonnes</option>
+                      <option value="Litres">Litres</option>
+                      <option value="Sacs">Sacs</option>
+                      <option value="Caisses">Caisses</option>
+                      <option value="Unités">Unités</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Prix Unitaire / Global</label>
-                  <input
-                    type="text"
-                    value={prodPrice}
-                    onChange={(e) => setProdPrice(e.target.value)}
-                    placeholder="Ex: 320 MRU / kg"
-                    required
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
-                  />
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Prix (MRU) et base de facturation</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      value={prodPrice}
+                      onChange={(e) => setProdPrice(e.target.value)}
+                      placeholder="Ex: 320"
+                      required
+                      className="w-1/2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
+                    />
+                    <select
+                      value={prodPriceUnit}
+                      onChange={(e) => setProdPriceUnit(e.target.value)}
+                      aria-label="Base de prix"
+                      className="w-1/2 bg-slate-50 border border-slate-300 rounded-xl px-2 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white"
+                    >
+                      <option value="MRU / kg">MRU / kg</option>
+                      <option value="MRU / Tonne">MRU / Tonne</option>
+                      <option value="MRU / Litre">MRU / Litre</option>
+                      <option value="MRU / Sac">MRU / Sac</option>
+                      <option value="MRU / Unité">MRU / Unité</option>
+                      <option value="MRU (prix global)">MRU (prix global)</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>

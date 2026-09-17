@@ -4,7 +4,18 @@ import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from '..
 // ── Generic helpers ───────────────────────────────────────────────────────────
 export async function upsertData(table, id, data) {
   const { error } = await supabase.from(table).upsert({ id: String(id), data });
-  if (error) console.error(`[DB] upsert ${table}:`, error.message);
+  if (!error) return;
+
+  // Interaction sur le contenu d'un autre membre : passage par la fonction sécurisée
+  if (['posts', 'products', 'services'].includes(table)) {
+    const { error: rpcError } = await supabase.rpc('update_content_interactions', {
+      _table: table, _id: String(id), _data: data,
+    });
+    if (!rpcError) return;
+    console.error(`[DB] upsert ${table}:`, rpcError.message);
+    return;
+  }
+  console.error(`[DB] upsert ${table}:`, error.message);
 }
 
 // Plain insert: used where update rights differ from insert rights (notifications).
@@ -118,4 +129,10 @@ export async function uploadMedia(file, folder = 'media') {
     console.error('[Storage] upload exception:', err);
     return URL.createObjectURL(file);
   }
+}
+
+// ── Compteur de vues (fonction sécurisée côté base) ──────────────────────────
+export async function registerView(table, id) {
+  const { error } = await supabase.rpc('increment_content_view', { _table: table, _id: String(id) });
+  if (error) console.error('[DB] view:', error.message);
 }

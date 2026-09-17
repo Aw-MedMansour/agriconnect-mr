@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import MarketplaceProducts from './components/MarketplaceProducts';
 import MarketplaceServices from './components/MarketplaceServices';
 import SocialFeed from './components/SocialFeed';
-import MatchingEngine from './components/MatchingEngine';
 import ReputationDirectory from './components/ReputationDirectory';
 import CreateModal from './components/CreateModal';
 import ContactModal from './components/ContactModal';
@@ -11,18 +10,18 @@ import AuthModal from './components/AuthModal';
 import MessagingPanel from './components/MessagingPanel';
 import NotificationPanel from './components/NotificationPanel';
 import UserProfileModal from './components/UserProfileModal';
-import ComingSoonModule from './components/ComingSoonModule';
-import PlantAnalysis from './components/PlantAnalysis';
+import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
-import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
+import { CheckCircle2, X, Info } from 'lucide-react';
 
-import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, insertData, upsertData, deleteData } from './utils/dbSync';
+import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, insertData, upsertData, deleteData, registerView } from './utils/dbSync';
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [activeModule, setActiveModule] = useState('products');
+  const [aiDefaultTab, setAiDefaultTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Auth
@@ -270,6 +269,50 @@ export default function App() {
     showToast('🗑️ Publication supprimée.');
   };
 
+  // Suppression d'une annonce produit par son propre auteur
+  const handleDeleteProduct = (productId) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const prod = products.find(p => p.id === productId);
+    if (!prod || String(prod.sellerId) !== String(currentUser.id)) {
+      showToast("⚠️ Vous ne pouvez supprimer que vos propres annonces.");
+      return;
+    }
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    deleteData('products', productId);
+    showToast('🗑️ Annonce supprimée de la Marketplace Produits.');
+  };
+
+  // Suppression d'une annonce de service par son propre auteur
+  const handleDeleteService = (serviceId) => {
+    if (!currentUser) { setIsAuthModalOpen(true); return; }
+    const serv = services.find(s => s.id === serviceId);
+    if (!serv || String(serv.providerId) !== String(currentUser.id)) {
+      showToast("⚠️ Vous ne pouvez supprimer que vos propres annonces.");
+      return;
+    }
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    deleteData('services', serviceId);
+    showToast('🗑️ Annonce supprimée de la Marketplace Services.');
+  };
+
+  // Compteur de vues : une vue par contenu et par session de navigation
+  const handleRegisterView = (kind, id) => {
+    if (typeof window === 'undefined' || !id) return;
+    const key = `agriconnect_view_${kind}_${id}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch { /* stockage indisponible */ }
+
+    registerView(kind, id);
+    const apply = (setter) => setter(prev =>
+      prev.map(item => (item.id === id ? { ...item, viewsCount: (item.viewsCount || 0) + 1 } : item))
+    );
+    if (kind === 'products') apply(setProducts);
+    else if (kind === 'services') apply(setServices);
+    else if (kind === 'posts') apply(setSocialPosts);
+  };
+
   const handleRepost = (post) => {
     if (!currentUser) { setIsAuthModalOpen(true); return; }
     const alreadyReposted = post.repostedBy?.includes(currentUser.id);
@@ -441,8 +484,9 @@ export default function App() {
 
 
   const handleRequestTransportForProduct = (prod) => {
-    setActiveModule('matching');
-    showToast(`Matching pré-rempli pour le transport de : ${prod.title}`);
+    setAiDefaultTab('matching');
+    setActiveModule('ai');
+    showToast(`Matching IA ouvert pour le transport de : ${prod.title}`);
   };
 
   const handleToggleLikePost = (postId) => {
@@ -500,8 +544,20 @@ export default function App() {
     showToast('✅ Commentaire ajouté au produit !');
   };
 
+  // Incrémente et enregistre le compteur de partages du contenu concerné
+  const bumpShareCount = (table, id) => {
+    const setter = table === 'posts' ? setSocialPosts : table === 'products' ? setProducts : setServices;
+    setter(prev => {
+      const updated = prev.map(item => (item.id === id ? { ...item, sharesCount: (item.sharesCount || 0) + 1 } : item));
+      const target = updated.find(item => item.id === id);
+      if (target) upsertData(table, id, target);
+      return updated;
+    });
+  };
+
   const handleShare = async (item, type = 'post') => {
-    const text = type === 'post' ? `Post de ${item.authorName}` : `Produit: ${item.title}`;
+    const text = type === 'post' ? `Post de ${item.authorName}` : `Annonce : ${item.title}`;
+    const table = type === 'post' ? 'posts' : type === 'service' ? 'services' : 'products';
     try {
       if (navigator.share) {
         await navigator.share({
@@ -513,6 +569,7 @@ export default function App() {
         await navigator.clipboard.writeText(window.location.href);
         showToast('✅ Lien copié dans le presse-papier !');
       }
+      bumpShareCount(table, item.id);
     } catch (err) {
       console.log('Erreur de partage', err);
     }
@@ -809,15 +866,20 @@ export default function App() {
             onRepost={handleRepostProduct}
             onOpenProfile={setProfileModalTarget}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onDeleteProduct={handleDeleteProduct}
+            onRegisterView={(id) => handleRegisterView('products', id)}
           />
         )}
 
         {activeModule === 'services' && (
           <MarketplaceServices
             services={services}
+            currentUser={currentUser}
             onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
             onOpenCreate={() => openCreateModal('service')}
             searchQuery={searchQuery}
+            onDeleteService={handleDeleteService}
+            onRegisterView={(id) => handleRegisterView('services', id)}
           />
         )}
 
@@ -839,18 +901,18 @@ export default function App() {
             onOpenProfile={setProfileModalTarget}
             allProducts={products}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onRegisterView={(id) => handleRegisterView('posts', id)}
           />
         )}
 
-        {activeModule === 'plantai' && (
-          <PlantAnalysis
+        {activeModule === 'ai' && (
+          <AIHub
             currentUser={currentUser}
             onRequireAuth={() => setIsAuthModalOpen(true)}
+            onDispatchSuccess={(msg) => showToast(msg)}
+            defaultTab={aiDefaultTab}
+            key={aiDefaultTab}
           />
-        )}
-
-        {activeModule === 'matching' && (
-          <MatchingEngine onDispatchSuccess={(msg) => showToast(msg)} />
         )}
 
         {activeModule === 'reputation' && (
@@ -858,48 +920,6 @@ export default function App() {
             actors={allAvailableUsers.filter(u => !currentUser || u.id !== currentUser.id)}
             onContactActor={(actor) => { if (!currentUser) setIsAuthModalOpen(true); else startOrOpenConversation(actor); }}
             searchQuery={searchQuery}
-          />
-        )}
-
-        {/* New Modules Placeholders */}
-        {activeModule === 'energy' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'energie_eau')}
-            searchQuery={searchQuery}
-            predefinedCategory="energie_eau"
-            moduleTitle="Énergie & Eau"
-          />
-        )}
-        {activeModule === 'finance' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'banque_assurance')}
-            searchQuery={searchQuery}
-            predefinedCategory="banque_assurance"
-            moduleTitle="Banque & Assurance"
-          />
-        )}
-        {activeModule === 'land' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'terrain')}
-            searchQuery={searchQuery}
-            predefinedCategory="terrain"
-            moduleTitle="Terrain à louer & vendre"
-          />
-        )}
-        {activeModule === 'workers' && (
-          <MarketplaceServices
-            services={services}
-            onContactProvider={(serv) => { if (!currentUser) setIsAuthModalOpen(true); else setContactTarget(serv); }}
-            onOpenCreate={() => openCreateModal('service', 'agronome')}
-            searchQuery={searchQuery}
-            predefinedCategory="agronome"
-            moduleTitle="Agronome & Ouvrier"
           />
         )}
       </main>

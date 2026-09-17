@@ -3,7 +3,6 @@ import Navbar from './components/Navbar';
 import MarketplaceProducts from './components/MarketplaceProducts';
 import MarketplaceServices from './components/MarketplaceServices';
 import SocialFeed from './components/SocialFeed';
-import MatchingEngine from './components/MatchingEngine';
 import ReputationDirectory from './components/ReputationDirectory';
 import CreateModal from './components/CreateModal';
 import ContactModal from './components/ContactModal';
@@ -11,12 +10,11 @@ import AuthModal from './components/AuthModal';
 import MessagingPanel from './components/MessagingPanel';
 import NotificationPanel from './components/NotificationPanel';
 import UserProfileModal from './components/UserProfileModal';
-import ComingSoonModule from './components/ComingSoonModule';
-import PlantAnalysis from './components/PlantAnalysis';
+import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
-import { CheckCircle2, X, Info, Droplets, Landmark, Map, HardHat } from 'lucide-react';
+import { CheckCircle2, X, Info } from 'lucide-react';
 
 import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, insertData, upsertData, deleteData } from './utils/dbSync';
 

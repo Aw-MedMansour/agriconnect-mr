@@ -304,13 +304,10 @@ export default function App() {
       sessionStorage.setItem(key, '1');
     } catch { /* stockage indisponible */ }
 
-    const bump = (item) => ({ ...item, viewsCount: (item.viewsCount || 0) + 1 });
-    const apply = (setter) => setter(prev => {
-      const updated = prev.map(item => (item.id === id ? bump(item) : item));
-      const target = updated.find(item => item.id === id);
-      if (target) upsertData(kind, id, target);
-      return updated;
-    });
+    registerView(kind, id);
+    const apply = (setter) => setter(prev =>
+      prev.map(item => (item.id === id ? { ...item, viewsCount: (item.viewsCount || 0) + 1 } : item))
+    );
     if (kind === 'products') apply(setProducts);
     else if (kind === 'services') apply(setServices);
     else if (kind === 'posts') apply(setSocialPosts);

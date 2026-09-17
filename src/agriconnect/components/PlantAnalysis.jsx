@@ -4,6 +4,7 @@ import {
   Bug, Droplets, Stethoscope, ClipboardCheck, Sparkles
 } from 'lucide-react';
 import { analyzePlant } from '@/lib/plant.functions';
+import { useLanguage } from '../i18n';
 
 const MAX_SIDE = 1024;
 
@@ -61,6 +62,7 @@ function Section({ icon: Icon, title, color, items, empty }) {
 }
 
 export default function PlantAnalysis({ currentUser, onRequireAuth }) {
+  const { t } = useLanguage();
   const [preview, setPreview] = useState(null);
   const [dataUrl, setDataUrl] = useState(null);
   const [note, setNote] = useState('');
@@ -108,11 +110,10 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
       {/* Header */}
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-2xl p-6 text-white mb-6">
         <h2 className="flex items-center gap-2 text-xl font-extrabold">
-          <Leaf className="w-6 h-6" /> Analyse des plantes par IA
+           <Leaf className="w-6 h-6" /> {t('Analyse des plantes par IA')}
         </h2>
         <p className="text-emerald-50 text-xs mt-2 max-w-2xl leading-relaxed">
-          Prenez ou téléversez une photo d'une feuille, d'un fruit ou d'un plant entier.
-          L'IA repère les maladies, parasites, carences visibles et vous donne des recommandations concrètes.
+           {t("Prenez ou téléversez une photo d'une feuille, d'un fruit ou d'un plant entier. L'IA repère les maladies, parasites, carences visibles et vous donne des recommandations concrètes.")}
         </p>
       </div>
 
@@ -137,7 +138,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
             <div className="h-64 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-3 text-center px-6">
               <Leaf className="w-10 h-10 text-emerald-400" />
               <p className="text-xs text-slate-500 font-medium">
-                Cadrez bien la zone malade, en pleine lumière, sans flou.
+                 {t('Cadrez bien la zone malade, en pleine lumière, sans flou.')}
               </p>
             </div>
           )}
@@ -147,13 +148,13 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
               onClick={() => cameraRef.current?.click()}
               className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-full transition-colors"
             >
-              <Camera className="w-4 h-4" /> Prendre une photo
+               <Camera className="w-4 h-4" /> {t('Prendre une photo')}
             </button>
             <button
               onClick={() => fileRef.current?.click()}
               className="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-full transition-colors"
             >
-              <Upload className="w-4 h-4" /> Téléverser
+               <Upload className="w-4 h-4" /> {t('Téléverser')}
             </button>
           </div>
 
@@ -162,7 +163,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
             onChange={e => setNote(e.target.value)}
             rows={2}
             maxLength={500}
-            placeholder="Facultatif : culture, âge de la plante, symptômes observés..."
+             placeholder={t('Facultatif : culture, âge de la plante, symptômes observés...')}
             className="mt-3 w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
           />
 
@@ -171,7 +172,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
             disabled={!dataUrl || loading}
             className="mt-3 w-full flex items-center justify-center gap-2 bg-[#0a66c2] disabled:opacity-40 hover:bg-[#004182] text-white text-xs font-extrabold py-3 rounded-full transition-all"
           >
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyse en cours...</> : <><Sparkles className="w-4 h-4" /> Analyser la plante</>}
+             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('Analyse en cours...')}</> : <><Sparkles className="w-4 h-4" /> {t('Analyser la plante')}</>}
           </button>
         </div>
 
@@ -187,14 +188,14 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
           {!error && !result && !loading && (
             <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center">
               <Stethoscope className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-xs text-slate-500 font-medium">Le résultat de l'analyse s'affichera ici.</p>
+               <p className="text-xs text-slate-500 font-medium">{t("Le résultat de l'analyse s'affichera ici.")}</p>
             </div>
           )}
 
           {loading && (
             <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center">
               <Loader2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 animate-spin" />
-              <p className="text-xs text-slate-500 font-medium">L'IA examine votre photo...</p>
+               <p className="text-xs text-slate-500 font-medium">{t("L'IA examine votre photo...")}</p>
             </div>
           )}
 
@@ -202,7 +203,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-extrabold text-amber-900">Analyse fiable impossible</p>
+                 <p className="text-xs font-extrabold text-amber-900">{t('Analyse fiable impossible')}</p>
                 <p className="text-xs text-amber-800 mt-1 leading-relaxed">
                   {result.reason || "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée."}
                 </p>
@@ -215,12 +216,12 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
               <div className="bg-white border border-slate-200 rounded-2xl p-4">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-slate-400">Plante identifiée</p>
+                     <p className="text-[10px] font-bold uppercase text-slate-400">{t('Plante identifiée')}</p>
                     <p className="text-sm font-extrabold text-slate-900">{result.plant || 'Indéterminée'}</p>
                   </div>
                   {result.health && (
                     <span className={`text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border ${HEALTH_STYLES[result.health] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
-                      État : {result.health}
+                       {t('État')} : {result.health}
                     </span>
                   )}
                 </div>
@@ -228,20 +229,20 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
                   <p className="text-xs text-slate-600 mt-3 leading-relaxed">{result.healthSummary}</p>
                 )}
                 {result.confidence && (
-                  <p className="text-[10px] text-slate-400 mt-2 font-semibold">Niveau de confiance : {result.confidence}</p>
+                   <p className="text-[10px] text-slate-400 mt-2 font-semibold">{t('Niveau de confiance')} : {result.confidence}</p>
                 )}
               </div>
 
-              <Section icon={Stethoscope} color="text-rose-600" title="Maladies / symptômes"
+               <Section icon={Stethoscope} color="text-rose-600" title={t('Maladies / symptômes')}
                 items={result.diseases} empty="Aucune maladie clairement visible sur la photo." />
-              <Section icon={Bug} color="text-orange-600" title="Parasites"
+               <Section icon={Bug} color="text-orange-600" title={t('Parasites')}
                 items={result.pests} empty="Aucun parasite visible détecté." />
-              <Section icon={Droplets} color="text-blue-600" title="Carences / anomalies"
+               <Section icon={Droplets} color="text-blue-600" title={t('Carences / anomalies')}
                 items={result.deficiencies} empty="Aucune carence évidente détectée." />
 
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4">
                 <h4 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-emerald-700 mb-3">
-                  <ClipboardCheck className="w-4 h-4" /> Recommandations
+                   <ClipboardCheck className="w-4 h-4" /> {t('Recommandations')}
                 </h4>
                 {result.recommendations?.length ? (
                   <ul className="space-y-1.5 list-disc list-inside">

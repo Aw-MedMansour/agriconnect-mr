@@ -10,8 +10,11 @@ import {
   Building
 } from 'lucide-react';
 import { ACTOR_CATEGORIES, MOCK_ACTORS } from '../data/mockData';
+import Avatar from './Avatar';
+import { useLanguage } from '../i18n';
 
 export default function ReputationDirectory({ actors, onContactActor, searchQuery }) {
+  const { t } = useLanguage();
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
 
   const source = Array.isArray(actors) && actors.length ? actors : MOCK_ACTORS;
@@ -53,7 +56,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
               <ShieldCheck className="w-5 h-5" />
             </span>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-              Annuaire des <span className="text-[#0a66c2]">Acteurs Vérifiés</span>
+               {t('Annuaire des Acteurs Vérifiés')}
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
@@ -84,8 +87,8 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
       {filteredActors.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs">
           <ShieldCheck className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun professionnel trouvé dans cette catégorie</h3>
-          <p className="text-xs text-slate-500">Sélectionnez une autre catégorie ci-dessus.</p>
+           <h3 className="text-lg font-bold text-slate-900 mb-1">{t('Aucun professionnel trouvé dans cette catégorie')}</h3>
+           <p className="text-xs text-slate-500">{t('Sélectionnez une autre catégorie ci-dessus.')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -112,11 +115,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
               <div className="px-5 pt-0 pb-5 flex-1 flex flex-col justify-between -mt-10 relative">
                 <div>
                   <div className="flex items-end justify-between gap-3 mb-3">
-                    <img 
-                      src={actor.avatar} 
-                      alt={actor.name}
-                      className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-md"
-                    />
+                     <Avatar src={actor.avatar} name={actor.name} seed={actor.id} className="w-16 h-16 border-4 border-white shadow-md" textClassName="text-base" />
 
                     {/* Rating & Transactions */}
                     <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
@@ -126,7 +125,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                       </div>
                       <span className="text-slate-300 text-xs">|</span>
                       <div className="text-[11px] text-[#0a66c2] font-semibold">
-                        {actor.transactionsCount} Contrats
+                         {actor.transactionsCount} {t('Contrats')}
                       </div>
                     </div>
                   </div>
@@ -156,7 +155,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                   {/* Specialties Pills */}
                   <div className={actor.specialties.length ? 'mb-4' : 'hidden'}>
 
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">Spécialités & Équipements:</span>
+                     <span className="text-[10px] uppercase font-bold text-slate-500 block mb-1.5">{t('Spécialités & Équipements:')}</span>
                     <div className="flex flex-wrap gap-1.5">
                       {actor.specialties.map((spec, i) => (
                         <span key={i} className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded font-medium">
@@ -179,7 +178,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                     className="group/msg w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#0a66c2] to-[#0ea5a0] text-white font-bold text-xs py-2.5 rounded-full shadow-md shadow-[#0a66c2]/25 hover:shadow-lg hover:shadow-[#0a66c2]/35 hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
                   >
                     <MessageSquare className="w-4 h-4 transition-transform group-hover/msg:scale-110" />
-                    <span>Se connecter / Profil</span>
+                     <span>{t('Se connecter / Profil')}</span>
                   </button>
                 </div>
               </div>

@@ -198,3 +198,9 @@
   min-height: 100dvh;
   overflow-x: clip;
 }
+
+@utility ai-fullscreen {
+  top: var(--ai-viewport-top, 0px);
+  height: var(--ai-viewport-height, 100dvh);
+  overscroll-behavior: none;
+}

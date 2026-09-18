@@ -15,7 +15,7 @@ const SUGGESTIONS = [
 ];
 const WELCOME_TEXT = "Bonjour 👋 Je suis **Plant AI**, votre agronome virtuel AgriConnect (sous la tutelle de FulanIA).\nPosez-moi vos questions sur vos cultures, vos sols, vos maladies de plantes — ou sur l'utilisation de la plateforme.";
 
-export default function PlantAIChat({ currentUser, onRequireAuth }) {
+export default function PlantAIChat({ currentUser, onRequireAuth, fullScreen = false }) {
   const { t } = useLanguage();
   const welcome = { role: 'assistant', content: t(WELCOME_TEXT) };
   const [messages, setMessages] = useState([welcome]);
@@ -24,7 +24,18 @@ export default function PlantAIChat({ currentUser, onRequireAuth }) {
   const [error, setError] = useState(null);
   const inputRef = useRef(null);
 
-  useEffect(() => { if (currentUser) inputRef.current?.focus(); }, [currentUser]);
+  useEffect(() => {
+    if (currentUser && window.matchMedia('(min-width: 640px)').matches) {
+      inputRef.current?.focus({ preventScroll: true });
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    const textarea = inputRef.current;
+    if (!textarea) return;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
+  }, [input]);
 
   const reset = () => { setMessages([{ role: 'assistant', content: t(WELCOME_TEXT) }]); setError(null); };
   const send = async (text) => {
@@ -40,12 +51,12 @@ export default function PlantAIChat({ currentUser, onRequireAuth }) {
     } catch (err) {
       setError(err?.message || 'Plant AI est momentanément indisponible.');
     } finally {
-      setIsThinking(false); inputRef.current?.focus();
+      setIsThinking(false); inputRef.current?.focus({ preventScroll: true });
     }
   };
 
   return (
-    <section className="flex h-[min(72vh,700px)] min-h-[500px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+    <section className={`flex min-h-0 flex-col overflow-hidden bg-white ${fullScreen ? 'h-full w-full rounded-none border-0 shadow-none' : 'h-[min(72vh,700px)] min-h-[500px] rounded-3xl border border-slate-200 shadow-lg'}`}>
       <div className="flex items-center gap-3 border-b border-slate-200 bg-gradient-to-r from-emerald-50 to-blue-50 px-4 py-3 sm:px-5">
         <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-[#0a66c2] text-white shadow-md"><Bot className="h-5 w-5" /><span className="absolute -bottom-1 -end-1 h-3 w-3 rounded-full border-2 border-white bg-emerald-400" /></span>
         <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-slate-900">Plant AI</h3><p className="truncate text-[10px] font-semibold text-slate-500 sm:text-[11px]">{t('Agronome virtuel AgriConnect — sous la tutelle de FulanIA')}</p></div>
@@ -70,8 +81,8 @@ export default function PlantAIChat({ currentUser, onRequireAuth }) {
         <ConversationScrollButton aria-label="Scroll" />
       </Conversation>
 
-      <form onSubmit={event => { event.preventDefault(); send(); }} className="border-t border-slate-200 bg-white p-3 sm:p-4">
-        {!currentUser ? <button type="button" onClick={onRequireAuth} className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-500 py-3 text-xs font-bold text-white hover:bg-amber-600"><Lock className="h-4 w-4" />{t('Connectez-vous pour discuter avec Plant AI')}</button> : <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-slate-50 p-1.5 focus-within:border-[#0a66c2] focus-within:ring-2 focus-within:ring-blue-100"><textarea ref={inputRef} rows={1} value={input} onChange={event => setInput(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); send(); } }} placeholder={t('Posez votre question agricole…')} className="max-h-28 min-h-10 min-w-0 flex-1 resize-none bg-transparent px-3 py-2 text-xs outline-none" /><button type="submit" disabled={isThinking || !input.trim()} aria-label={t('Envoyer le message à Plant AI')} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0a66c2] text-white disabled:opacity-40"><Send className="h-4 w-4" /></button></div>}
+      <form onSubmit={event => { event.preventDefault(); send(); }} className="shrink-0 border-t border-slate-200 bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4">
+        {!currentUser ? <button type="button" onClick={onRequireAuth} className="flex w-full items-center justify-center gap-2 rounded-full bg-amber-500 py-3 text-xs font-bold text-white hover:bg-amber-600"><Lock className="h-4 w-4" />{t('Connectez-vous pour discuter avec Plant AI')}</button> : <div className="flex items-end gap-2 rounded-2xl border border-slate-300 bg-slate-50 p-1.5 focus-within:border-[#0a66c2] focus-within:ring-2 focus-within:ring-blue-100"><textarea ref={inputRef} rows={1} value={input} onChange={event => setInput(event.target.value)} onFocus={event => event.currentTarget.scrollIntoView({ block: 'nearest' })} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); send(); } }} placeholder={t('Posez votre question agricole…')} className="max-h-40 min-h-12 min-w-0 flex-1 resize-none overflow-y-auto bg-transparent px-3 py-3 text-base leading-6 outline-none sm:text-xs" /><button type="submit" disabled={isThinking || !input.trim()} aria-label={t('Envoyer le message à Plant AI')} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0a66c2] text-white disabled:opacity-40"><Send className="h-4 w-4" /></button></div>}
       </form>
     </section>
   );

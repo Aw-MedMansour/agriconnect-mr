@@ -115,7 +115,7 @@ export default function AIHub({ currentUser, onRequireAuth, onDispatchSuccess, d
       </div>
 
       <div className="min-h-[520px]">
-        {toolContent}
+        {!isExpanded && toolContent}
       </div>
 
       {isExpanded && (

@@ -58,7 +58,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
           </button>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            <button onClick={onOpenCreateModal} className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0a66c2] shadow-sm hover:bg-blue-50 sm:h-10 sm:w-10" aria-label={t('Publier une annonce')}>
+            <button onClick={onOpenCreateModal} className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-sm hover:opacity-90 sm:h-10 sm:w-10" aria-label={t('Publier une annonce')}>
               <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
             <button onClick={() => setSearchOpen(v => !v)} className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition sm:h-10 sm:w-10 ${searchOpen ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`} aria-label={t('Rechercher')}><Search className="h-4 w-4 sm:h-5 sm:w-5" /></button>
@@ -92,7 +92,7 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
 
           {searchOpen && <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="absolute left-1/2 top-1/2 z-50 flex w-[min(64vw,420px)] -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 shadow-lg"><Search className="ms-1 h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery || ''} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-1.5 text-xs outline-none" /><button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button></div>}
 
-          <button onClick={onToggleMessaging} className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0a66c2] shadow-sm hover:bg-blue-50" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-5 w-5" /><Counter>{unreadCount}</Counter></button>
+          <button onClick={onToggleMessaging} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-sm hover:opacity-90" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-5 w-5" /><Counter>{unreadCount}</Counter></button>
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Bell, Bot, ChevronDown, LogOut, MessageCircle, Plus, Search, ShieldCheck, Store, Truck, UserCircle2, Users, X } from 'lucide-react';
+import { Bell, Bot, Check, ChevronDown, Languages, LogOut, MessageCircle, Plus, Search, ShieldCheck, Store, Truck, UserCircle2, Users, X } from 'lucide-react';
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
 import { useLanguage } from '../i18n';
@@ -45,20 +45,28 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-3 sm:px-5">
-        <div className="flex min-h-[56px] items-center justify-center py-1.5 sm:min-h-[64px]">
-          <button onClick={goHome} className="group flex min-w-0 items-center justify-center gap-2 text-center sm:gap-2.5" aria-label="AgriConnect">
-            <img src={agriLogo} alt="Logo AgriConnect" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-slate-200 sm:h-12 sm:w-12" />
+        <div dir="ltr" className="flex min-h-[62px] items-center justify-between gap-2 py-1.5 sm:min-h-[72px]">
+          <button onClick={goHome} className="group flex min-w-0 items-center gap-2 text-left sm:gap-2.5" aria-label="AgriConnect">
+            <img src={agriLogo} alt="Logo AgriConnect" className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-sm ring-1 ring-slate-200 sm:h-14 sm:w-14" />
             <span className="min-w-0 text-start">
               <span className="flex items-center gap-1.5 sm:gap-2">
-                <span className="truncate text-lg font-black tracking-tight text-[#0a66c2] sm:text-2xl">AgriConnect</span>
+                <span className="truncate text-xl font-black tracking-tight text-[#0a66c2] sm:text-2xl">AgriConnect</span>
                 <span className="rounded-md bg-[#0a66c2] px-1.5 py-0.5 text-[7px] font-black tracking-wider text-white sm:text-[9px]">PRO</span>
               </span>
-              <span className="mt-0.5 block truncate text-[9px] font-semibold text-slate-500 sm:text-[11px]">{t('Le réseau professionnel agricole')}</span>
+              <span className="mt-0.5 block max-w-[190px] truncate text-[9px] font-semibold text-slate-500 sm:max-w-none sm:text-[11px]">{t('Le réseau professionnel agricole')}</span>
             </span>
           </button>
+
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+            <button onClick={onOpenCreateModal} className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0a66c2] shadow-sm hover:bg-blue-50 sm:h-10 sm:w-10" aria-label={t('Publier une annonce')}>
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+            <button onClick={() => setSearchOpen(v => !v)} className={`flex h-9 w-9 items-center justify-center rounded-full border shadow-sm transition sm:h-10 sm:w-10 ${searchOpen ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`} aria-label={t('Rechercher')}><Search className="h-4 w-4 sm:h-5 sm:w-5" /></button>
+            <button onClick={onToggleNotifications} className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50 sm:h-10 sm:w-10" aria-label={t('Ouvrir les notifications')}><Bell className="h-4 w-4 sm:h-5 sm:w-5" /><Counter>{notificationCount}</Counter></button>
+          </div>
         </div>
 
-        <div dir="ltr" className="relative grid min-h-[44px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-1 border-t border-slate-100 py-1.5 sm:min-h-[48px] sm:gap-2">
+        <div dir="ltr" className="relative flex min-h-[46px] items-center justify-between border-t border-slate-100 py-1.5">
           <div ref={profileRef} className="relative min-w-0 justify-self-start">
               {currentUser ? (
                 <button onClick={() => setProfileOpen(v => !v)} className="flex h-9 max-w-[120px] items-center gap-2 rounded-full border border-slate-200 bg-white px-1.5 pe-2 text-start hover:bg-slate-50 sm:max-w-[170px]" aria-expanded={profileOpen} aria-label={t('Mon profil')}>
@@ -67,34 +75,24 @@ export default function Navbar({ activeModule, setActiveModule, onOpenAuthModal,
                   <ChevronDown className="hidden h-3 w-3 text-slate-400 md:block" />
                 </button>
               ) : (
-                <button onClick={onOpenAuthModal} className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 px-2.5 text-[11px] font-bold text-slate-700 hover:bg-slate-50 sm:px-3"><UserCircle2 className="h-4 w-4" /><span className="hidden sm:inline">{t('Connexion')}</span></button>
+                <button onClick={() => setProfileOpen(v => !v)} className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-sm" aria-expanded={profileOpen} aria-label={t('Connexion')}><UserCircle2 className="h-5 w-5" /></button>
               )}
-              {profileOpen && currentUser && (
+              {profileOpen && (
                 <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="absolute left-0 top-full z-50 mt-2 w-[min(14rem,88vw)] overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 text-start shadow-xl">
-                  <button onClick={() => { onOpenMyProfile?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Mon profil & mes publications')}</button>
-                  <button onClick={() => { onLogout?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />{t('Se déconnecter')}</button>
+                  {currentUser ? <>
+                    <button onClick={() => { onOpenMyProfile?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Mon profil & mes publications')}</button>
+                    <button onClick={() => { onLogout?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />{t('Se déconnecter')}</button>
+                  </> : <button onClick={() => { onOpenAuthModal?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-start text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{t('Connexion')}</button>}
+                  <div className="my-1 border-t border-slate-100" />
+                  <div className="flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase text-slate-400"><Languages className="h-3.5 w-3.5" />{t('Choisir la langue')}</div>
+                  {languages.map(item => <button key={item.id} onClick={() => { setLanguage(item.id); setProfileOpen(false); }} className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-start text-xs font-semibold text-slate-700 hover:bg-slate-50"><span>{item.label}</span>{language === item.id && <Check className="h-4 w-4 text-[#0a66c2]" />}</button>)}
                 </div>
               )}
           </div>
 
-          <div className="flex min-w-0 items-center justify-center gap-1 sm:gap-2">
-            <div className="relative">
-              <button onClick={() => setSearchOpen(v => !v)} className={`flex h-9 w-9 items-center justify-center rounded-full border transition ${searchOpen ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`} aria-label={t('Rechercher')}><Search className="h-4 w-4" /></button>
-              {searchOpen && <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="absolute left-1/2 top-full z-50 mt-2 flex w-[min(88vw,360px)] -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl"><Search className="ms-2 h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery || ''} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-1.5 text-xs outline-none" /><button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button></div>}
-            </div>
+          {searchOpen && <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="absolute left-1/2 top-1/2 z-50 flex w-[min(64vw,420px)] -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 shadow-lg"><Search className="ms-1 h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery || ''} onChange={e => setSearchQuery(e.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-1.5 text-xs outline-none" /><button onClick={() => { setSearchQuery(''); setSearchOpen(false); }} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button></div>}
 
-            <button onClick={onToggleNotifications} className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50" aria-label={t('Ouvrir les notifications')}><Bell className="h-4 w-4" /><Counter>{notificationCount}</Counter></button>
-            <button onClick={onToggleMessaging} className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#0a66c2] to-[#0ea5a0] text-white shadow-md" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-4 w-4 fill-white/15" /><Counter>{unreadCount}</Counter></button>
-
-            <label className="relative flex h-9 shrink-0 items-center rounded-full border border-slate-200 bg-white px-1.5 text-[10px] font-black text-slate-600 hover:bg-slate-50" aria-label={t('Choisir la langue')}>
-              <span className="pointer-events-none w-6 text-center">{languages.find(item => item.id === language)?.short}</span>
-              <select value={language} onChange={e => setLanguage(e.target.value)} className="absolute inset-0 cursor-pointer opacity-0" aria-label={t('Choisir la langue')}>{languages.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select>
-            </label>
-          </div>
-
-          <button onClick={onOpenCreateModal} className="flex h-9 shrink-0 items-center justify-center gap-1.5 justify-self-end rounded-full bg-[#0a66c2] px-2.5 text-[11px] font-extrabold text-white shadow-sm transition hover:bg-[#004182] sm:px-4 sm:text-xs" aria-label={t('Publier une annonce')}>
-            <Plus className="h-4 w-4" /><span className="hidden sm:inline">{t('Publier une annonce')}</span>
-          </button>
+          <button onClick={onToggleMessaging} className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0a66c2] shadow-sm hover:bg-blue-50" aria-label={t('Ouvrir la messagerie')}><MessageCircle className="h-5 w-5" /><Counter>{unreadCount}</Counter></button>
         </div>
       </div>
 

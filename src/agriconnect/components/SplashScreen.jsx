@@ -18,7 +18,7 @@ export default function SplashScreen({ done }) {
   }, [done]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white">
+    <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white">
       <div className="flex flex-col items-center gap-5 px-8 text-center">
         <img
           src={logo}

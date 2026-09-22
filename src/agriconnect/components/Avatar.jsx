@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Palette variée : chaque compte reçoit une couleur stable dérivée de son nom/id.
 const PALETTE = [
@@ -44,7 +44,9 @@ export default function Avatar({
   onClick,
   title,
 }) {
-  const showImage = !isPlaceholderAvatar(src);
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => setImageFailed(false), [src]);
+  const showImage = !imageFailed && !isPlaceholderAvatar(src);
   const colors = paletteFor(seed || name);
   const base = `relative shrink-0 rounded-full overflow-hidden ${className} ${ringClassName}`;
 
@@ -55,6 +57,7 @@ export default function Avatar({
         alt={name}
         title={title || name}
         onClick={onClick}
+        onError={() => setImageFailed(true)}
         className={`${base} object-cover bg-slate-100`}
       />
     );

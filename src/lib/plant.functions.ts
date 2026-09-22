@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const Input = z.object({
   image: z.string().min(100), // data URL (base64)
   note: z.string().max(500).optional(),
+  language: z.enum(["fr", "en", "ar"]).default("fr"),
 });
 
 const SYSTEM = `Tu es un agronome expert en phytopathologie, spécialisé dans les cultures d'Afrique de l'Ouest et du Sahel.
@@ -40,7 +41,7 @@ export const analyzePlant = createServerFn({ method: "POST" })
       body: JSON.stringify({
         model: "google/gemini-3.8-flash",
         messages: [
-          { role: "system", content: SYSTEM },
+          { role: "system", content: `${SYSTEM}\nProduis toutes les valeurs textuelles dans cette langue : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}. Conserve exactement les clés JSON demandées.` },
           {
             role: "user",
             content: [

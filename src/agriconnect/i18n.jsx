@@ -21,6 +21,12 @@ const translations = {
     'Intelligence artificielle': 'Artificial Intelligence',
     'Acteurs & Réputation': 'People & Reputation',
     'Choisir la langue': 'Choose language',
+    'Accueil': 'Home', 'Profil': 'Profile', 'Navigation principale': 'Main navigation', 'Fermer': 'Close',
+    'Explorer AgriConnect': 'Explore AgriConnect', 'Choisissez un espace': 'Choose a section',
+    'Produits agricoles': 'Agricultural products', 'Services agricoles': 'Agricultural services', 'Communauté agricole': 'Agricultural community', 'Outils intelligents': 'Smart tools', 'Annuaire professionnel': 'Professional directory',
+    'Plant AI est momentanément indisponible.': 'Plant AI is temporarily unavailable.', 'Moi': 'Me',
+    "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée.": 'The image does not contain enough information. Take a clear, close and well-lit photo.',
+    'Indéterminée': 'Unknown', 'Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome.': 'This analysis is indicative. Before treatment, have the diagnosis confirmed by an agronomist.',
     'AgriConnect — le réseau professionnel agricole': 'AgriConnect — the professional agricultural network',
     "Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.": 'Sell crops, find transporters and service providers, connect with agricultural professionals and analyze plants with artificial intelligence.',
     'Trois outils, une expertise agricole': 'Three tools, one agricultural expertise',
@@ -207,6 +213,12 @@ const translations = {
     'Intelligence artificielle': 'الذكاء الاصطناعي',
     'Acteurs & Réputation': 'المهنيون والسمعة',
     'Choisir la langue': 'اختيار اللغة',
+    'Accueil': 'الرئيسية', 'Profil': 'الملف الشخصي', 'Navigation principale': 'التنقل الرئيسي', 'Fermer': 'إغلاق',
+    'Explorer AgriConnect': 'استكشف AgriConnect', 'Choisissez un espace': 'اختر قسماً',
+    'Produits agricoles': 'المنتجات الزراعية', 'Services agricoles': 'الخدمات الزراعية', 'Communauté agricole': 'المجتمع الزراعي', 'Outils intelligents': 'الأدوات الذكية', 'Annuaire professionnel': 'الدليل المهني',
+    'Plant AI est momentanément indisponible.': 'Plant AI غير متاح مؤقتاً.', 'Moi': 'أنا',
+    "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée.": 'لا تحتوي الصورة على معلومات كافية. التقط صورة واضحة وقريبة وبإضاءة جيدة.',
+    'Indéterminée': 'غير محددة', 'Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome.': 'هذا التحليل إرشادي. قبل العلاج، اطلب من مهندس زراعي تأكيد التشخيص.',
     'AgriConnect — le réseau professionnel agricole': 'AgriConnect — الشبكة المهنية الزراعية',
     "Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.": 'بع محاصيلك، واعثر على الناقلين ومقدمي الخدمات، وتواصل مع المهنيين الزراعيين وحلّل نباتاتك بالذكاء الاصطناعي.',
     'Trois outils, une expertise agricole': 'ثلاث أدوات وخبرة زراعية واحدة',
@@ -371,26 +383,40 @@ const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState('fr');
+  const [ready, setReady] = useState(false);
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    const next = ['fr', 'en', 'ar'].includes(stored) ? stored : 'fr';
+    const valid = ['fr', 'en', 'ar'].includes(stored);
+    const next = valid ? stored : 'fr';
     setLanguage(next);
+    setHasChosenLanguage(valid);
+    setReady(true);
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
     root.lang = language;
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
-    window.localStorage.setItem(STORAGE_KEY, language);
-  }, [language]);
+    if (hasChosenLanguage) window.localStorage.setItem(STORAGE_KEY, language);
+  }, [language, hasChosenLanguage]);
+
+  const chooseLanguage = (next) => {
+    if (!['fr', 'en', 'ar'].includes(next)) return;
+    setLanguage(next);
+    setHasChosenLanguage(true);
+  };
 
   const value = useMemo(() => ({
     language,
+    ready,
+    hasChosenLanguage,
     isRtl: language === 'ar',
-    setLanguage,
+    setLanguage: chooseLanguage,
+    chooseLanguage,
     t: (key) => translations[language]?.[key] || key,
-  }), [language]);
+  }), [language, ready, hasChosenLanguage]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

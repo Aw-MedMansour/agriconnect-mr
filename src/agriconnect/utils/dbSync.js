@@ -49,7 +49,7 @@ export async function fetchAllData() {
   const conversations = convsRes.data?.map(r => r.data).filter(Boolean)     || [];
 
   return {
-    users: users.length ? users : MOCK_ACTORS,
+    users,
     products: products.length ? products : MOCK_PRODUCTS,
     services: services.length ? services : MOCK_SERVICES,
     posts: posts.length ? posts : MOCK_SOCIAL_POSTS,
@@ -107,6 +107,9 @@ export async function findUserById(id) {
 
 // ── Media Upload to file storage ─────────────────────────────────────────────
 export async function uploadMedia(file, folder = 'media') {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+  if (!file || !allowedTypes.includes(file.type)) throw new Error('Type de fichier non autorisé.');
+  if (file.size > 25 * 1024 * 1024) throw new Error('Fichier trop volumineux (25 Mo maximum).');
   try {
     const ext = file.name.split('.').pop();
     const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -117,17 +120,18 @@ export async function uploadMedia(file, folder = 'media') {
 
     if (error) {
       console.error('[Storage] upload error:', error.message);
-      return URL.createObjectURL(file);
+      throw new Error(error.message);
     }
 
     const { data: signed } = await supabase.storage
       .from('agroconnect-media')
       .createSignedUrl(data.path, 60 * 60 * 24 * 365);
 
-    return signed?.signedUrl || URL.createObjectURL(file);
+    if (!signed?.signedUrl) throw new Error('Lien du fichier indisponible.');
+    return signed.signedUrl;
   } catch (err) {
     console.error('[Storage] upload exception:', err);
-    return URL.createObjectURL(file);
+    throw err;
   }
 }
 

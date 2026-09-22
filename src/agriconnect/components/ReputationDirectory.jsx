@@ -9,7 +9,7 @@ import {
   MessageSquare,
   Building
 } from 'lucide-react';
-import { ACTOR_CATEGORIES, MOCK_ACTORS } from '../data/mockData';
+import { ACTOR_CATEGORIES } from '../data/mockData';
 import Avatar from './Avatar';
 import { useLanguage } from '../i18n';
 
@@ -17,7 +17,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
   const { t } = useLanguage();
   const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
 
-  const source = Array.isArray(actors) && actors.length ? actors : MOCK_ACTORS;
+  const source = Array.isArray(actors) ? actors : [];
 
   const normalized = source.map(a => ({
     ...a,
@@ -30,7 +30,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
     rating: a.rating ?? '—',
     transactionsCount: a.transactionsCount ?? 0,
     badge: a.badge || 'Nouveau membre',
-    avatar: a.avatar || `https://ui-avatars.com/api/?background=0a66c2&color=fff&name=${encodeURIComponent(a.name || 'AgriConnect')}`,
+    avatar: a.avatar || '',
     coverImage: a.coverImage || 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
   }));
 

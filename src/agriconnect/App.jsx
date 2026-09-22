@@ -267,12 +267,7 @@ export default function App() {
   };
 
   const handleLanguageChange = async (nextLanguage) => {
-    setLanguage(nextLanguage);
-    if (!currentUser) return;
-    const updatedUser = { ...currentUser, preferredLanguage: nextLanguage };
-    setCurrentUser(updatedUser);
-    setAuthenticatedProfile(updatedUser);
-    await upsertData('users', updatedUser.id, updatedUser);
+    await setLanguage(nextLanguage);
   };
 
   // ── Creation handlers ──────────────────────────────────────────────────────

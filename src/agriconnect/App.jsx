@@ -14,6 +14,7 @@ import UserProfileModal from './components/UserProfileModal';
 import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 import { useLanguage } from './i18n';
+import { supabase } from './utils/supabaseClient';
 
 import { Bot, CheckCircle2, Info, Search, ShieldCheck, Store, Truck, Users, X } from 'lucide-react';
 
@@ -29,16 +30,16 @@ import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updat
 
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
-  const { t, language } = useLanguage();
+  const { t, language, setLanguage, authenticatedProfile, setAuthenticatedProfile } = useLanguage();
   const [activeModule, setActiveModule] = useState('products');
   const [aiDefaultTab, setAiDefaultTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [bottomNavHidden, setBottomNavHidden] = useState(false);
+  const [toolsHidden, setToolsHidden] = useState(false);
 
   // Auth
   const [currentUser, setCurrentUser] = useState(null);
-  const userRestoredRef = useRef(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   // Data
@@ -93,7 +94,15 @@ export default function App() {
       ticking = true;
       window.requestAnimationFrame(() => {
         const next = window.scrollY;
-        setBottomNavHidden(next > previous && next > 120);
+        const delta = next - previous;
+        if (next < 48) {
+          setBottomNavHidden(false);
+          setToolsHidden(false);
+        } else if (Math.abs(delta) >= 8) {
+          const shouldHide = delta > 0;
+          setBottomNavHidden(shouldHide);
+          setToolsHidden(shouldHide);
+        }
         previous = next;
         ticking = false;
       });
@@ -184,21 +193,10 @@ export default function App() {
   }, [currentUser]);
 
 
-  // ── Restore currentUser from localStorage (client-only, avoids SSR mismatch)
+  // ── Authentication is resolved before the language gate is displayed.
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('agriconnect_user'));
-      if (stored) setCurrentUser(stored);
-    } catch { /* ignore */ }
-    userRestoredRef.current = true;
-  }, []);
-
-  // ── Persist currentUser locally ────────────────────────────────
-  useEffect(() => {
-    if (!userRestoredRef.current) return;
-    if (currentUser) localStorage.setItem('agriconnect_user', JSON.stringify(currentUser));
-    else localStorage.removeItem('agriconnect_user');
-  }, [currentUser]);
+    setCurrentUser(authenticatedProfile);
+  }, [authenticatedProfile]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -249,17 +247,27 @@ export default function App() {
 
   // ── Auth handlers ──────────────────────────────────────────────────────────
   const handleLoginSuccess = (userObj, isNewUser = false) => {
-    setCurrentUser(userObj);
+    const preferredLanguage = userObj.preferredLanguage || userObj.preferred_language || language;
+    const resolvedUser = { ...userObj, preferredLanguage };
+    setCurrentUser(resolvedUser);
+    setAuthenticatedProfile(resolvedUser);
+    setLanguage(preferredLanguage);
     if (isNewUser) {
-      setRegisteredUsers(prev => [...prev, userObj]);
-      upsertData('users', userObj.id, userObj);
+      setRegisteredUsers(prev => [...prev, resolvedUser]);
+      upsertData('users', resolvedUser.id, resolvedUser);
     }
-    showToast(`✅ Bienvenue ${userObj.name} ! Votre compte est activé.`);
+    showToast(`✅ Bienvenue ${resolvedUser.name} ! Votre compte est activé.`);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     setCurrentUser(null);
+    setAuthenticatedProfile(null);
     showToast('Vous vous êtes déconnecté.');
+  };
+
+  const handleLanguageChange = async (nextLanguage) => {
+    await setLanguage(nextLanguage);
   };
 
   // ── Creation handlers ──────────────────────────────────────────────────────
@@ -832,7 +840,7 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="stable-page flex min-h-screen flex-col bg-[#f3f2ef] pb-20 font-sans text-slate-900 selection:bg-blue-200 selection:text-blue-900" data-language={language}>
+    <div className={`stable-page flex min-h-screen flex-col bg-[#f3f2ef] font-sans text-slate-900 selection:bg-blue-200 selection:text-blue-900 transition-[padding] duration-200 ${bottomNavHidden ? 'pb-0' : 'pb-[calc(5rem+env(safe-area-inset-bottom))]'}`} data-language={language}>
 
       {showSplash && <SplashScreen done={!isLoading} />}
 
@@ -859,7 +867,15 @@ export default function App() {
         }}
       />
 
-      {isSearchOpen && <div className="sticky top-[62px] z-30 border-b border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur-xl"><div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3"><Search className="h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-2.5 text-base outline-none sm:text-sm" /><button type="button" onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} aria-label={t('Fermer')} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200"><X className="h-4 w-4" /></button></div></div>}
+      <div className={`sticky top-[62px] z-30 overflow-hidden bg-white/95 backdrop-blur-xl transition-[max-height,opacity,border-color] duration-200 ease-out ${toolsHidden ? 'pointer-events-none max-h-0 border-0 border-transparent opacity-0 shadow-none' : 'max-h-44 border-b border-slate-200 opacity-100 shadow-sm'}`}>
+        {isSearchOpen && <div className="px-3 pt-2"><div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3"><Search className="h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-2.5 text-base outline-none sm:text-sm" /><button type="button" onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} aria-label={t('Fermer')} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200"><X className="h-4 w-4" /></button></div></div>}
+        <section className="mx-auto w-full max-w-7xl px-3 py-2 sm:px-4" aria-labelledby="module-title">
+          <h2 id="module-title" className="sr-only">{t('Explorer AgriConnect')}</h2>
+          <div className="grid grid-cols-5 gap-1.5 overflow-hidden sm:gap-2">
+            {MODULES.map(({ id, label, hint, icon: Icon }) => <button type="button" key={id} onClick={() => setActiveModule(id)} aria-current={activeModule === id ? 'page' : undefined} className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-center transition ${activeModule === id ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}><Icon className="h-4 w-4 shrink-0" /><span className="hidden text-[10px] font-bold leading-tight sm:block">{t(label)}</span><span className="max-w-full truncate text-[9px] font-semibold sm:hidden">{t(hint)}</span></button>)}
+          </div>
+        </section>
+      </div>
 
 
 
@@ -871,13 +887,6 @@ export default function App() {
         <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium max-w-3xl">
           {t("Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.")}
         </p>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-3 pt-4 sm:px-4" aria-labelledby="module-title">
-        <div className="mb-2 flex items-end justify-between gap-3"><div><h2 id="module-title" className="text-sm font-black text-slate-900">{t('Explorer AgriConnect')}</h2><p className="text-[11px] font-medium text-slate-500">{t('Choisissez un espace')}</p></div></div>
-        <div className="grid grid-cols-5 gap-1.5 overflow-hidden sm:gap-2">
-          {MODULES.map(({ id, label, hint, icon: Icon }) => <button type="button" key={id} onClick={() => setActiveModule(id)} aria-current={activeModule === id ? 'page' : undefined} className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-center transition ${activeModule === id ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}><Icon className="h-4 w-4 shrink-0" /><span className="hidden text-[10px] font-bold leading-tight sm:block">{t(label)}</span><span className="max-w-full truncate text-[9px] font-semibold sm:hidden">{t(hint)}</span></button>)}
-        </div>
       </section>
 
       {/* ── Info Banner : explains where posts go ── */}
@@ -1044,6 +1053,7 @@ export default function App() {
         onProfile={openMyProfile}
         onAuth={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
+        onLanguageChange={handleLanguageChange}
         currentUser={currentUser}
         notificationCount={unreadNotifications}
       />

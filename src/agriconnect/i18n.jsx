@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { supabase } from './utils/supabaseClient';
+import { findUserById, saveUser } from './utils/dbSync';
 
-const STORAGE_KEY = 'agriconnect_language';
+const LANGUAGES = ['fr', 'en', 'ar'];
 
 const translations = {
   en: {
@@ -397,38 +399,76 @@ export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState('fr');
   const [ready, setReady] = useState(false);
   const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
+  const [authenticatedProfile, setAuthenticatedProfile] = useState(null);
+  const sessionChoiceRef = useRef(null);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    const valid = ['fr', 'en', 'ar'].includes(stored);
-    const next = valid ? stored : 'fr';
-    setLanguage(next);
-    setHasChosenLanguage(valid);
-    setReady(true);
+    let active = true;
+    const applySession = async (authUser) => {
+      if (!active) return;
+      if (!authUser) {
+        setAuthenticatedProfile(null);
+        setLanguage('fr');
+        setHasChosenLanguage(false);
+        setReady(true);
+        return;
+      }
+      const profile = await findUserById(authUser.id);
+      if (!active) return;
+      const fallbackProfile = profile || { id: authUser.id, email: authUser.email || '', name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Utilisateur' };
+      const preferred = fallbackProfile.preferredLanguage || fallbackProfile.preferred_language;
+      const firstChoice = !preferred && LANGUAGES.includes(sessionChoiceRef.current) ? sessionChoiceRef.current : null;
+      const resolvedProfile = firstChoice ? { ...fallbackProfile, preferredLanguage: firstChoice } : fallbackProfile;
+      if (firstChoice) await saveUser(resolvedProfile);
+      if (!active) return;
+      setAuthenticatedProfile(resolvedProfile);
+      if (LANGUAGES.includes(preferred)) setLanguage(preferred);
+      if (firstChoice) setLanguage(firstChoice);
+      setHasChosenLanguage(LANGUAGES.includes(preferred) || Boolean(firstChoice));
+      setReady(true);
+    };
+
+    supabase.auth.getUser().then(({ data }) => applySession(data?.user || null));
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED'].includes(event)) return;
+      setReady(false);
+      window.setTimeout(() => applySession(session?.user || null), 0);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
     root.lang = language;
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
-    if (hasChosenLanguage) window.localStorage.setItem(STORAGE_KEY, language);
-  }, [language, hasChosenLanguage]);
+  }, [language]);
 
-  const chooseLanguage = (next) => {
-    if (!['fr', 'en', 'ar'].includes(next)) return;
+  const chooseLanguage = async (next) => {
+    if (!LANGUAGES.includes(next)) return;
+    sessionChoiceRef.current = next;
     setLanguage(next);
     setHasChosenLanguage(true);
+    if (authenticatedProfile) {
+      const updatedProfile = { ...authenticatedProfile, preferredLanguage: next };
+      setAuthenticatedProfile(updatedProfile);
+      await saveUser(updatedProfile);
+    }
   };
 
   const value = useMemo(() => ({
     language,
     ready,
     hasChosenLanguage,
+    authenticatedProfile,
+    setAuthenticatedProfile,
     isRtl: language === 'ar',
     setLanguage: chooseLanguage,
     chooseLanguage,
     t: (key) => translations[language]?.[key] || key,
-  }), [language, ready, hasChosenLanguage]);
+  }), [language, ready, hasChosenLanguage, authenticatedProfile]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

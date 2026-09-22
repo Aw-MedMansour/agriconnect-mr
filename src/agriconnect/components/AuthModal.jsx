@@ -8,7 +8,7 @@ import Avatar from './Avatar';
 import { useLanguage } from '../i18n';
 
 export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = [] }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [mode, setMode] = useState('signup');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -72,6 +72,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           avatar: profilePic || '',
           verified: true,
           badge: 'Membre Vérifié',
+          preferredLanguage: language,
         };
 
         await saveUser(newUser);
@@ -87,7 +88,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         }
 
         const profile = await findUserById(data.user.id);
-        onLoginSuccess(profile || {
+        const resolvedProfile = profile || {
           id: data.user.id,
           name: data.user.user_metadata?.name || email.split('@')[0],
           email,
@@ -98,7 +99,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           avatar: '',
           verified: true,
           badge: 'Membre Vérifié',
-        }, false);
+        };
+        if (!resolvedProfile.preferredLanguage && !resolvedProfile.preferred_language) {
+          resolvedProfile.preferredLanguage = language;
+          await saveUser(resolvedProfile);
+        }
+        onLoginSuccess(resolvedProfile, false);
         onClose();
       }
     } catch (err) {

@@ -473,8 +473,21 @@ export function LanguageProvider({ children }) {
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
+const FALLBACK_LANGUAGE_CONTEXT = {
+  language: 'fr',
+  ready: true,
+  hasChosenLanguage: true,
+  authenticatedProfile: null,
+  setAuthenticatedProfile: () => {},
+  isRtl: false,
+  setLanguage: () => {},
+  chooseLanguage: () => {},
+  t: (key) => key,
+};
+
 export function useLanguage() {
   const context = useContext(LanguageContext);
-  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
-  return context;
+  // Never crash the whole app if a component mounts before/outside the provider
+  // (e.g. during hot reload or an error-boundary re-render).
+  return context || FALLBACK_LANGUAGE_CONTEXT;
 }

@@ -1,7 +1,8 @@
-# Feuille de route
-- [ ] Recomposer l’en-tête sans chevauchement
-- [ ] Stabiliser les écrans et panneaux
-- [ ] Refaire la section Intelligence artificielle
-- [ ] Ajouter FR / EN / AR avec RTL
-- [ ] Traduire tous les écrans visibles
-- [ ] Vérifier mobile, ordinateur et trois langues
+## Refonte navigation, UX/UI, multilingue, IA, stabilité et sécurité
+- [ ] Auditer architecture, routes, états, authentification, données, traductions et responsive
+- [ ] Refaire la navigation principale et repositionner la messagerie
+- [ ] Corriger scroll, modales, avatars et stabilité globale
+- [ ] Compléter le multilingue et le premier choix de langue
+- [ ] Finaliser l’accueil IA, le plein écran et Plant AI
+- [ ] Retirer uniquement les comptes fictifs de l’annuaire
+- [ ] Vérifier sécurité, performances et comportement multi-écrans

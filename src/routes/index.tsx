@@ -3,11 +3,13 @@ import App from "../agriconnect/App";
 // The application UI is progressively localized from its existing JSX components.
 // @ts-expect-error JSX context module has no standalone declaration file.
 import { LanguageProvider } from "../agriconnect/i18n";
+// @ts-expect-error JSX component has no standalone declaration file.
+import LanguageGate from "../agriconnect/components/LanguageGate";
 
 function LocalizedApp() {
   return (
     <LanguageProvider>
-      <App />
+      <LanguageGate><App /></LanguageGate>
     </LanguageProvider>
   );
 }

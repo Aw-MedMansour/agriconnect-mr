@@ -62,7 +62,7 @@ function Section({ icon: Icon, title, color, items, empty }) {
 }
 
 export default function PlantAnalysis({ currentUser, onRequireAuth }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [preview, setPreview] = useState(null);
   const [dataUrl, setDataUrl] = useState(null);
   const [note, setNote] = useState('');
@@ -94,7 +94,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
     setError(null);
     setResult(null);
     try {
-      const res = await analyzePlant({ data: { image: dataUrl, note: note.trim() || undefined } });
+      const res = await analyzePlant({ data: { image: dataUrl, note: note.trim() || undefined, language } });
       setResult(res);
     } catch (err) {
        setError(err?.message || t("L'analyse a échoué. Réessayez dans un instant."));
@@ -205,7 +205,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
               <div>
                  <p className="text-xs font-extrabold text-amber-900">{t('Analyse fiable impossible')}</p>
                 <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                  {result.reason || "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée."}
+                   {result.reason || t("L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée.")}
                 </p>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <div>
                      <p className="text-[10px] font-bold uppercase text-slate-400">{t('Plante identifiée')}</p>
-                    <p className="text-sm font-extrabold text-slate-900">{result.plant || 'Indéterminée'}</p>
+                     <p className="text-sm font-extrabold text-slate-900">{result.plant || t('Indéterminée')}</p>
                   </div>
                   {result.health && (
                     <span className={`text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border ${HEALTH_STYLES[result.health] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
@@ -256,7 +256,7 @@ export default function PlantAnalysis({ currentUser, onRequireAuth }) {
               </div>
 
               <p className="text-[10px] text-slate-400 leading-relaxed px-1">
-                {result.disclaimer || "Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome."}
+                 {result.disclaimer || t('Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome.')}
               </p>
             </>
           )}

@@ -16,7 +16,7 @@ const SUGGESTIONS = [
 const WELCOME_TEXT = "Bonjour 👋 Je suis **Plant AI**, votre agronome virtuel AgriConnect (sous la tutelle de FulanIA).\nPosez-moi vos questions sur vos cultures, vos sols, vos maladies de plantes — ou sur l'utilisation de la plateforme.";
 
 export default function PlantAIChat({ currentUser, onRequireAuth, fullScreen = false }) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const welcome = { role: 'assistant', content: t(WELCOME_TEXT) };
   const [messages, setMessages] = useState([welcome]);
   const [input, setInput] = useState('');
@@ -46,10 +46,10 @@ export default function PlantAIChat({ currentUser, onRequireAuth, fullScreen = f
     setMessages(next); setInput(''); setError(null); setIsThinking(true);
     try {
       const history = next.slice(-20).map(message => ({ role: message.role, content: message.content }));
-      const response = await askPlantAI({ data: { messages: history } });
+       const response = await askPlantAI({ data: { messages: history, language } });
       setMessages(previous => [...previous, { role: 'assistant', content: response.reply }]);
     } catch (err) {
-      setError(err?.message || 'Plant AI est momentanément indisponible.');
+      setError(err?.message || t('Plant AI est momentanément indisponible.'));
     } finally {
       setIsThinking(false); inputRef.current?.focus({ preventScroll: true });
     }
@@ -70,7 +70,7 @@ export default function PlantAIChat({ currentUser, onRequireAuth, fullScreen = f
               <div className="flex items-start gap-2.5">
                 {message.role === 'assistant' && <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white"><Sprout className="h-4 w-4" /></span>}
                 <MessageContent className={message.role === 'user' ? 'rounded-2xl rounded-ee-sm bg-[#0a66c2] px-4 py-3 text-white' : 'rounded-2xl rounded-es-sm border border-slate-200 bg-white px-4 py-3 text-slate-800 shadow-sm'}><MessageResponse>{message.content}</MessageResponse></MessageContent>
-                {message.role === 'user' && <Avatar src={currentUser?.avatar} name={currentUser?.name || 'Moi'} seed={currentUser?.id} className="h-8 w-8 shrink-0" textClassName="text-[9px]" />}
+                 {message.role === 'user' && <Avatar src={currentUser?.avatar} name={currentUser?.name || t('Moi')} seed={currentUser?.id} className="h-8 w-8 shrink-0" textClassName="text-[9px]" />}
               </div>
             </Message>
           ))}

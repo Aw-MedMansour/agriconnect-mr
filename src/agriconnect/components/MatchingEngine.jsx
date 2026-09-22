@@ -25,13 +25,13 @@ export default function MatchingEngine({ onDispatchSuccess }) {
   const [dispatched, setDispatched] = useState(false);
 
   const needOptions = [
-    { id: 'transporteur_terrestre', label: '🚚 Camion Frigorifique / Transport Terrestre' },
-    { id: 'transporteur_maritime', label: '🚢 Service Transit & Fret Maritime' },
-    { id: 'prestataire_eau', label: '💧 Forage & Réseau d\'Irrigation' },
-    { id: 'prestataire_energie', label: '⚡ Pompage Solaire & Énergie' },
-    { id: 'acheteur', label: '🏢 Acheteur / Grossiste pour Récolte' },
-    { id: 'technicien', label: '🔧 Technicien / Réparation Urgente' },
-    { id: 'agronome', label: '👨‍🔬 Conseil & Diagnostic Agronomique' }
+    { id: 'transporteur_terrestre', icon: '🚚', label: 'Camion Frigorifique / Transport Terrestre' },
+    { id: 'transporteur_maritime', icon: '🚢', label: 'Service Transit & Fret Maritime' },
+    { id: 'prestataire_eau', icon: '💧', label: "Forage & Réseau d'Irrigation" },
+    { id: 'prestataire_energie', icon: '⚡', label: 'Pompage Solaire & Énergie' },
+    { id: 'acheteur', icon: '🏢', label: 'Acheteur / Grossiste pour Récolte' },
+    { id: 'technicien', icon: '🔧', label: 'Technicien / Réparation Urgente' },
+    { id: 'agronome', icon: '👨‍🔬', label: 'Conseil & Diagnostic Agronomique' }
   ];
 
   const applyPreset = (preset) => {
@@ -117,7 +117,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#0a66c2] focus:bg-white cursor-pointer"
               >
                 {needOptions.map(opt => (
-                  <option key={opt.id} value={opt.id}>{opt.label}</option>
+                  <option key={opt.id} value={opt.id}>{opt.icon} {t(opt.label)}</option>
                 ))}
               </select>
             </div>
@@ -163,9 +163,9 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                 onChange={(e) => setUrgency(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#0a66c2] focus:bg-white cursor-pointer"
               >
-                <option value="immediate">🚨 Urgent (Aujourd'hui)</option>
-                <option value="48h">⚡ Sous 48 heures</option>
-                <option value="week">📅 Dans la semaine</option>
+                <option value="immediate">🚨 {t("Urgent (Aujourd'hui)")}</option>
+                <option value="48h">⚡ {t('Sous 48 heures')}</option>
+                <option value="week">📅 {t('Dans la semaine')}</option>
               </select>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function MatchingEngine({ onDispatchSuccess }) {
                  {matchedResults.length} {t('Prestataires Correspondants Identifiés')}
               </h3>
               <p className="text-xs text-slate-500 mt-0.5 font-medium">
-                Zone: <strong className="text-slate-800">{location}</strong> | Volume: <strong className="text-[#0a66c2]">{quantity}</strong>
+                {t('Zone :')} <strong className="text-slate-800">{location}</strong> | {t('Volume :')} <strong className="text-[#0a66c2]">{quantity}</strong>
               </p>
             </div>
 

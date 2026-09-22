@@ -37,12 +37,12 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
           const raw = (signUpError.message || '').toLowerCase();
           setError(
             raw.includes('already')
-              ? 'Cet email est déjà utilisé.'
+              ? t('Cet email est déjà utilisé.')
               : raw.includes('weak') || raw.includes('easy to guess')
-                ? 'Mot de passe trop faible. Choisissez-en un plus long et unique.'
+                ? t('Mot de passe trop faible. Choisissez-en un plus long et unique.')
                 : raw.includes('password')
-                  ? 'Mot de passe invalide : au moins 6 caractères.'
-                  : signUpError.message || 'Inscription impossible.'
+                  ? t('Mot de passe invalide : au moins 6 caractères.')
+                  : signUpError.message || t('Inscription impossible.')
           );
           setLoading(false);
           return;
@@ -81,7 +81,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
       } else {
         const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
         if (signInError || !data.user) {
-          setError('Email ou mot de passe incorrect.');
+          setError(t('Email ou mot de passe incorrect.'));
           setLoading(false);
           return;
         }
@@ -103,7 +103,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
       }
     } catch (err) {
       console.error(err);
-      setError('Une erreur est survenue. Veuillez réessayer.');
+      setError(t('Une erreur est survenue. Veuillez réessayer.'));
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
                <p className="text-xs text-slate-500 font-medium">{t('Rejoignez le réseau professionnel agricole')}</p>
             </div>
           </div>
-          <button onClick={onClose} aria-label="Fermer" className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
+          <button onClick={onClose} aria-label={t('Fermer')} className="p-2 text-slate-400 hover:text-slate-800 rounded-full hover:bg-slate-200 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -250,10 +250,10 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
                 className="mt-0.5 w-4 h-4 accent-[#0a66c2] cursor-pointer"
               />
               <span className="text-[11px] text-slate-600 font-medium leading-snug">
-                J'ai lu et j'accepte les{' '}
-                <a href="/conditions" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">conditions d'utilisation</a>
-                {' '}et les{' '}
-                <a href="/mentions-legales" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">mentions légales</a> d'AgriConnect.
+                {t("J'ai lu et j'accepte les")} {' '}
+                <a href="/conditions" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">{t("Conditions d'utilisation")}</a>
+                {' '}{t('et les')}{' '}
+                <a href="/mentions-legales" target="_blank" rel="noreferrer" className="text-[#0a66c2] font-bold underline">{t('Mentions légales')}</a> AgriConnect.
               </span>
             </label>
           )}

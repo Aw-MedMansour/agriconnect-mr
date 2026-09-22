@@ -90,7 +90,7 @@ export default function AIHub({ currentUser, onRequireAuth, onDispatchSuccess, d
       </div>
 
       {/* Sous-navigation */}
-      <div className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
         {TABS.map(({ id, label, hint, icon: Icon }) => {
           const active = tab === id;
           return (
@@ -99,23 +99,19 @@ export default function AIHub({ currentUser, onRequireAuth, onDispatchSuccess, d
               onClick={() => openTool(id)}
               aria-current={active ? 'page' : undefined}
               className={`flex min-w-0 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-3 text-xs font-bold transition-all sm:px-2 ${
-                active ? 'bg-gradient-to-br from-[#0a66c2] to-[#0b8f79] text-white shadow-md' : 'text-slate-700 hover:bg-slate-100'
+                'border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-[#0a66c2] hover:bg-blue-50'
               }`}
             >
               <span className="flex items-center gap-1.5">
                 <Icon className="w-4 h-4" />
                 <span className="truncate">{t(label)}</span>
               </span>
-              <span className={`text-[10px] font-medium ${active ? 'text-blue-100' : 'text-slate-500'}`}>
+              <span className="text-[10px] font-medium text-slate-500">
                 <span className="hidden sm:inline">{t(hint)}</span>
               </span>
             </button>
           );
         })}
-      </div>
-
-      <div className="min-h-[520px]">
-        {!isExpanded && toolContent}
       </div>
 
       {isExpanded && (

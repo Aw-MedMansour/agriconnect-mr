@@ -21,6 +21,18 @@ const translations = {
     'Intelligence artificielle': 'Artificial Intelligence',
     'Acteurs & Réputation': 'People & Reputation',
     'Choisir la langue': 'Choose language',
+    'Accueil': 'Home', 'Profil': 'Profile', 'Navigation principale': 'Main navigation', 'Fermer': 'Close',
+    'Explorer AgriConnect': 'Explore AgriConnect', 'Choisissez un espace': 'Choose a section',
+    'Produits agricoles': 'Agricultural products', 'Services agricoles': 'Agricultural services', 'Communauté agricole': 'Agricultural community', 'Outils intelligents': 'Smart tools', 'Annuaire professionnel': 'Professional directory',
+    'Plant AI est momentanément indisponible.': 'Plant AI is temporarily unavailable.', 'Moi': 'Me',
+    'Certains fichiers sont invalides ou dépassent 25 Mo.': 'Some files are invalid or exceed 25 MB.', "L'envoi d'un média a échoué. Réessayez.": 'A media upload failed. Please try again.', 'fichier(s) sélectionné(s)': 'file(s) selected',
+    'Offre de Service (Je suis prestataire)': 'Service offer (I am a provider)', "Demande d'Agriculteur (J'ai un besoin)": 'Farmer request (I need a service)',
+    "Profils professionnels, notes, badges de réputation, avis clients et réseau d'intervenants.": 'Professional profiles, ratings, reputation badges, customer reviews and partner network.', 'Professionnel Vérifié AgriConnect': 'Verified AgriConnect professional',
+    'Camion Frigorifique / Transport Terrestre': 'Refrigerated truck / Road transport', 'Service Transit & Fret Maritime': 'Transit and sea freight service', "Forage & Réseau d'Irrigation": 'Drilling and irrigation network', 'Pompage Solaire & Énergie': 'Solar pumping and energy', 'Acheteur / Grossiste pour Récolte': 'Crop buyer / Wholesaler', 'Technicien / Réparation Urgente': 'Technician / Emergency repair', 'Conseil & Diagnostic Agronomique': 'Agronomic advice and diagnosis',
+    "Urgent (Aujourd'hui)": 'Urgent (today)', 'Sous 48 heures': 'Within 48 hours', 'Dans la semaine': 'Within the week', 'Volume :': 'Volume:',
+    'Cet email est déjà utilisé.': 'This email is already in use.', 'Mot de passe trop faible. Choisissez-en un plus long et unique.': 'Password too weak. Choose a longer, unique password.', 'Mot de passe invalide : au moins 6 caractères.': 'Invalid password: at least 6 characters.', 'Inscription impossible.': 'Unable to sign up.', 'Email ou mot de passe incorrect.': 'Incorrect email or password.', 'Une erreur est survenue. Veuillez réessayer.': 'An error occurred. Please try again.', "J'ai lu et j'accepte les": 'I have read and accept the', 'et les': 'and the',
+    "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée.": 'The image does not contain enough information. Take a clear, close and well-lit photo.',
+    'Indéterminée': 'Unknown', 'Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome.': 'This analysis is indicative. Before treatment, have the diagnosis confirmed by an agronomist.',
     'AgriConnect — le réseau professionnel agricole': 'AgriConnect — the professional agricultural network',
     "Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.": 'Sell crops, find transporters and service providers, connect with agricultural professionals and analyze plants with artificial intelligence.',
     'Trois outils, une expertise agricole': 'Three tools, one agricultural expertise',
@@ -207,6 +219,18 @@ const translations = {
     'Intelligence artificielle': 'الذكاء الاصطناعي',
     'Acteurs & Réputation': 'المهنيون والسمعة',
     'Choisir la langue': 'اختيار اللغة',
+    'Accueil': 'الرئيسية', 'Profil': 'الملف الشخصي', 'Navigation principale': 'التنقل الرئيسي', 'Fermer': 'إغلاق',
+    'Explorer AgriConnect': 'استكشف AgriConnect', 'Choisissez un espace': 'اختر قسماً',
+    'Produits agricoles': 'المنتجات الزراعية', 'Services agricoles': 'الخدمات الزراعية', 'Communauté agricole': 'المجتمع الزراعي', 'Outils intelligents': 'الأدوات الذكية', 'Annuaire professionnel': 'الدليل المهني',
+    'Plant AI est momentanément indisponible.': 'Plant AI غير متاح مؤقتاً.', 'Moi': 'أنا',
+    'Certains fichiers sont invalides ou dépassent 25 Mo.': 'بعض الملفات غير صالحة أو تتجاوز 25 ميغابايت.', "L'envoi d'un média a échoué. Réessayez.": 'فشل رفع ملف. حاول مجدداً.', 'fichier(s) sélectionné(s)': 'ملف محدد',
+    'Offre de Service (Je suis prestataire)': 'عرض خدمة (أنا مقدم خدمة)', "Demande d'Agriculteur (J'ai un besoin)": 'طلب مزارع (أحتاج خدمة)',
+    "Profils professionnels, notes, badges de réputation, avis clients et réseau d'intervenants.": 'ملفات مهنية وتقييمات وشارات سمعة وآراء عملاء وشبكة شركاء.', 'Professionnel Vérifié AgriConnect': 'مهني موثق في AgriConnect',
+    'Camion Frigorifique / Transport Terrestre': 'شاحنة مبردة / نقل بري', 'Service Transit & Fret Maritime': 'خدمة عبور وشحن بحري', "Forage & Réseau d'Irrigation": 'حفر وشبكة ري', 'Pompage Solaire & Énergie': 'ضخ شمسي وطاقة', 'Acheteur / Grossiste pour Récolte': 'مشتري / تاجر جملة للمحصول', 'Technicien / Réparation Urgente': 'فني / إصلاح عاجل', 'Conseil & Diagnostic Agronomique': 'استشارة وتشخيص زراعي',
+    "Urgent (Aujourd'hui)": 'عاجل (اليوم)', 'Sous 48 heures': 'خلال 48 ساعة', 'Dans la semaine': 'خلال الأسبوع', 'Volume :': 'الحجم:',
+    'Cet email est déjà utilisé.': 'هذا البريد مستخدم بالفعل.', 'Mot de passe trop faible. Choisissez-en un plus long et unique.': 'كلمة المرور ضعيفة. اختر كلمة أطول وفريدة.', 'Mot de passe invalide : au moins 6 caractères.': 'كلمة المرور غير صالحة: 6 أحرف على الأقل.', 'Inscription impossible.': 'تعذر التسجيل.', 'Email ou mot de passe incorrect.': 'البريد أو كلمة المرور غير صحيحة.', 'Une erreur est survenue. Veuillez réessayer.': 'حدث خطأ. حاول مجدداً.', "J'ai lu et j'accepte les": 'قرأت وأوافق على', 'et les': 'و',
+    "L'image ne contient pas assez d'informations. Reprenez une photo nette, de près, bien éclairée.": 'لا تحتوي الصورة على معلومات كافية. التقط صورة واضحة وقريبة وبإضاءة جيدة.',
+    'Indéterminée': 'غير محددة', 'Cette analyse est indicative. Pour un traitement, faites confirmer le diagnostic par un agronome.': 'هذا التحليل إرشادي. قبل العلاج، اطلب من مهندس زراعي تأكيد التشخيص.',
     'AgriConnect — le réseau professionnel agricole': 'AgriConnect — الشبكة المهنية الزراعية',
     "Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.": 'بع محاصيلك، واعثر على الناقلين ومقدمي الخدمات، وتواصل مع المهنيين الزراعيين وحلّل نباتاتك بالذكاء الاصطناعي.',
     'Trois outils, une expertise agricole': 'ثلاث أدوات وخبرة زراعية واحدة',
@@ -371,26 +395,40 @@ const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState('fr');
+  const [ready, setReady] = useState(false);
+  const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    const next = ['fr', 'en', 'ar'].includes(stored) ? stored : 'fr';
+    const valid = ['fr', 'en', 'ar'].includes(stored);
+    const next = valid ? stored : 'fr';
     setLanguage(next);
+    setHasChosenLanguage(valid);
+    setReady(true);
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
     root.lang = language;
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
-    window.localStorage.setItem(STORAGE_KEY, language);
-  }, [language]);
+    if (hasChosenLanguage) window.localStorage.setItem(STORAGE_KEY, language);
+  }, [language, hasChosenLanguage]);
+
+  const chooseLanguage = (next) => {
+    if (!['fr', 'en', 'ar'].includes(next)) return;
+    setLanguage(next);
+    setHasChosenLanguage(true);
+  };
 
   const value = useMemo(() => ({
     language,
+    ready,
+    hasChosenLanguage,
     isRtl: language === 'ar',
-    setLanguage,
+    setLanguage: chooseLanguage,
+    chooseLanguage,
     t: (key) => translations[language]?.[key] || key,
-  }), [language]);
+  }), [language, ready, hasChosenLanguage]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

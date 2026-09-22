@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
+  language: z.enum(["fr", "en", "ar"]).default("fr"),
   messages: z
     .array(
       z.object({
@@ -23,7 +24,7 @@ Ton rôle :
 - Expliquer le fonctionnement de la plateforme AgriConnect : Marketplace Produits (vendre ses récoltes avec photos/vidéos), Marketplace Services (transport, eau & énergie, terrains, agronomes & ouvriers, banque & assurance), Réseau Social Agricole (publications, commentaires, abonnements), Messagerie directe entre membres, Notifications, Analyse IA des plantes par photo, Matching IA (mise en relation automatique), Acteurs & Réputation.
 
 Règles :
-- Réponds toujours en français simple, clair et concret, compréhensible par un agriculteur.
+- Réponds dans la langue demandée, avec des mots simples, clairs et concrets, compréhensibles par un agriculteur.
 - Sois bref : 3 à 8 phrases ou une courte liste à puces. Va droit au but.
 - N'invente jamais de chiffres, de prix, de produits phytosanitaires précis ou de fonctionnalités qui n'existent pas.
 - Si le diagnostic est incertain, dis-le et conseille l'Analyse IA par photo ou l'avis d'un agronome sur le terrain.
@@ -31,7 +32,7 @@ Règles :
 
 export const askPlantAI = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => Input.parse(data))
+  .validator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("Assistant indisponible (configuration manquante).");
@@ -44,7 +45,7 @@ export const askPlantAI = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         model: "google/gemini-3.8-flash",
-        messages: [{ role: "system", content: SYSTEM }, ...data.messages],
+        messages: [{ role: "system", content: `${SYSTEM}\nLangue obligatoire de la réponse : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}.` }, ...data.messages],
       }),
     });
 

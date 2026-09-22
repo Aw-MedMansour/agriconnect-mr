@@ -41,7 +41,7 @@ export default function NotificationPanel({ isOpen, notifications = [], onClose,
   const unreadCount = notifications.filter(item => !item.read).length;
 
   return (
-    <section aria-label={t('Notifications')} className="fixed end-3 top-[128px] z-50 flex max-h-[min(70vh,560px)] w-[calc(100vw-1.5rem)] max-w-[380px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:end-5 sm:top-[148px]">
+    <section aria-label={t('Notifications')} className="fixed bottom-20 end-3 z-50 flex max-h-[min(70vh,560px)] w-[calc(100vw-1.5rem)] max-w-[380px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:end-5">
       <div className="flex min-h-14 items-center justify-between border-b border-slate-100 px-4 py-3">
         <div>
           <h2 className="text-sm font-extrabold text-slate-900">{t('Notifications')}</h2>

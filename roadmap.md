@@ -6,5 +6,5 @@
 - [x] Finaliser l’accueil IA, le plein écran et Plant AI
 - [x] Retirer uniquement les comptes fictifs de l’annuaire
 - [x] Confirmer et classer les alertes du scanner de sécurité
-- [ ] Ajouter une limitation centralisée des notifications dès qu’une primitive anti-abus compatible est disponible
+- [x] Ajouter une limitation centralisée des notifications (30/minute par membre) et verrouiller le contenu des notifications
 - [x] Vérifier performances et comportement multi-écrans

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './utils/supabaseClient';
-import { findUserById } from './utils/dbSync';
+import { findUserById, saveUser } from './utils/dbSync';
 
 const LANGUAGES = ['fr', 'en', 'ar'];
 
@@ -440,10 +440,15 @@ export function LanguageProvider({ children }) {
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
   }, [language]);
 
-  const chooseLanguage = (next) => {
+  const chooseLanguage = async (next) => {
     if (!LANGUAGES.includes(next)) return;
     setLanguage(next);
     setHasChosenLanguage(true);
+    if (authenticatedProfile) {
+      const updatedProfile = { ...authenticatedProfile, preferredLanguage: next };
+      setAuthenticatedProfile(updatedProfile);
+      await saveUser(updatedProfile);
+    }
   };
 
   const value = useMemo(() => ({

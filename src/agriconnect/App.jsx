@@ -867,7 +867,7 @@ export default function App() {
         }}
       />
 
-      <div className={`sticky top-[62px] z-30 overflow-hidden border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl transition-[max-height,opacity,border-color] duration-200 ease-out ${toolsHidden ? 'pointer-events-none max-h-0 border-transparent opacity-0' : 'max-h-44 opacity-100'}`}>
+      <div className={`sticky top-[62px] z-30 overflow-hidden bg-white/95 backdrop-blur-xl transition-[max-height,opacity,border-color] duration-200 ease-out ${toolsHidden ? 'pointer-events-none max-h-0 border-0 border-transparent opacity-0 shadow-none' : 'max-h-44 border-b border-slate-200 opacity-100 shadow-sm'}`}>
         {isSearchOpen && <div className="px-3 pt-2"><div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3"><Search className="h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-2.5 text-base outline-none sm:text-sm" /><button type="button" onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} aria-label={t('Fermer')} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200"><X className="h-4 w-4" /></button></div></div>}
         <section className="mx-auto w-full max-w-7xl px-3 py-2 sm:px-4" aria-labelledby="module-title">
           <h2 id="module-title" className="sr-only">{t('Explorer AgriConnect')}</h2>

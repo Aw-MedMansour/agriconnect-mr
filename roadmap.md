@@ -15,4 +15,4 @@
 - [x] Charger et enregistrer la langue préférée du membre
 - [x] Garder la barre principale visible et masquer les outils à la descente
 - [x] Masquer entièrement la navigation inférieure à la descente
-- [ ] Valider les parcours de langue et le défilement sur tous les formats
+- [x] Valider les parcours de langue et le défilement sur tous les formats

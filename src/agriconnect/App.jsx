@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import MarketplaceProducts from './components/MarketplaceProducts';
 import MarketplaceServices from './components/MarketplaceServices';
 import SocialFeed from './components/SocialFeed';
@@ -15,7 +16,15 @@ import SplashScreen from './components/SplashScreen';
 import { useLanguage } from './i18n';
 
 import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
-import { CheckCircle2, X, Info } from 'lucide-react';
+import { Bot, CheckCircle2, Info, Search, ShieldCheck, Store, Truck, Users, X } from 'lucide-react';
+
+const MODULES = [
+  { id: 'products', label: 'Marketplace Produits', hint: 'Produits agricoles', icon: Store },
+  { id: 'services', label: 'Marketplace Services', hint: 'Services agricoles', icon: Truck },
+  { id: 'social', label: 'Réseau Social Agricole', hint: 'Communauté agricole', icon: Users },
+  { id: 'ai', label: 'Intelligence artificielle', hint: 'Outils intelligents', icon: Bot },
+  { id: 'reputation', label: 'Acteurs & Réputation', hint: 'Annuaire professionnel', icon: ShieldCheck },
+];
 
 import { fetchAllData, fetchConversations, fetchUsers, fetchNotifications, updateNotification, insertData, upsertData, deleteData, registerView } from './utils/dbSync';
 
@@ -25,6 +34,8 @@ export default function App() {
   const [activeModule, setActiveModule] = useState('products');
   const [aiDefaultTab, setAiDefaultTab] = useState('chat');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [bottomNavHidden, setBottomNavHidden] = useState(false);
 
   // Auth
   const [currentUser, setCurrentUser] = useState(null);
@@ -47,7 +58,7 @@ export default function App() {
   }, []);
 
 
-  const allAvailableUsers = Array.isArray(registeredUsers) && registeredUsers.length ? registeredUsers : (MOCK_ACTORS || []);
+  const allAvailableUsers = Array.isArray(registeredUsers) ? registeredUsers : [];
 
   useEffect(() => {
     fetchAllData().then(data => {
@@ -67,6 +78,45 @@ export default function App() {
   const [profileModalTarget, setProfileModalTarget] = useState(null);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    setIsSearchOpen(false);
+    setIsMessagingOpen(false);
+    setIsNotificationsOpen(false);
+  }, [activeModule]);
+
+  useEffect(() => {
+    let previous = window.scrollY;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(() => {
+        const next = window.scrollY;
+        setBottomNavHidden(next > previous && next > 120);
+        previous = next;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const locked = isAuthModalOpen || isCreateModalOpen || !!contactTarget || !!profileModalTarget || isMessagingOpen || isNotificationsOpen;
+    if (!locked) return undefined;
+    const scrollY = window.scrollY;
+    const previous = { position: document.body.style.position, top: document.body.style.top, width: document.body.style.width, overflow: document.body.style.overflow };
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      Object.assign(document.body.style, previous);
+      window.scrollTo(0, scrollY);
+    };
+  }, [isAuthModalOpen, isCreateModalOpen, contactTarget, profileModalTarget, isMessagingOpen, isNotificationsOpen]);
 
   // Toast
   const [toastMessage, setToastMessage] = useState(null);
@@ -783,7 +833,7 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="stable-page min-h-screen bg-[#f3f2ef] text-slate-900 flex flex-col font-sans selection:bg-blue-200 selection:text-blue-900" data-language={language}>
+    <div className="stable-page flex min-h-screen flex-col bg-[#f3f2ef] pb-20 font-sans text-slate-900 selection:bg-blue-200 selection:text-blue-900" data-language={language}>
 
       {showSplash && <SplashScreen done={!isLoading} />}
 
@@ -801,32 +851,16 @@ export default function App() {
 
       {/* Navbar */}
       <Navbar
-        activeModule={activeModule}
         setActiveModule={setActiveModule}
-        onOpenCreateModal={() => openCreateModal(activeModule === 'services' ? 'service' : 'product')}
-        currentUser={currentUser}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        products={products}
-        members={allAvailableUsers}
         unreadCount={totalUnread}
-        isMessagingOpen={isMessagingOpen}
         onToggleMessaging={() => {
           if (!currentUser) { setIsAuthModalOpen(true); return; }
           setIsNotificationsOpen(false);
           setIsMessagingOpen(o => !o);
         }}
-        notificationCount={unreadNotifications}
-        isNotificationsOpen={isNotificationsOpen}
-        onToggleNotifications={() => {
-          if (!currentUser) { setIsAuthModalOpen(true); return; }
-          setIsMessagingOpen(false);
-          setIsNotificationsOpen(open => !open);
-        }}
-        onOpenMyProfile={openMyProfile}
       />
+
+      {isSearchOpen && <div className="sticky top-[62px] z-30 border-b border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur-xl"><div className="mx-auto flex max-w-2xl items-center gap-2 rounded-full border border-slate-300 bg-slate-50 px-3"><Search className="h-4 w-4 shrink-0 text-slate-400" /><input autoFocus value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder={t('Rechercher une récolte, un service, un membre…')} className="min-w-0 flex-1 bg-transparent py-2.5 text-base outline-none sm:text-sm" /><button type="button" onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} aria-label={t('Fermer')} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-200"><X className="h-4 w-4" /></button></div></div>}
 
 
 
@@ -838,6 +872,13 @@ export default function App() {
         <p className="mt-1 text-xs sm:text-sm text-slate-600 font-medium max-w-3xl">
           {t("Vendez vos récoltes, trouvez des transporteurs et prestataires, échangez avec les acteurs de l'agriculture et analysez vos plantes grâce à l'intelligence artificielle.")}
         </p>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-3 pt-4 sm:px-4" aria-labelledby="module-title">
+        <div className="mb-2 flex items-end justify-between gap-3"><div><h2 id="module-title" className="text-sm font-black text-slate-900">{t('Explorer AgriConnect')}</h2><p className="text-[11px] font-medium text-slate-500">{t('Choisissez un espace')}</p></div></div>
+        <div className="grid grid-cols-5 gap-1.5 overflow-hidden sm:gap-2">
+          {MODULES.map(({ id, label, hint, icon: Icon }) => <button type="button" key={id} onClick={() => setActiveModule(id)} aria-current={activeModule === id ? 'page' : undefined} className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-center transition ${activeModule === id ? 'border-[#0a66c2] bg-blue-50 text-[#0a66c2]' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`}><Icon className="h-4 w-4 shrink-0" /><span className="hidden text-[10px] font-bold leading-tight sm:block">{t(label)}</span><span className="max-w-full truncate text-[9px] font-semibold sm:hidden">{t(hint)}</span></button>)}
+        </div>
       </section>
 
       {/* ── Info Banner : explains where posts go ── */}
@@ -992,6 +1033,20 @@ export default function App() {
         onOpenNotification={handleOpenNotification}
         onMarkAllRead={handleMarkAllNotificationsRead}
         onDelete={handleDeleteNotification}
+      />
+
+      <BottomNav
+        hidden={bottomNavHidden}
+        activeAction={isSearchOpen ? 'search' : isNotificationsOpen ? 'notifications' : profileModalTarget ? 'profile' : 'home'}
+        onHome={() => { setActiveModule('products'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        onSearch={() => { setIsSearchOpen(value => !value); setIsMessagingOpen(false); setIsNotificationsOpen(false); }}
+        onPublish={() => openCreateModal(activeModule === 'services' ? 'service' : 'product')}
+        onNotifications={() => { if (!currentUser) { setIsAuthModalOpen(true); return; } setIsMessagingOpen(false); setIsNotificationsOpen(value => !value); }}
+        onProfile={openMyProfile}
+        onAuth={() => setIsAuthModalOpen(true)}
+        onLogout={handleLogout}
+        currentUser={currentUser}
+        notificationCount={unreadNotifications}
       />
 
       {/* Footer */}

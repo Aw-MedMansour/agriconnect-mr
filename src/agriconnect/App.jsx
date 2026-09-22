@@ -14,6 +14,7 @@ import UserProfileModal from './components/UserProfileModal';
 import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 import { useLanguage } from './i18n';
+import { supabase } from './utils/supabaseClient';
 
 import { Bot, CheckCircle2, Info, Search, ShieldCheck, Store, Truck, Users, X } from 'lucide-react';
 

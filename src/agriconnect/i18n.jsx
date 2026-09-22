@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { supabase } from './utils/supabaseClient';
+import { findUserById } from './utils/dbSync';
 
-const STORAGE_KEY = 'agriconnect_language';
+const LANGUAGES = ['fr', 'en', 'ar'];
 
 const translations = {
   en: {
@@ -397,25 +399,49 @@ export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState('fr');
   const [ready, setReady] = useState(false);
   const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
+  const [authenticatedProfile, setAuthenticatedProfile] = useState(null);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    const valid = ['fr', 'en', 'ar'].includes(stored);
-    const next = valid ? stored : 'fr';
-    setLanguage(next);
-    setHasChosenLanguage(valid);
-    setReady(true);
+    let active = true;
+    const applySession = async (authUser) => {
+      if (!active) return;
+      if (!authUser) {
+        setAuthenticatedProfile(null);
+        setLanguage('fr');
+        setHasChosenLanguage(false);
+        setReady(true);
+        return;
+      }
+      const profile = await findUserById(authUser.id);
+      if (!active) return;
+      const fallbackProfile = profile || { id: authUser.id, email: authUser.email || '', name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Utilisateur' };
+      const preferred = fallbackProfile.preferredLanguage || fallbackProfile.preferred_language;
+      setAuthenticatedProfile(fallbackProfile);
+      if (LANGUAGES.includes(preferred)) setLanguage(preferred);
+      setHasChosenLanguage(LANGUAGES.includes(preferred));
+      setReady(true);
+    };
+
+    supabase.auth.getUser().then(({ data }) => applySession(data?.user || null));
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED'].includes(event)) return;
+      setReady(false);
+      applySession(session?.user || null);
+    });
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
     root.lang = language;
     root.dir = language === 'ar' ? 'rtl' : 'ltr';
-    if (hasChosenLanguage) window.localStorage.setItem(STORAGE_KEY, language);
-  }, [language, hasChosenLanguage]);
+  }, [language]);
 
   const chooseLanguage = (next) => {
-    if (!['fr', 'en', 'ar'].includes(next)) return;
+    if (!LANGUAGES.includes(next)) return;
     setLanguage(next);
     setHasChosenLanguage(true);
   };
@@ -424,11 +450,13 @@ export function LanguageProvider({ children }) {
     language,
     ready,
     hasChosenLanguage,
+    authenticatedProfile,
+    setAuthenticatedProfile,
     isRtl: language === 'ar',
     setLanguage: chooseLanguage,
     chooseLanguage,
     t: (key) => translations[language]?.[key] || key,
-  }), [language, ready, hasChosenLanguage]);
+  }), [language, ready, hasChosenLanguage, authenticatedProfile]);
 
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }

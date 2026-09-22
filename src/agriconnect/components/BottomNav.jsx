@@ -14,8 +14,8 @@ function Counter({ value }) {
   return <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[8px] font-black text-white ring-2 ring-white">{value > 99 ? '99+' : value}</span>;
 }
 
-export default function BottomNav({ hidden, activeAction, onHome, onSearch, onPublish, onNotifications, onProfile, onAuth, currentUser, onLogout, notificationCount = 0 }) {
-  const { language, setLanguage, t } = useLanguage();
+export default function BottomNav({ hidden, activeAction, onHome, onSearch, onPublish, onNotifications, onProfile, onAuth, onLanguageChange, currentUser, onLogout, notificationCount = 0 }) {
+  const { language, t } = useLanguage();
   const [profileOpen, setProfileOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -36,7 +36,7 @@ export default function BottomNav({ hidden, activeAction, onHome, onSearch, onPu
   ];
 
   return (
-    <div className={`fixed inset-x-0 bottom-0 z-40 transition-transform duration-200 ${hidden ? 'translate-y-full' : 'translate-y-0'}`}>
+    <div aria-hidden={hidden || undefined} className={`fixed inset-x-0 bottom-0 z-40 transition-[transform,visibility] duration-200 ease-out ${hidden ? 'invisible translate-y-full pointer-events-none' : 'visible translate-y-0'}`}>
       <nav aria-label={t('Navigation principale')} className="border-t border-slate-200 bg-white/95 px-2 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur-xl">
         <div className="mx-auto grid max-w-xl grid-cols-5 items-end">
           {items.map(({ id, label, icon: Icon, action, primary, count }) => (
@@ -55,7 +55,7 @@ export default function BottomNav({ hidden, activeAction, onHome, onSearch, onPu
                 <button type="button" onClick={() => { currentUser ? onProfile?.() : onAuth?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"><UserCircle2 className="h-4 w-4 text-[#0a66c2]" />{currentUser ? t('Mon profil & mes publications') : t('Connexion')}</button>
                 <div className="my-1 border-t border-slate-100" />
                 <div className="flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase text-slate-400"><Languages className="h-3.5 w-3.5" />{t('Choisir la langue')}</div>
-                {languages.map(item => <button type="button" key={item.id} onClick={() => { setLanguage(item.id); setProfileOpen(false); }} className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><span>{item.label}</span>{language === item.id && <Check className="h-4 w-4 text-[#0a66c2]" />}</button>)}
+                 {languages.map(item => <button type="button" key={item.id} onClick={() => { onLanguageChange?.(item.id); setProfileOpen(false); }} className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"><span>{item.label}</span>{language === item.id && <Check className="h-4 w-4 text-[#0a66c2]" />}</button>)}
                 {currentUser && <><div className="my-1 border-t border-slate-100" /><button type="button" onClick={() => { onLogout?.(); setProfileOpen(false); }} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />{t('Se déconnecter')}</button></>}
                 <button type="button" onClick={() => setProfileOpen(false)} aria-label={t('Fermer')} className="absolute end-2 top-2 rounded-full p-1 text-slate-400 hover:bg-slate-100"><X className="h-3.5 w-3.5" /></button>
               </div>

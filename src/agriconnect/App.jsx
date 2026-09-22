@@ -15,7 +15,6 @@ import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 import { useLanguage } from './i18n';
 
-import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from './data/mockData';
 import { Bot, CheckCircle2, Info, Search, ShieldCheck, Store, Truck, Users, X } from 'lucide-react';
 
 const MODULES = [

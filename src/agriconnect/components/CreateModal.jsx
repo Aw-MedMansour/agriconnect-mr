@@ -7,6 +7,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
   const { t } = useLanguage();
   const [formType, setFormType] = useState(defaultTab);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   // Product Form State
   const [prodTitle, setProdTitle] = useState('');
@@ -48,8 +49,13 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
   const handleMultipleFilesUpload = (e, type) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
+    setUploadError('');
+    const maxSize = 25 * 1024 * 1024;
+    const validTypes = type === 'video' ? ['video/mp4', 'video/webm'] : ['image/jpeg', 'image/png', 'image/webp'];
+    const validFiles = files.filter(file => validTypes.includes(file.type) && file.size <= maxSize);
+    if (validFiles.length !== files.length) setUploadError(t('Certains fichiers sont invalides ou dépassent 25 Mo.'));
 
-    const newItems = files.map(file => ({
+    const newItems = validFiles.map(file => ({
       id: `media-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       type: type,
       file: file,
@@ -73,6 +79,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
     }
 
     setIsPublishing(true);
+    setUploadError('');
 
     // Upload all media files to Supabase Storage
     const processedMedia = [];
@@ -83,8 +90,9 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
           processedMedia.push({ id: item.id, type: item.type, url: publicUrl });
         } catch (err) {
           console.error('Upload failed:', err);
-          // Fallback to blob URL
-          processedMedia.push({ id: item.id, type: item.type, url: item.url });
+          setUploadError(t("L'envoi d'un média a échoué. Réessayez."));
+          setIsPublishing(false);
+          return;
         }
       } else {
         processedMedia.push(item);
@@ -327,7 +335,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
           ) : (
             <>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce de service</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t("Titre de l'annonce de service")}</label>
                 <input
                   type="text"
                   value={servTitle}
@@ -340,19 +348,19 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
 
                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Type d'annonce</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t("Type d'annonce")}</label>
                   <select
                     value={servType}
                     onChange={(e) => setServType(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-600 focus:bg-white cursor-pointer"
                   >
-                    <option value="offer">🚚 Offre de Service (Je suis prestataire)</option>
-                    <option value="request">📢 Demande d'Agriculteur (J'ai un besoin)</option>
+                    <option value="offer">🚚 {t('Offre de Service (Je suis prestataire)')}</option>
+                    <option value="request">📢 {t("Demande d'Agriculteur (J'ai un besoin)")}</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Catégorie de Service</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t('Catégorie de Service')}</label>
                   <select
                     value={servCategory}
                     onChange={(e) => setServCategory(e.target.value)}
@@ -372,7 +380,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
 
                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Tarif / Budget estimé</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t('Tarif / Budget estimé')}</label>
                   <input
                     type="text"
                     value={servPricing}
@@ -384,7 +392,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Zone d'intervention</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">{t("Zone d'intervention")}</label>
                   <input
                     type="text"
                     value={servLocation}
@@ -396,7 +404,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Disponibilité / Délai</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t('Disponibilité / Délai')}</label>
                 <input
                   type="text"
                   value={servAvailability}
@@ -407,7 +415,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Détails & spécifications techniques</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">{t('Détails & spécifications techniques')}</label>
                 <textarea
                   rows={3}
                   value={servDescription}
@@ -437,7 +445,7 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 className="flex items-center gap-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer"
               >
                 <ImageIcon className="w-4 h-4 text-[#0a66c2]" />
-                <span>+ Photos</span>
+                <span>+ {t('Photos')}</span>
               </button>
 
               <input 
@@ -454,10 +462,10 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
                 className="flex items-center gap-1.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer"
               >
                 <VideoIcon className="w-4 h-4 text-emerald-600" />
-                <span>+ Vidéos</span>
+                <span>+ {t('Vidéos')}</span>
               </button>
 
-              <span className="text-[11px] text-slate-500 font-medium">({mediaItems.length} fichier(s) sélectionné(s))</span>
+              <span className="text-[11px] text-slate-500 font-medium">{mediaItems.length} {t('fichier(s) sélectionné(s)')}</span>
             </div>
 
             {/* Multiple Media Preview Grid */}
@@ -484,6 +492,8 @@ export default function CreateModal({ isOpen, onClose, defaultTab = 'product', d
               </div>
             )}
           </div>
+
+          {uploadError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">{uploadError}</p>}
 
           <div className="pt-4 border-t border-slate-200 flex justify-end gap-3">
             <button

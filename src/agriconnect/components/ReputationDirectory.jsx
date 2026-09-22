@@ -60,7 +60,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
-            Profils professionnels, notes ⭐, badges de réputation, avis clients et réseau d'intervenants.
+            {t("Profils professionnels, notes, badges de réputation, avis clients et réseau d'intervenants.")}
           </p>
         </div>
       </div>
@@ -78,7 +78,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-300'
             }`}
           >
-            {cat.label}
+            {t(cat.label)}
           </button>
         ))}
       </div>
@@ -134,7 +134,7 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                   <h3 className="font-extrabold text-slate-900 text-base flex items-center gap-1.5 mb-0.5">
                     {actor.name}
                     {actor.verified && (
-                      <span title="Professionnel Vérifié AgriConnect">
+                      <span title={t('Professionnel Vérifié AgriConnect')}>
                         <CheckCircle2 className="w-4 h-4 text-[#0a66c2] shrink-0" />
                       </span>
                     )}
@@ -169,8 +169,8 @@ export default function ReputationDirectory({ actors, onContactActor, searchQuer
                 {/* Footer Actions */}
                 <div className="pt-3 border-t border-slate-200 space-y-2">
                   <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium">
-                    <span>Zone: <strong className="text-slate-800">{actor.zone}</strong></span>
-                    <span className="text-[#0a66c2] font-semibold">✓ Vérifié</span>
+                    <span>{t('Zone :')} <strong className="text-slate-800">{actor.zone}</strong></span>
+                    <span className="text-[#0a66c2] font-semibold">✓ {t('Vérifié')}</span>
                   </div>
 
                   <button

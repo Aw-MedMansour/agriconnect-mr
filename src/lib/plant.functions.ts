@@ -27,7 +27,7 @@ Règles : n'invente rien. Si un élément n'est pas observable, laisse le tablea
 
 export const analyzePlant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => Input.parse(data))
+  .validator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("Service d'analyse indisponible (configuration manquante).");

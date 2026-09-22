@@ -43,6 +43,13 @@
       "when": 1790059557361,
       "tag": "0005_harden_notifications_insert",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790059584023,
+      "tag": "0006_harden_notification_update_and_payload_size",
+      "breakpoints": true
     }
   ]
 }

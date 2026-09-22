@@ -845,7 +845,7 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className={`stable-page flex min-h-screen flex-col bg-[#f3f2ef] font-sans text-slate-900 selection:bg-blue-200 selection:text-blue-900 ${bottomNavHidden ? 'pb-0' : 'pb-[calc(5rem+env(safe-area-inset-bottom))]'}`} data-language={language}>
+    <div className={`stable-page flex min-h-screen flex-col bg-[#f3f2ef] font-sans text-slate-900 selection:bg-blue-200 selection:text-blue-900 transition-[padding] duration-200 ${bottomNavHidden ? 'pb-0' : 'pb-[calc(5rem+env(safe-area-inset-bottom))]'}`} data-language={language}>
 
       {showSplash && <SplashScreen done={!isLoading} />}
 

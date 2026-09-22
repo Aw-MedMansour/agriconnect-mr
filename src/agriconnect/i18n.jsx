@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from './utils/supabaseClient';
 import { findUserById, saveUser } from './utils/dbSync';
 
@@ -400,6 +400,7 @@ export function LanguageProvider({ children }) {
   const [ready, setReady] = useState(false);
   const [hasChosenLanguage, setHasChosenLanguage] = useState(false);
   const [authenticatedProfile, setAuthenticatedProfile] = useState(null);
+  const sessionChoiceRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -416,9 +417,14 @@ export function LanguageProvider({ children }) {
       if (!active) return;
       const fallbackProfile = profile || { id: authUser.id, email: authUser.email || '', name: authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Utilisateur' };
       const preferred = fallbackProfile.preferredLanguage || fallbackProfile.preferred_language;
-      setAuthenticatedProfile(fallbackProfile);
+      const firstChoice = !preferred && LANGUAGES.includes(sessionChoiceRef.current) ? sessionChoiceRef.current : null;
+      const resolvedProfile = firstChoice ? { ...fallbackProfile, preferredLanguage: firstChoice } : fallbackProfile;
+      if (firstChoice) await saveUser(resolvedProfile);
+      if (!active) return;
+      setAuthenticatedProfile(resolvedProfile);
       if (LANGUAGES.includes(preferred)) setLanguage(preferred);
-      setHasChosenLanguage(LANGUAGES.includes(preferred));
+      if (firstChoice) setLanguage(firstChoice);
+      setHasChosenLanguage(LANGUAGES.includes(preferred) || Boolean(firstChoice));
       setReady(true);
     };
 
@@ -426,7 +432,7 @@ export function LanguageProvider({ children }) {
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (!['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED'].includes(event)) return;
       setReady(false);
-      applySession(session?.user || null);
+      window.setTimeout(() => applySession(session?.user || null), 0);
     });
     return () => {
       active = false;
@@ -442,6 +448,7 @@ export function LanguageProvider({ children }) {
 
   const chooseLanguage = async (next) => {
     if (!LANGUAGES.includes(next)) return;
+    sessionChoiceRef.current = next;
     setLanguage(next);
     setHasChosenLanguage(true);
     if (authenticatedProfile) {

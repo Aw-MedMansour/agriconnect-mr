@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ExternalLink, Laptop, Trophy } from "lucide-react";
 import App from "../agriconnect/App";
+import agriconnectLogo from "../agriconnect/assets/agriconnect-logo.png";
 // The application UI is progressively localized from its existing JSX components.
 // @ts-expect-error JSX context module has no standalone declaration file.
 import { LanguageProvider } from "../agriconnect/i18n";
@@ -17,7 +18,7 @@ function Maintenance() {
         <section className="z-10 max-w-lg space-y-4 sm:text-left">
           <div className="inline-flex items-center gap-3">
             <img
-              src="/src/agriconnect/assets/agriconnect-logo.png"
+              src={agriconnectLogo}
               alt="Logo AgriConnect"
               className="h-11 w-11 object-contain"
             />

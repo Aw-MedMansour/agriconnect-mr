@@ -218,14 +218,12 @@
 .maintenance-shell { width: min(100%, 760px); text-align: center; }
 .maintenance-code { color: var(--primary); font-size: clamp(9rem, 34vw, 21rem); font-weight: 900; line-height: .72; letter-spacing: 0; }
 .maintenance-shell h1 { margin-top: 36px; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: 0; }
-.ecosystem-links { display: flex; justify-content: center; gap: 10px; margin-top: 42px; }
-.ecosystem-links a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); font-weight: 700; transition: border-color .2s ease, color .2s ease; }
-.ecosystem-links a:hover { border-color: var(--primary); color: var(--primary); }
-.ecosystem-links svg { width: 16px; height: 16px; }
+.countdown { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 42px; font-variant-numeric: tabular-nums; }
+.countdown-value { display: inline-block; font-size: clamp(1.6rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: 0.06em; color: var(--primary); line-height: 1.1; }
+.countdown-label { font-size: clamp(0.85rem, 2.6vw, 1.05rem); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-foreground); }
 
 @media (max-width: 639px) {
   .maintenance-code { font-size: clamp(8rem, 45vw, 12rem); }
   .maintenance-shell h1 { margin-top: 28px; }
-  .ecosystem-links { flex-direction: column; margin-top: 36px; }
-  .ecosystem-links a { width: 100%; }
+  .countdown { margin-top: 36px; }
 }

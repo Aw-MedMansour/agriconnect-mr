@@ -6,7 +6,24 @@ import { LanguageProvider } from "../agriconnect/i18n";
 // @ts-expect-error JSX component has no standalone declaration file.
 import LanguageGate from "../agriconnect/components/LanguageGate";
 
+// Mettre à false pour rouvrir la plateforme.
+const MAINTENANCE = true;
+
+function Maintenance() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
+      <div className="max-w-md space-y-3">
+        <h1 className="text-2xl font-black text-foreground">AgriConnect</h1>
+        <p className="text-lg font-bold text-foreground">Plateforme temporairement inaccessible</p>
+        <p className="text-sm text-muted-foreground">Platform temporarily unavailable</p>
+        <p className="text-sm text-muted-foreground" dir="rtl">المنصة غير متاحة مؤقتًا</p>
+      </div>
+    </div>
+  );
+}
+
 function LocalizedApp() {
+  if (MAINTENANCE) return <Maintenance />;
   return (
     <LanguageProvider>
       <LanguageGate><App /></LanguageGate>

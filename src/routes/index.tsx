@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import App from "../agriconnect/App";
+import robot3A55 from "../assets/robot-3a55-original.jpg.asset.json";
 // The application UI is progressively localized from its existing JSX components.
 // @ts-expect-error JSX context module has no standalone declaration file.
 import { LanguageProvider } from "../agriconnect/i18n";
@@ -14,8 +15,23 @@ function Maintenance() {
   return (
     <main className="maintenance-stage">
       <section className="maintenance-shell" aria-labelledby="not-found-title">
+        <div className="alert-signals" aria-hidden="true">
+          <span /><span /><span /><span /><span />
+        </div>
         <p className="maintenance-code" aria-hidden="true">404</p>
         <h1 id="not-found-title">La plateforme n’existe plus.</h1>
+        <div className="robot-desk" aria-label="Robot 3A55 assis devant son ordinateur">
+          <span className="signal signal-left" aria-hidden="true" />
+          <span className="signal signal-right" aria-hidden="true" />
+          <div className="seated-robot">
+            <img src={robot3A55.url} alt="Robot 3A55 assis devant son ordinateur" />
+            <span className="robot-blink" aria-hidden="true" />
+          </div>
+          <div className="computer" aria-hidden="true">
+            <div className="computer-screen"><span>3A55</span></div>
+            <div className="computer-base" />
+          </div>
+        </div>
         <nav className="ecosystem-links" aria-label="Autres sites disponibles">
           <a href="https://3A55.Fulania.com" target="_blank" rel="noreferrer">
             <span>3A55</span><ExternalLink aria-hidden="true" />

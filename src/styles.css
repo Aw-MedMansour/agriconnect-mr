@@ -210,22 +210,53 @@
   display: grid;
   min-height: 100dvh;
   place-items: center;
-  overflow: hidden;
+  overflow-x: hidden;
   padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
   background: var(--background);
   color: var(--foreground);
 }
 .maintenance-shell { width: min(100%, 760px); text-align: center; }
-.maintenance-code { color: var(--primary); font-size: clamp(9rem, 34vw, 21rem); font-weight: 900; line-height: .72; letter-spacing: 0; }
+.alert-signals { display: flex; justify-content: center; gap: 12px; height: 10px; margin-bottom: 24px; }
+.alert-signals span { width: 46px; height: 3px; border-radius: 999px; background: var(--primary); box-shadow: 0 0 14px var(--primary); animation: alert-blink 1.2s steps(1) infinite; }
+.alert-signals span:nth-child(2), .alert-signals span:nth-child(4) { animation-delay: .3s; }
+.alert-signals span:nth-child(3) { animation-delay: .6s; }
+.maintenance-code { color: var(--primary); font-size: clamp(9rem, 34vw, 21rem); font-weight: 900; line-height: .72; letter-spacing: 0; text-shadow: 0 0 28px color-mix(in oklab, var(--primary) 42%, transparent); animation: code-pulse 2.4s ease-in-out infinite; }
 .maintenance-shell h1 { margin-top: 36px; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: 0; }
-.ecosystem-links { display: flex; justify-content: center; gap: 10px; margin-top: 42px; }
+.robot-desk { position: relative; width: min(100%, 390px); height: 230px; margin: 22px auto 0; overflow: hidden; }
+.seated-robot { position: absolute; inset: 0 45px 30px; overflow: hidden; }
+.seated-robot img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; filter: saturate(1.05) contrast(1.06); }
+.robot-blink { position: absolute; left: 40%; top: 26%; width: 22%; height: 6%; border-radius: 999px; background: var(--background); opacity: 0; animation: robot-eye-blink 4.5s steps(1) infinite; }
+.computer { position: absolute; right: 45px; bottom: 0; left: 45px; z-index: 2; }
+.computer-screen { display: grid; height: 112px; place-items: center; border: 5px solid var(--border); border-radius: 8px; background: var(--card); box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 24%, transparent); }
+.computer-screen span { color: var(--primary); font-size: 24px; font-weight: 900; letter-spacing: 0; animation: alert-blink 1.8s steps(1) infinite; }
+.computer-base { width: 56%; height: 8px; margin: 0 auto; border-radius: 0 0 8px 8px; background: var(--border); }
+.signal { position: absolute; top: 48%; width: 8px; height: 8px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 18px var(--primary); animation: alert-blink .9s steps(1) infinite; }
+.signal::before, .signal::after { content: ""; position: absolute; inset: -9px; border: 1px solid var(--primary); border-radius: 50%; animation: signal-wave 1.8s ease-out infinite; }
+.signal::after { inset: -20px; animation-delay: .55s; }
+.signal-left { left: 8px; }.signal-right { right: 8px; animation-delay: .45s; }
+.ecosystem-links { display: flex; justify-content: center; gap: 10px; margin-top: 24px; }
 .ecosystem-links a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--foreground); font-weight: 700; transition: border-color .2s ease, color .2s ease; }
 .ecosystem-links a:hover { border-color: var(--primary); color: var(--primary); }
 .ecosystem-links svg { width: 16px; height: 16px; }
 
+@keyframes alert-blink { 0%, 44% { opacity: 1; } 45%, 68% { opacity: .16; } 69%, 100% { opacity: 1; } }
+@keyframes code-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+@keyframes robot-eye-blink { 0%, 45%, 48%, 100% { opacity: 0; } 46%, 47% { opacity: .92; } }
+@keyframes signal-wave { 0% { opacity: .7; transform: scale(.45); } 100% { opacity: 0; transform: scale(1.2); } }
+
 @media (max-width: 639px) {
   .maintenance-code { font-size: clamp(8rem, 45vw, 12rem); }
   .maintenance-shell h1 { margin-top: 28px; }
-  .ecosystem-links { flex-direction: column; margin-top: 36px; }
+  .alert-signals { gap: 8px; margin-bottom: 18px; }
+  .alert-signals span { width: 32px; }
+  .robot-desk { height: 205px; }
+  .seated-robot { right: 38px; left: 38px; }
+  .computer { right: 38px; left: 38px; }
+  .computer-screen { height: 100px; }
+  .ecosystem-links { flex-direction: column; margin-top: 22px; }
   .ecosystem-links a { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alert-signals span, .maintenance-code, .robot-blink, .computer-screen span, .signal, .signal::before, .signal::after { animation: none; }
 }

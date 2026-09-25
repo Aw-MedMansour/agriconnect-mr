@@ -10,7 +10,10 @@ import LanguageGate from "../agriconnect/components/LanguageGate";
 // Mettre à false pour rouvrir la plateforme.
 const MAINTENANCE = true;
 
-const INITIAL_SECONDS = 24 * 60 * 60;
+// Heure de fin fixe et commune à tous les visiteurs (26 sept. 2026, 13:04 UTC).
+// Le compte à rebours est réel et continu : il ne dépend ni du navigateur,
+// ni de l'utilisateur, ni du moment de la visite.
+const COUNTDOWN_END = Date.UTC(2026, 8, 26, 13, 4, 0);
 
 function formatCountdown(totalSeconds: number) {
   const safe = Math.max(0, totalSeconds);
@@ -51,23 +54,8 @@ function Hourglass() {
   );
 }
 
-const COUNTDOWN_END_KEY = "agriconnect_maintenance_end";
-
-function getCountdownEnd(): number {
-  try {
-    const stored = window.localStorage.getItem(COUNTDOWN_END_KEY);
-    const parsed = stored ? Number(stored) : NaN;
-    if (Number.isFinite(parsed) && parsed > Date.now()) return parsed;
-    const end = Date.now() + INITIAL_SECONDS * 1000;
-    window.localStorage.setItem(COUNTDOWN_END_KEY, String(end));
-    return end;
-  } catch {
-    return Date.now() + INITIAL_SECONDS * 1000;
-  }
-}
-
 function Countdown() {
-  const [endTime] = useState(getCountdownEnd);
+  const endTime = COUNTDOWN_END;
   const [remaining, setRemaining] = useState(() =>
     Math.max(0, Math.ceil((endTime - Date.now()) / 1000)),
   );

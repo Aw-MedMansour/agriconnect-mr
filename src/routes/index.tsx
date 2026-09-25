@@ -21,6 +21,36 @@ function formatCountdown(totalSeconds: number) {
   return `${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
 }
 
+function Hourglass() {
+  return (
+    <div className="hourglass" aria-hidden="true">
+      <svg viewBox="0 0 100 140" className="hourglass-svg" focusable="false">
+        <defs>
+          <linearGradient id="hg-sand" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.55" />
+          </linearGradient>
+        </defs>
+        {/* Cadre */}
+        <rect x="18" y="2" width="64" height="8" rx="4" className="hourglass-frame" />
+        <rect x="18" y="130" width="64" height="8" rx="4" className="hourglass-frame" />
+        {/* Verre */}
+        <path
+          d="M30 12 H70 L54 60 V80 L70 128 H30 L46 80 V60 Z"
+          fill="none"
+          className="hourglass-glass"
+        />
+        {/* Sable haut (se vide) */}
+        <polygon points="35,18 65,18 50,58" className="hg-sand-top" fill="url(#hg-sand)" />
+        {/* Filet de sable */}
+        <rect x="49" y="60" width="2.4" height="46" rx="1.2" className="hg-stream" fill="url(#hg-sand)" />
+        {/* Sable bas (se remplit) */}
+        <polygon points="39,126 61,126 50,86" className="hg-sand-bottom" fill="url(#hg-sand)" />
+      </svg>
+    </div>
+  );
+}
+
 function Countdown() {
   const [remaining, setRemaining] = useState(INITIAL_SECONDS);
 
@@ -32,19 +62,18 @@ function Countdown() {
   }, []);
 
   return (
-    <p className="countdown" aria-live="off">
-      <span className="countdown-value">{formatCountdown(remaining)}</span>
-      <span className="countdown-label">Réactivation dans</span>
-    </p>
+    <div className="countdown" aria-live="off">
+      <Hourglass />
+      <p className="countdown-value">{formatCountdown(remaining)}</p>
+    </div>
   );
 }
 
 function Maintenance() {
   return (
     <main className="maintenance-stage">
-      <section className="maintenance-shell" aria-labelledby="not-found-title">
+      <section className="maintenance-shell">
         <p className="maintenance-code" aria-hidden="true">404</p>
-        <h1 id="not-found-title">La plateforme n’existe plus.</h1>
         <Countdown />
       </section>
     </main>

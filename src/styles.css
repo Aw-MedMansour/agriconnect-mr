@@ -267,7 +267,15 @@
 @media (max-width: 639px) {
   .maintenance-shell { align-content: start; padding-top: max(24px, env(safe-area-inset-top)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
   .maintenance-title { font-size: 38px; }
-  .robot-command { min-height: 380px; margin-top: -4px; }
+  .maintenance-copy { display: contents; }
+  .brand-lockup { order: 1; }
+  .system-status { order: 2; margin-top: 24px; }
+  .maintenance-title { order: 3; margin-top: 18px; }
+  .maintenance-title + p { order: 4; margin-top: 18px; }
+  .signal-strip { order: 5; margin-top: 22px; }
+  .robot-command { order: 6; min-height: 390px; margin-top: 4px; }
+  .ecosystem-links { order: 7; margin-top: -4px; }
+  .ecosystem-links + div { order: 8; margin-top: 16px; }
   .robot-hud { inset: 2% 0; }
   .hud-reading-one { right: 0; }.hud-reading-two { left: 0; }
   .robot-visual { inset: 3% 2% 0; }

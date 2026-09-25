@@ -222,7 +222,7 @@
 
 /* Sablier animé : cycle de 12 s — le sable coule, le sablier se retourne. */
 .hourglass { display: inline-flex; justify-content: center; }
-.hourglass-svg { width: clamp(104px, 24vw, 168px); height: auto; overflow: visible; animation: hg-flip 12s ease-in-out infinite; }
+.hourglass-svg { width: clamp(124px, 28vw, 196px); height: auto; overflow: visible; animation: hg-flip 12s ease-in-out infinite; }
 .hourglass-frame { fill: var(--primary); opacity: 0.9; }
 .hourglass-glass { stroke: var(--primary); stroke-width: 3; stroke-linejoin: round; opacity: 0.55; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--primary) 45%, transparent)); }
 .hg-sand-top, .hg-sand-bottom { transform-box: fill-box; }

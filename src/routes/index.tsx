@@ -27,7 +27,7 @@ function Maintenance() {
             <span>FulanIA</span><ExternalLink aria-hidden="true" />
           </a>
         </nav>
-      </div>
+      </section>
     </main>
   );
 }

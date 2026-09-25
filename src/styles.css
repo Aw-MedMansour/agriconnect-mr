@@ -217,13 +217,51 @@
 }
 .maintenance-shell { width: min(100%, 760px); text-align: center; }
 .maintenance-code { color: var(--primary); font-size: clamp(9rem, 34vw, 21rem); font-weight: 900; line-height: .72; letter-spacing: 0; }
-.maintenance-shell h1 { margin-top: 36px; font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; line-height: 1.1; letter-spacing: 0; }
-.countdown { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 42px; font-variant-numeric: tabular-nums; }
-.countdown-value { display: inline-block; font-size: clamp(1.6rem, 6vw, 3.2rem); font-weight: 800; letter-spacing: 0.06em; color: var(--primary); line-height: 1.1; }
-.countdown-label { font-size: clamp(0.85rem, 2.6vw, 1.05rem); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-foreground); }
+.countdown { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 30px; font-variant-numeric: tabular-nums; }
+.countdown-value { display: inline-block; font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; letter-spacing: 0.08em; color: var(--primary); line-height: 1.1; }
+
+/* Sablier animé : cycle de 12 s — le sable coule, le sablier se retourne. */
+.hourglass { display: inline-flex; justify-content: center; }
+.hourglass-svg { width: clamp(104px, 24vw, 168px); height: auto; overflow: visible; animation: hg-flip 12s ease-in-out infinite; }
+.hourglass-frame { fill: var(--primary); opacity: 0.9; }
+.hourglass-glass { stroke: var(--primary); stroke-width: 3; stroke-linejoin: round; opacity: 0.55; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--primary) 45%, transparent)); }
+.hg-sand-top, .hg-sand-bottom { transform-box: fill-box; }
+.hg-sand-top { transform-origin: center bottom; animation: hg-top 12s linear infinite; }
+.hg-sand-bottom { transform-origin: center top; animation: hg-bottom 12s linear infinite; }
+.hg-stream { transform-box: fill-box; transform-origin: center top; animation: hg-stream 12s linear infinite; }
+
+@keyframes hg-flip {
+  0%, 40% { transform: rotate(0deg); }
+  50%, 90% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes hg-top {
+  0% { transform: scaleY(1); }
+  44% { transform: scaleY(0.05); }
+  56% { transform: scaleY(0.05); }
+  94%, 100% { transform: scaleY(1); }
+}
+@keyframes hg-bottom {
+  0% { transform: scaleY(0.05); }
+  44% { transform: scaleY(1); }
+  56% { transform: scaleY(1); }
+  94%, 100% { transform: scaleY(0.05); }
+}
+@keyframes hg-stream {
+  0%, 44% { opacity: 1; }
+  46%, 56% { opacity: 0; }
+  58%, 94% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hourglass-svg, .hg-sand-top, .hg-sand-bottom, .hg-stream { animation: none; }
+  .hg-stream { opacity: 1; }
+  .hg-sand-top { transform: scaleY(1); }
+  .hg-sand-bottom { transform: scaleY(0.05); }
+}
 
 @media (max-width: 639px) {
   .maintenance-code { font-size: clamp(8rem, 45vw, 12rem); }
-  .maintenance-shell h1 { margin-top: 28px; }
-  .countdown { margin-top: 36px; }
+  .countdown { margin-top: 24px; gap: 16px; }
 }

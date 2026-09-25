@@ -1081,18 +1081,7 @@ export default function App() {
           </div>
           <div className="flex flex-col items-center gap-1 text-slate-400 md:items-end">
             <span>© 2026 AgriConnect. {t('Tous droits réservés.')}</span>
-            <span>
-               {t('Développé en partenariat par')}{' '}
-              <a
-                href="https://3A55.Fulania.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-[#0a66c2] hover:underline"
-              >
-                3A55
-              </a>{' '}
-              & Agrosky
-            </span>
+            <span>Développé par Agrosky</span>
           </div>
 
         </div>

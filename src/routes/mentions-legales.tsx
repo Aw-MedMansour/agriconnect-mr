@@ -7,7 +7,7 @@ export const Route = createFileRoute("/mentions-legales")({
       {
         name: "description",
         content:
-          "Mentions légales d'AgriConnect : éditeur Agrosky, développement en partenariat avec 3A55, hébergement, propriété intellectuelle, données personnelles, cookies et droit applicable.",
+          "Mentions légales d'AgriConnect : éditeur Agrosky, hébergement, propriété intellectuelle, données personnelles, cookies et droit applicable.",
       },
       { property: "og:title", content: "Mentions légales — AgriConnect" },
       {
@@ -37,7 +37,7 @@ const sections = [
   },
   {
     title: "3. Développement",
-    body: "La plateforme AgriConnect est développée en partenariat entre 3A55 et Agrosky. Site partenaire : 3A55.Fulania.com.",
+    body: "La plateforme AgriConnect est éditée et développée par Agrosky.",
   },
   {
     title: "4. Hébergement",
@@ -133,16 +133,7 @@ function LegalPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Développé en partenariat par{" "}
-          <a
-            href="https://3A55.Fulania.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-[#0a66c2] hover:underline"
-          >
-            3A55
-          </a>{" "}
-          & Agrosky
+          Développé par Agrosky
         </p>
       </main>
     </div>

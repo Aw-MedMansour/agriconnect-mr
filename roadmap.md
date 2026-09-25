@@ -16,3 +16,8 @@
 - [x] Garder la barre principale visible et masquer les outils à la descente
 - [x] Masquer entièrement la navigation inférieure à la descente
 - [x] Valider les parcours de langue et le défilement sur tous les formats
+
+## Fermeture de la plateforme
+- [x] Remplacer l’écran détaillé par un grand 404 minimal
+- [x] Indiquer que la plateforme n’existe plus
+- [x] Conserver uniquement les liens vers 3A55, Agrim IA et FulanIA

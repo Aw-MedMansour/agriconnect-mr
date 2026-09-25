@@ -1,5 +1,5 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink } from "lucide-react";
 import App from "../agriconnect/App";
 // The application UI is progressively localized from its existing JSX components.
 // @ts-expect-error JSX context module has no standalone declaration file.
@@ -10,23 +10,42 @@ import LanguageGate from "../agriconnect/components/LanguageGate";
 // Mettre à false pour rouvrir la plateforme.
 const MAINTENANCE = true;
 
+const INITIAL_SECONDS = 24 * 60 * 60;
+
+function formatCountdown(totalSeconds: number) {
+  const safe = Math.max(0, totalSeconds);
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  const seconds = safe % 60;
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${pad(hours)} : ${pad(minutes)} : ${pad(seconds)}`;
+}
+
+function Countdown() {
+  const [remaining, setRemaining] = useState(INITIAL_SECONDS);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setRemaining((current) => Math.max(0, current - 1));
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <p className="countdown" aria-live="off">
+      <span className="countdown-value">{formatCountdown(remaining)}</span>
+      <span className="countdown-label">Réactivation dans</span>
+    </p>
+  );
+}
+
 function Maintenance() {
   return (
     <main className="maintenance-stage">
       <section className="maintenance-shell" aria-labelledby="not-found-title">
         <p className="maintenance-code" aria-hidden="true">404</p>
         <h1 id="not-found-title">La plateforme n’existe plus.</h1>
-        <nav className="ecosystem-links" aria-label="Autres sites disponibles">
-          <a href="https://3A55.Fulania.com" target="_blank" rel="noreferrer">
-            <span>3A55</span><ExternalLink aria-hidden="true" />
-          </a>
-          <a href="https://agrimIA.fulania.com" target="_blank" rel="noreferrer">
-            <span>Agrim IA</span><ExternalLink aria-hidden="true" />
-          </a>
-          <a href="https://Fulania.com" target="_blank" rel="noreferrer">
-            <span>FulanIA</span><ExternalLink aria-hidden="true" />
-          </a>
-        </nav>
+        <Countdown />
       </section>
     </main>
   );

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ExternalLink, Laptop, Trophy } from "lucide-react";
 import App from "../agriconnect/App";
 // The application UI is progressively localized from its existing JSX components.
 // @ts-expect-error JSX context module has no standalone declaration file.
@@ -11,14 +12,63 @@ const MAINTENANCE = true;
 
 function Maintenance() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
-      <div className="max-w-md space-y-3">
-        <h1 className="text-2xl font-black text-foreground">AgriConnect</h1>
-        <p className="text-lg font-bold text-foreground">Plateforme temporairement inaccessible</p>
-        <p className="text-sm text-muted-foreground">Platform temporarily unavailable</p>
-        <p className="text-sm text-muted-foreground" dir="rtl">المنصة غير متاحة مؤقتًا</p>
+    <main className="maintenance-stage min-h-screen overflow-hidden bg-primary text-primary-foreground">
+      <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col items-center justify-center gap-6 px-5 py-8 text-center sm:flex-row sm:justify-between sm:gap-12 sm:px-8">
+        <section className="z-10 max-w-lg space-y-4 sm:text-left">
+          <div className="inline-flex items-center gap-3">
+            <img
+              src="/src/agriconnect/assets/agriconnect-logo.png"
+              alt="Logo AgriConnect"
+              className="h-11 w-11 object-contain"
+            />
+            <h1 className="text-3xl font-black sm:text-4xl">AgriConnect</h1>
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-xl font-bold sm:text-2xl">Plateforme temporairement inaccessible</p>
+            <p className="text-sm text-primary-foreground/70">Platform temporarily unavailable</p>
+            <p className="text-sm text-primary-foreground/70" dir="rtl">المنصة غير متاحة مؤقتًا</p>
+          </div>
+          <a
+            href="https://3A55.Fulania.com"
+            target="_blank"
+            rel="noreferrer"
+            className="maintenance-link inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-secondary px-5 py-2.5 text-sm font-bold text-secondary-foreground transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Découvrir 3A55
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+          </a>
+        </section>
+
+        <section className="robot-zone" aria-label="Robot 3A55 souriant, dansant avec un ballon et son ordinateur">
+          <div className="robot-shadow" />
+          <div className="football" aria-hidden="true">
+            <Trophy className="h-4 w-4" />
+          </div>
+          <div className="robot-dance">
+            <div className="robot-antenna"><span /></div>
+            <div className="robot-head">
+              <div className="robot-face">
+                <span className="robot-eye" />
+                <span className="robot-smile" />
+                <span className="robot-eye" />
+              </div>
+            </div>
+            <div className="robot-body">
+              <div className="robot-mark">3A55</div>
+              <div className="robot-arm robot-arm-left"><span /></div>
+              <div className="robot-arm robot-arm-right"><span /></div>
+              <div className="robot-laptop">
+                <Laptop className="h-10 w-10" aria-hidden="true" />
+                <strong>3A55</strong>
+              </div>
+            </div>
+            <div className="robot-legs">
+              <span /><span />
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
 

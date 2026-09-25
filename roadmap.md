@@ -21,3 +21,4 @@
 - [x] Remplacer l’écran détaillé par un grand 404 minimal
 - [x] Indiquer que la plateforme n’existe plus
 - [x] Conserver uniquement les liens vers 3A55, Agrim IA et FulanIA
+- [x] Ajouter des signaux clignotants et le robot devant son ordinateur

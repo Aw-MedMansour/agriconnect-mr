@@ -32,7 +32,7 @@ export const Route = createFileRoute("/politique-d-utilisation")({
 const sections = [
   {
     title: "1. Objet de la politique",
-    body: "Cette politique complète les conditions d'utilisation d'AgriConnect. Elle précise les règles de conduite attendues des membres, les contenus autorisés, les mécanismes de modération et les sanctions applicables. La plateforme est éditée par Agrosky (Nouakchott, Mauritanie) et développée en partenariat avec 3A55.",
+    body: "Cette politique complète les conditions d'utilisation d'AgriConnect. Elle précise les règles de conduite attendues des membres, les contenus autorisés, les mécanismes de modération et les sanctions applicables. La plateforme est éditée par Agrosky (Nouakchott, Mauritanie).",
   },
   {
     title: "2. Comptes et identité",
@@ -128,16 +128,7 @@ function PolicyPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Développé en partenariat par{" "}
-          <a
-            href="https://3A55.Fulania.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-[#0a66c2] hover:underline"
-          >
-            3A55
-          </a>{" "}
-          & Agrosky
+          Développé par Agrosky
         </p>
       </main>
     </div>

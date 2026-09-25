@@ -51,15 +51,41 @@ function Hourglass() {
   );
 }
 
+const COUNTDOWN_END_KEY = "agriconnect_maintenance_end";
+
+function getCountdownEnd(): number {
+  try {
+    const stored = window.localStorage.getItem(COUNTDOWN_END_KEY);
+    const parsed = stored ? Number(stored) : NaN;
+    if (Number.isFinite(parsed) && parsed > Date.now()) return parsed;
+    const end = Date.now() + INITIAL_SECONDS * 1000;
+    window.localStorage.setItem(COUNTDOWN_END_KEY, String(end));
+    return end;
+  } catch {
+    return Date.now() + INITIAL_SECONDS * 1000;
+  }
+}
+
 function Countdown() {
-  const [remaining, setRemaining] = useState(INITIAL_SECONDS);
+  const [endTime] = useState(getCountdownEnd);
+  const [remaining, setRemaining] = useState(() =>
+    Math.max(0, Math.ceil((endTime - Date.now()) / 1000)),
+  );
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setRemaining((current) => Math.max(0, current - 1));
-    }, 1000);
-    return () => window.clearInterval(interval);
-  }, []);
+    const update = () =>
+      setRemaining(Math.max(0, Math.ceil((endTime - Date.now()) / 1000)));
+    // Recalculé depuis l'heure réelle : reste exact même si l'onglet
+    // est en arrière-plan ou mis en veille par le navigateur.
+    const interval = window.setInterval(update, 1000);
+    document.addEventListener("visibilitychange", update);
+    window.addEventListener("focus", update);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", update);
+      window.removeEventListener("focus", update);
+    };
+  }, [endTime]);
 
   return (
     <div className="countdown" aria-live="off">

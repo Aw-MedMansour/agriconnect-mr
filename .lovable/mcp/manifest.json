@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.4",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ljovcpmzpjxanbufwzck.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "agriconnect",
+      "version": "0.1.0",
+      "title": "Agriconnect"
+    },
+    "tools": [
+      {
+        "name": "list_products",
+        "title": "Lister les produits",
+        "description": "Rechercher les produits agricoles du Marketplace AgriConnect.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Mot-clé à rechercher (optionnel).",
+              "type": "string",
+              "maxLength": 100
+            },
+            "limit": {
+              "description": "Nombre maximum de résultats (défaut 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_services",
+        "title": "Lister les services",
+        "description": "Rechercher les services agricoles proposés sur AgriConnect.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Mot-clé à rechercher (optionnel).",
+              "type": "string",
+              "maxLength": 100
+            },
+            "limit": {
+              "description": "Nombre maximum de résultats (défaut 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_posts",
+        "title": "Lister les publications",
+        "description": "Lire les dernières publications du réseau social AgriConnect.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Mot-clé à rechercher (optionnel).",
+              "type": "string",
+              "maxLength": 100
+            },
+            "limit": {
+              "description": "Nombre maximum de résultats (défaut 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

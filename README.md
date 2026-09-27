@@ -1,29 +1,39 @@
-# Welcome to your Lovable project
+# AgriConnect
 
-This project was built with [Lovable](https://lovable.dev).
+AgriConnect est une plateforme professionnelle agricole éditée par **Agrosky** à Nouakchott, en Mauritanie. Elle met en relation agriculteurs, acheteurs, transporteurs et prestataires.
 
-## Build with Lovable
+Site : [agriconnect-mr.com](https://agriconnect-mr.com)
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+## Fonctionnalités
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+- Marketplace de produits agricoles et de services.
+- Réseau social agricole, profils et annuaire des acteurs.
+- Messagerie entre membres et notifications.
+- Espace IA : Plant AI, analyse de plantes par photo et matching.
+- Interface en français, anglais et arabe.
 
-## Development
+Certaines fonctionnalités demandent une connexion et la disponibilité des services associés.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Développement local
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+Cette version utilise React 19, TanStack Start, Vite, Tailwind CSS et Lovable Cloud pour les données et l'authentification. Elle est distincte de l'ancien dépôt GitHub React/Vite ; ne pas utiliser les commandes ou variables de cet ancien dépôt pour démarrer cette version.
+
+Prérequis : Bun et accès à la configuration de l'environnement du projet. Les valeurs privées ne doivent jamais être ajoutées au dépôt.
+
+```bash
+bun install
+bun run dev
 ```
 
-## Built with
+Commandes disponibles : `bun run build`, `bun run lint` et `bun run preview`.
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+## Structure
+
+- `src/routes/` : pages et métadonnées du site.
+- `src/agriconnect/` : interface et fonctionnalités de la plateforme.
+- `src/lib/` : appels serveur pour les outils IA.
+- `supabase/` : migrations et configuration du projet cloud.
+
+## Contact
+
+Agrosky — [agrosky00@gmail.com](mailto:agrosky00@gmail.com)

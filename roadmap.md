@@ -16,3 +16,7 @@
 - [x] Garder la barre principale visible et masquer les outils à la descente
 - [x] Masquer entièrement la navigation inférieure à la descente
 - [x] Valider les parcours de langue et le défilement sur tous les formats
+
+## Documentation et dépôt GitHub
+- [ ] Rédiger et vérifier un README détaillé de la version actuelle
+- [ ] Synchroniser le dépôt `sidiiiii/Agriconnect` dans son ensemble — bloqué : le compte GitHub connecté n'a pas de droit d'écriture sur ce dépôt ; éviter tout remplacement destructif de son ancienne version

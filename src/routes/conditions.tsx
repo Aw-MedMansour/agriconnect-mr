@@ -27,7 +27,7 @@ export const Route = createFileRoute("/conditions")({
 const sections = [
   {
     title: "1. Objet",
-    body: "AgriConnect est une plateforme professionnelle éditée et développée par Agrosky. Elle met en relation agriculteurs, acheteurs, transporteurs, prestataires de services et autres acteurs du secteur agricole. L'utilisation du site implique l'acceptation pleine et entière des présentes conditions.",
+    body: "AgriConnect est une plateforme professionnelle, produit d’Agrosky développé en collaboration avec 3A55 Digital. Elle met en relation agriculteurs, acheteurs, transporteurs, prestataires de services et autres acteurs du secteur agricole. L'utilisation du site implique l'acceptation pleine et entière des présentes conditions.",
   },
   {
     title: "2. Création de compte",
@@ -131,7 +131,7 @@ function ConditionsPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Développé par Agrosky
+          Produit d’Agrosky · Développé en collaboration avec <a href="https://3a55.fulania.com" target="_blank" rel="noopener noreferrer" className="underline">3A55 Digital</a>.
         </p>
       </main>
     </div>

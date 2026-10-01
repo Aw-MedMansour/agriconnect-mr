@@ -20,3 +20,7 @@
 ## Documentation et dépôt GitHub
 - [x] Rédiger et vérifier un README détaillé de la version actuelle
 - [ ] Synchroniser le dépôt `sidiiiii/Agriconnect` dans son ensemble — bloqué : le compte GitHub connecté n'a pas de droit d'écriture sur ce dépôt ; éviter tout remplacement destructif de son ancienne version
+
+## Icône mobile et signature
+- [x] Prévoir les icônes d'écran d'accueil et un manifeste mobile
+- [x] Rétablir la signature Agrosky et 3A55 avec son lien dans le site et les pages légales

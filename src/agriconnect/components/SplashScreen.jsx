@@ -46,7 +46,8 @@ export default function SplashScreen({ done }) {
       </div>
 
       <div className="absolute bottom-8 text-[11px] font-medium text-slate-400 text-center px-4">
-        Développé par Agrosky
+         <div>Produit d’Agrosky</div>
+         <div>Développé en collaboration avec <a href="https://3a55.fulania.com" target="_blank" rel="noopener noreferrer" className="underline">3A55 Digital</a>.</div>
       </div>
     </div>
   );

@@ -1,0 +1,5 @@
+# Local testing only: publishes the app on http://localhost:3000
+services:
+  agriconnect:
+    ports:
+      - "127.0.0.1:3000:3000"

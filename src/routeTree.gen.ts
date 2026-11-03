@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConditionsRouteImport } from './routes/conditions'
 import { Route as MentionsLegalesRouteImport } from './routes/mentions-legales'
 import { Route as PolitiqueDUtilisationRouteImport } from './routes/politique-d-utilisation'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const PolitiqueDUtilisationRoute = PolitiqueDUtilisationRouteImport.update({
   path: '/politique-d-utilisation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,19 +61,30 @@ export interface FileRoutesById {
   '/conditions': typeof ConditionsRoute
   '/mentions-legales': typeof MentionsLegalesRoute
   '/politique-d-utilisation': typeof PolitiqueDUtilisationRoute
+  '/api/health': typeof ApiHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/conditions' | '/mentions-legales' | '/politique-d-utilisation'
+    | '/'
+    | '/conditions'
+    | '/mentions-legales'
+    | '/politique-d-utilisation'
+    | '/api/health'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/conditions' | '/mentions-legales' | '/politique-d-utilisation'
+  to:
+    | '/'
+    | '/conditions'
+    | '/mentions-legales'
+    | '/politique-d-utilisation'
+    | '/api/health'
   id:
     | '__root__'
     | '/'
     | '/conditions'
     | '/mentions-legales'
     | '/politique-d-utilisation'
+    | '/api/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -73,6 +92,7 @@ export interface RootRouteChildren {
   ConditionsRoute: typeof ConditionsRoute
   MentionsLegalesRoute: typeof MentionsLegalesRoute
   PolitiqueDUtilisationRoute: typeof PolitiqueDUtilisationRoute
+  ApiHealthRoute: typeof ApiHealthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -105,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PolitiqueDUtilisationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -113,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConditionsRoute: ConditionsRoute,
   MentionsLegalesRoute: MentionsLegalesRoute,
   PolitiqueDUtilisationRoute: PolitiqueDUtilisationRoute,
+  ApiHealthRoute: ApiHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

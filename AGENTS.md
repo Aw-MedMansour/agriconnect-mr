@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep the installable-site manifest in `public/site.webmanifest` and source its icon URLs from asset pointers; mobile home-screen icons need explicit sizes and a nontransparent background.
+
+- Self-hosting: build with `DEPLOY_TARGET=node` (vite.config.ts) for the Nitro node-server preset; default stays Cloudflare so editor hosting keeps working. Docker health probe is `/api/health`.

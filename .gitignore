@@ -30,3 +30,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment / secrets
+.env.local
+.env.*.local
+.env.production
+# NOTE: .env is managed by the hosting editor and holds only public keys.

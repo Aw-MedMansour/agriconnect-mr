@@ -8,7 +8,7 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Self-hosting (Docker / Coolify): build with DEPLOY_TARGET=node to emit a
 // Node.js server in .output/. Without it, the default (Cloudflare) target is kept.
-const nodeTarget = process.env.DEPLOY_TARGET === "node";
+const nodeTarget = process.env['DEPLOY_TARGET'] === "node";
 
 export default defineConfig({
   tanstackStart: {

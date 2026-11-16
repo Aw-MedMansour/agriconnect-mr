@@ -1,142 +1,85 @@
-import { supabase } from './supabaseClient';
-import { MOCK_ACTORS, MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from '../data/mockData';
+// Data access for the React app. Every call goes through server functions that
+// authenticate the session and enforce ownership; the browser never talks to the database.
+import { MOCK_PRODUCTS, MOCK_SERVICES, MOCK_SOCIAL_POSTS } from '../data/mockData';
+import {
+  fetchAllFn, fetchConversationsFn, fetchUsersFn, fetchNotificationsFn, getOwnProfileFn,
+  upsertFn, insertFn, deleteFn, registerViewFn,
+} from '@/lib/data.functions';
 
-// ── Generic helpers ───────────────────────────────────────────────────────────
+const log = (op, table, e) => console.error(`[DB] ${op} ${table}:`, e?.message || e);
+
 export async function upsertData(table, id, data) {
-  const { error } = await supabase.from(table).upsert({ id: String(id), data });
-  if (!error) return;
-
-  // Interaction sur le contenu d'un autre membre : passage par la fonction sécurisée
-  if (['posts', 'products', 'services'].includes(table)) {
-    const { error: rpcError } = await supabase.rpc('update_content_interactions', {
-      _table: table, _id: String(id), _data: data,
-    });
-    if (!rpcError) return;
-    console.error(`[DB] upsert ${table}:`, rpcError.message);
-    return;
-  }
-  console.error(`[DB] upsert ${table}:`, error.message);
+  try { await upsertFn({ data: { table, id: String(id), data } }); } catch (e) { log('upsert', table, e); }
 }
 
-// Plain insert: used where update rights differ from insert rights (notifications).
+// Plain insert: notifications are created by the actor but only updated by the recipient.
 export async function insertData(table, id, data) {
-  const { error } = await supabase.from(table).insert({ id: String(id), data });
-  if (error) console.error(`[DB] insert ${table}:`, error.message);
+  try { await insertFn({ data: { table, id: String(id), data } }); } catch (e) { log('insert', table, e); }
 }
-
 
 export async function deleteData(table, id) {
-  const { error } = await supabase.from(table).delete().eq('id', String(id));
-  if (error) console.error(`[DB] delete ${table}:`, error.message);
+  try { await deleteFn({ data: { table, id: String(id) } }); } catch (e) { log('delete', table, e); }
 }
 
-// ── Load all data (mock data is pre-seeded in the database via migration) ────
 export async function fetchAllData() {
-  const [usersRes, productsRes, servicesRes, postsRes, convsRes] = await Promise.all([
-    // Sanitized directory: contact details are never exposed to other members.
-    supabase.from('public_profiles').select('*').order('created_at', { ascending: false }),
-    supabase.from('products').select('*').order('created_at', { ascending: false }),
-    supabase.from('services').select('*').order('created_at', { ascending: false }),
-    supabase.from('posts').select('*').order('created_at', { ascending: false }),
-    supabase.from('conversations').select('*').order('created_at', { ascending: false }),
-  ]);
-
-  const users         = usersRes.data?.map(r => r.data).filter(Boolean)     || [];
-  const products      = productsRes.data?.map(r => r.data).filter(Boolean)  || [];
-  const services      = servicesRes.data?.map(r => r.data).filter(Boolean)  || [];
-  const posts         = postsRes.data?.map(r => r.data).filter(Boolean)     || [];
-  // Conversations require an authenticated session — empty for visitors.
-  const conversations = convsRes.data?.map(r => r.data).filter(Boolean)     || [];
-
+  let res = {};
+  try { res = await fetchAllFn(); } catch (e) { log('fetch', 'all', e); }
+  const products = res.products || [];
+  const services = res.services || [];
+  const posts = res.posts || [];
   return {
-    users,
+    users: res.users || [],
     products: products.length ? products : MOCK_PRODUCTS,
     services: services.length ? services : MOCK_SERVICES,
     posts: posts.length ? posts : MOCK_SOCIAL_POSTS,
-    conversations,
+    conversations: res.conversations || [],
   };
 }
 
-// ── Conversations only (used for live sync between accounts) ─────────────────
 export async function fetchConversations() {
-  const { data, error } = await supabase.from('conversations').select('*');
-  if (error) { console.error('[DB] conversations:', error.message); return null; }
-  return data?.map(r => r.data).filter(Boolean) || [];
+  try { return await fetchConversationsFn(); } catch (e) { log('fetch', 'conversations', e); return null; }
 }
 
-// ── Members only (so newly registered accounts appear without reloading) ─────
 export async function fetchUsers() {
-  const { data, error } = await supabase.from('public_profiles').select('*');
-  if (error) { console.error('[DB] users:', error.message); return null; }
-  return data?.map(r => r.data).filter(Boolean) || [];
+  try { return await fetchUsersFn(); } catch (e) { log('fetch', 'users', e); return null; }
 }
 
-// ── Notifications scoped by database rules to the signed-in recipient ────────
+// The server scopes notifications to the signed-in recipient; the argument is kept for compatibility.
 export async function fetchNotifications(userId) {
   if (!userId) return [];
-  const { data, error } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('data->>recipientId', String(userId))
-    .order('created_at', { ascending: false });
-  if (error) { console.error('[DB] notifications:', error.message); return null; }
-  return data?.map(r => ({ ...r.data, id: r.id })).filter(Boolean) || [];
+  try { return await fetchNotificationsFn(); } catch (e) { log('fetch', 'notifications', e); return null; }
 }
 
 export async function updateNotification(id, data) {
-  const { error } = await supabase.from('notifications').update({ data }).eq('id', String(id));
-  if (error) console.error('[DB] update notification:', error.message);
-  return !error;
+  try { await upsertFn({ data: { table: 'notifications', id: String(id), data } }); return true; }
+  catch (e) { log('update', 'notification', e); return false; }
 }
 
-// ── User profile helpers (passwords are handled by the auth system, never stored here)
 export async function saveUser(user) {
   await upsertData('users', user.id, user);
 }
 
-// Email lookups are handled by the auth system; profiles never expose emails.
 export async function findUserByEmail() {
   return null;
 }
 
-export async function findUserById(id) {
-  const { data, error } = await supabase.from('users').select('data').eq('id', String(id)).maybeSingle();
-  if (error || !data) return null;
-  return data.data || null;
+// Only the signed-in member's own profile can be read in full.
+export async function findUserById() {
+  try { return await getOwnProfileFn(); } catch { return null; }
 }
 
-// ── Media Upload to file storage ─────────────────────────────────────────────
-export async function uploadMedia(file, folder = 'media') {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
-  if (!file || !allowedTypes.includes(file.type)) throw new Error('Type de fichier non autorisé.');
+const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/webm'];
+export async function uploadMedia(file) {
+  if (!file || !ALLOWED.includes(file.type)) throw new Error('Type de fichier non autorisé.');
   if (file.size > 25 * 1024 * 1024) throw new Error('Fichier trop volumineux (25 Mo maximum).');
-  try {
-    const ext = file.name.split('.').pop();
-    const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-    const { data, error } = await supabase.storage
-      .from('agroconnect-media')
-      .upload(filename, file, { cacheControl: '3600', upsert: false });
-
-    if (error) {
-      console.error('[Storage] upload error:', error.message);
-      throw new Error(error.message);
-    }
-
-    const { data: signed } = await supabase.storage
-      .from('agroconnect-media')
-      .createSignedUrl(data.path, 60 * 60 * 24 * 365);
-
-    if (!signed?.signedUrl) throw new Error('Lien du fichier indisponible.');
-    return signed.signedUrl;
-  } catch (err) {
-    console.error('[Storage] upload exception:', err);
-    throw err;
-  }
+  const body = new FormData();
+  body.append('file', file);
+  const res = await fetch('/api/media/upload', { method: 'POST', body, credentials: 'same-origin' });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || !json.url) throw new Error(json.error || 'Envoi du fichier impossible.');
+  return json.url;
 }
 
-// ── Compteur de vues (fonction sécurisée côté base) ──────────────────────────
 export async function registerView(table, id) {
-  const { error } = await supabase.rpc('increment_content_view', { _table: table, _id: String(id) });
-  if (error) console.error('[DB] view:', error.message);
+  try { await registerViewFn({ data: { table, id: String(id) } }); } catch (e) { log('view', table, e); }
 }

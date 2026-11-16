@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from './utils/supabaseClient';
+import { auth } from './utils/authClient';
 import { findUserById, saveUser } from './utils/dbSync';
 
 const LANGUAGES = ['fr', 'en', 'ar'];
@@ -428,8 +428,8 @@ export function LanguageProvider({ children }) {
       setReady(true);
     };
 
-    supabase.auth.getUser().then(({ data }) => applySession(data?.user || null));
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    auth.getUser().then(({ data }) => applySession(data?.user || null));
+    const { data: listener } = auth.onAuthStateChange((event, session) => {
       if (!['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED'].includes(event)) return;
       setReady(false);
       window.setTimeout(() => applySession(session?.user || null), 0);

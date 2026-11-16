@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireSession } from "@/lib/session-middleware";
 
 const Input = z.object({
   language: z.enum(["fr", "en", "ar"]).default("fr"),
@@ -31,7 +31,7 @@ Règles :
 - Si la question ne concerne ni l'agriculture ni AgriConnect, rappelle poliment ton domaine.`;
 
 export const askPlantAI = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSession])
   .validator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];

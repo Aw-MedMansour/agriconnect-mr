@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
 import { ACTOR_CATEGORIES } from '../data/mockData';
 import { saveUser, findUserById } from '../utils/dbSync';
-import { supabase } from '../utils/supabaseClient';
+import { auth } from '../utils/authClient';
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
 import { useLanguage } from '../i18n';
@@ -32,7 +32,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
 
     try {
       if (mode === 'signup') {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        const { data, error: signUpError } = await auth.signUp({ email, password });
         if (signUpError) {
           const raw = (signUpError.message || '').toLowerCase();
           setError(
@@ -51,7 +51,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         // Make sure a session exists before writing the profile (otherwise it is refused)
         let session = data.session;
         if (!session) {
-          const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
+          const { data: signInData } = await auth.signInWithPassword({ email, password });
           session = signInData?.session || null;
         }
         if (!session) {
@@ -80,7 +80,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         onClose();
 
       } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error: signInError } = await auth.signInWithPassword({ email, password });
         if (signInError || !data.user) {
           setError(t('Email ou mot de passe incorrect.'));
           setLoading(false);

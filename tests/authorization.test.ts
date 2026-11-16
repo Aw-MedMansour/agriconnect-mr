@@ -117,7 +117,7 @@ describe("notifications", () => {
   });
 
   it("allows at most 30 notifications per actor per minute", async () => {
-    await Promise.allSettled(Array.from({ length: 29 }, (_, i) => svc.createNotification(t.db, alice, `r${i}`, n(`r${i}`))));
+    await Promise.allSettled(Array.from({ length: 30 }, (_, i) => svc.createNotification(t.db, alice, `r${i}`, n(`r${i}`))));
     await expect(svc.createNotification(t.db, alice, "r-over", n("r-over"))).rejects.toThrow(/Trop de notifications/);
   });
 });

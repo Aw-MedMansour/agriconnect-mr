@@ -76,10 +76,15 @@ The script verifies the archive, refuses without `CONFIRM_RESTORE=<database name
 ## 10. Importing data from the previous hosted database (optional, one time)
 Needs: the old database connection string (`SOURCE_DATABASE_URL`) and, for files, the old storage URL and service key.
 ```bash
-docker compose run --rm -e SOURCE_DATABASE_URL=... -e SOURCE_STORAGE_URL=https://<old-project>.supabase.co \
-  -e SOURCE_SERVICE_KEY=... -e MEDIA_DIR=/app/data/media -e MEDIA_SIGNING_SECRET=$MEDIA_SIGNING_SECRET \
-  -v agriconnect_media:/app/data/media <dev image with bun> bun scripts/supabase-import/import.ts --dry-run
-# then without --dry-run; the report import-report-*.json lists counts, failures and password resets
+# from the repository checkout on the server, joined to the stack's private network
+docker run --rm -it --network agriconnect_default -v "$PWD":/src -w /src \
+  -v agriconnect_media:/app/data/media \
+  -e DATABASE_URL="$DATABASE_URL" -e SOURCE_DATABASE_URL="postgres://...old..." \
+  -e SOURCE_STORAGE_URL="https://<old-project>.supabase.co" -e SOURCE_SERVICE_KEY="..." \
+  -e MEDIA_DIR=/app/data/media -e MEDIA_SIGNING_SECRET="$MEDIA_SIGNING_SECRET" \
+  oven/bun:1.2-alpine sh -c "bun install --frozen-lockfile && bun scripts/supabase-import/import.ts --dry-run"
+# then run again without --dry-run; take a backup first (section 7)
+# afterwards: docker compose exec -u root app chown -R node:node /app/data/media
 ```
 - Identifiers and timestamps are preserved; rows already imported are skipped (safe to retry).
 - Media files are downloaded, validated, stored on the volume, checksummed, and old storage URLs in posts/products are rewritten to new signed URLs (`unresolvedUrls` must be 0).

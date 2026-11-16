@@ -9,8 +9,8 @@ const errorOf = (e) => ({ message: e?.message || 'Erreur' });
 export const auth = {
   async signUp({ email, password }) {
     try {
+      // No SIGNED_IN event here: the sign-up form saves the new profile first, then reports success itself.
       const { user } = await signUpFn({ data: { email, password } });
-      emit('SIGNED_IN', user);
       return { data: { user, session: { user } }, error: null };
     } catch (e) { return { data: { user: null, session: null }, error: errorOf(e) }; }
   },

@@ -22,5 +22,5 @@ export function timingSafeEqualHex(a: string, b: string): boolean {
 }
 
 export async function sha256Hex(data: Uint8Array): Promise<string> {
-  return toHex(await crypto.subtle.digest("SHA-256", data));
+  return toHex(await crypto.subtle.digest("SHA-256", new Uint8Array(data)));
 }

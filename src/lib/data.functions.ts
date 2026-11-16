@@ -3,6 +3,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+// JSON documents returned to the browser.
+type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
+
 const Table = z.enum(["users", "posts", "products", "services", "conversations", "notifications"]);
 const Write = z.object({ table: Table, id: z.string().min(1).max(200), data: z.record(z.string(), z.unknown()) });
 const Ref = z.object({ table: Table, id: z.string().min(1).max(200) });
@@ -20,28 +23,28 @@ export const fetchAllFn = createServerFn({ method: "GET" }).handler(async () => 
     svc.listPublicProfiles(db, actor), svc.listContent(db, "products"), svc.listContent(db, "services"),
     svc.listContent(db, "posts"), svc.listConversations(db, actor),
   ]);
-  return { users, products, services, posts, conversations } as Record<string, unknown[]>;
+  return { users, products, services, posts, conversations } as unknown as Record<string, Json[]>;
 });
 
 export const fetchConversationsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { db, actor, svc } = await ctx();
-  return (await svc.listConversations(db, actor)) as unknown[];
+  return (await svc.listConversations(db, actor)) as unknown as Json[];
 });
 
 export const fetchUsersFn = createServerFn({ method: "GET" }).handler(async () => {
   const { db, actor, svc } = await ctx();
-  return (await svc.listPublicProfiles(db, actor)) as unknown[];
+  return (await svc.listPublicProfiles(db, actor)) as unknown as Json[];
 });
 
 export const fetchNotificationsFn = createServerFn({ method: "GET" }).handler(async () => {
   const { db, actor, svc } = await ctx();
-  return (await svc.listNotifications(db, actor)) as unknown[];
+  return (await svc.listNotifications(db, actor)) as unknown as Json[];
 });
 
 export const getOwnProfileFn = createServerFn({ method: "GET" }).handler(async () => {
   const { db, actor, svc } = await ctx();
   if (!actor) return null;
-  return (await svc.getOwnProfile(db, actor)) as Record<string, unknown> | null;
+  return (await svc.getOwnProfile(db, actor)) as unknown as { [k: string]: Json } | null;
 });
 
 export const upsertFn = createServerFn({ method: "POST" })

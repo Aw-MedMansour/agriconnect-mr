@@ -91,6 +91,9 @@ docker run --rm -it --network agriconnect_default -v "$PWD":/src -w /src \
 - Old bcrypt password hashes are verified at the member's next login and upgraded to Argon2id. Accounts without a usable hash are flagged in `passwordResetRequired`; set a password with `NEW_PASSWORD=... bun scripts/set-password.ts email`.
 - The old data is never modified or deleted.
 
+### Mandatory final verification before retirement
+The import report is not proof that migration succeeded. Do not disable or delete the old project, records, files or unresolved links until database, physical media and runtime URL checks all pass on the real VPS. Run the read-only `scripts/supabase-import/verify.ts` with the prerequisites in [the final verification guide](docs/FINAL-MIGRATION-VERIFICATION.md). Missing access, orphaned relationships and old storage URLs block retirement. Existing destination rows must be checked even if the importer skipped them. Current source orphaned records require review; do not invent accounts or discard them.
+
 ## 11. Admin
 `DATABASE_URL=... bun scripts/grant-admin.ts admin@example.com` — admins can delete any publication.
 

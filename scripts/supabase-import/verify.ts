@@ -131,7 +131,7 @@ async function verify() {
         const coverage = har["verificationCoverage"];
         const flows = ["signedIn","profiles","products","services","posts","conversations","notifications","allMigratedMedia"];
         const covered = flows.every((f) => coverage?.[f] === true);
-        const urlsPassed = !code.length && !urlIssues.length && requests.length > 0 && successfulMedia && covered && mediaPassed;
+        const urlsPassed = !code.length && !urlIssues.length && !trafficIssues.length && requests.length > 0 && successfulMedia && covered && mediaPassed;
         report["urls"] = {status:urlsPassed ? "PASS" : "FAIL",codeReferences:code,storedReferences:urlIssues,legacyRequestOrResponseIndexes:trafficIssues,requestCount:requests.length,successfulMedia,covered};
         report["retirementAllowed"] = retirementAllowed(databasePassed,mediaPassed,urlsPassed && !trafficIssues.length);
       });

@@ -58,9 +58,7 @@ async function importMedia() {
   const key = env("SOURCE_SERVICE_KEY", false);
   const objects = await src<
     { name: string }[]
-  >`select name from storage.objects where bucket_id = ${BUCKET} order by created_at`.catch(
-    () => [],
-  );
+  >`select name from storage.objects where bucket_id = ${BUCKET} order by created_at`;
   report.media.source = objects.length;
   for (const o of objects) {
     const existing = await db
@@ -182,9 +180,7 @@ async function importDocs(
 ) {
   const rows = await src<
     { id: string; data: Doc; created_at: Date }[]
-  >`select id::text, data, created_at from ${src("public")}.${src(table)} order by created_at`.catch(
-    () => [],
-  );
+  >`select id::text, data, created_at from ${src("public")}.${src(table)} order by created_at`;
   const ids = await accountIds();
   for (const r of rows) {
     bump(table, "source");
@@ -217,12 +213,13 @@ async function main() {
   for (const table of ["products", "services", "posts"] as const) {
     await importDocs(table, async (r, ids) => {
       const owner = String(r.data[OWNER_KEY[table]] ?? "");
+      if (!ids.has(owner)) throw new Error("owner has no account; preserve source and resolve relationship before import");
       if (!W) return true;
       const res = await db
         .insert(s[table])
         .values({
           id: r.id,
-          ownerId: ids.has(owner) ? owner : null,
+          ownerId: owner,
           data: stripContact(r.data),
           createdAt: r.created_at,
           updatedAt: r.created_at,
@@ -234,6 +231,10 @@ async function main() {
   }
 
   await importDocs("conversations", async (r, ids) => {
+    const participantIds = Array.isArray(r.data["participantIds"])
+      ? r.data["participantIds"].map(String) : [];
+    if (participantIds.some((id) => !ids.has(id)))
+      throw new Error("participant has no account; preserve source and resolve relationship before import");
     if (!W) return true;
     return db.transaction(async (tx) => {
       const res = await tx
@@ -259,13 +260,15 @@ async function main() {
     const recipient = String(r.data["recipientId"] ?? "");
     if (!ids.has(recipient)) throw new Error("recipient has no account");
     const actor = String(r.data["actorId"] ?? "");
+    if (!UUID_RE.test(actor) || !ids.has(actor))
+      throw new Error("actor has no account; preserve source and resolve relationship before import");
     if (!W) return true;
     const res = await db
       .insert(s.notifications)
       .values({
         id: r.id,
         recipientId: recipient,
-        actorId: UUID_RE.test(actor) && ids.has(actor) ? actor : null,
+        actorId: actor,
         type: String(r.data["type"] ?? "message"),
         read: r.data["read"] === true,
         data: r.data,

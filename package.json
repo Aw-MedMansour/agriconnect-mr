@@ -9,7 +9,15 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate --config drizzle.selfhost.config.ts",
+    "db:migrate": "bun scripts/migrate.ts",
+    "db:migrate:dry": "bun scripts/migrate.ts --dry-run",
+    "db:check": "bun scripts/check-migrations.ts && drizzle-kit check --config drizzle.selfhost.config.ts",
+    "build:tools": "bun build scripts/migrate.ts --target=node --outfile=dist-tools/migrate.mjs",
+    "import:supabase": "bun scripts/supabase-import/import.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"

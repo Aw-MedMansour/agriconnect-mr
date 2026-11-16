@@ -1,5 +1,7 @@
-# Local testing only: publishes the app on http://localhost:3000
+# Local testing only: publishes the app on http://localhost:3000 (the database stays private).
 services:
-  agriconnect:
+  app:
     ports:
       - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: development   # allows the session cookie over plain http://localhost

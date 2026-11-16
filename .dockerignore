@@ -1,5 +1,6 @@
 node_modules
 dist
+dist-tools
 .output
 .nitro
 .tanstack
@@ -13,8 +14,10 @@ dist
 .env
 .env.*
 !.env.example
-Dockerfile
 docker-compose*.yml
 DEPLOYMENT*.md
 README.md
 roadmap.md
+tests
+supabase
+drizzle

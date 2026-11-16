@@ -1,35 +1,92 @@
+# AgriConnect MR — production stack (Docker Compose / Coolify).
+# Order: db (healthy) → migrate (backup + migrations, must succeed) → app. backup runs on a schedule.
+name: agriconnect
+
+x-db-env: &db-env
+  DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+
 services:
-  agriconnect:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
-        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY}
-        VITE_SUPABASE_PROJECT_ID: ${VITE_SUPABASE_PROJECT_ID:-}
+  db:
+    image: postgres:18.7-alpine3.24
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    # PostgreSQL 18 images store data in /var/lib/postgresql/18/docker: mount the parent directory.
+    volumes:
+      - pgdata:/var/lib/postgresql
+    # No "ports:": the database is reachable only on the internal network.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    shm_size: 256mb
+    logging: &logging
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  migrate:
+    build: { context: ., dockerfile: Dockerfile, target: migrator }
+    image: agriconnect-mr-migrator:latest
+    restart: "no"
+    environment:
+      <<: *db-env
+      BACKUP_DIR: /backups
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - backups:/backups
+    depends_on:
+      db: { condition: service_healthy }
+    logging: *logging
+
+  app:
+    build: { context: ., dockerfile: Dockerfile, target: runtime }
     image: agriconnect-mr:latest
     init: true
     restart: unless-stopped
     environment:
+      <<: *db-env
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3000
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      MEDIA_SIGNING_SECRET: ${MEDIA_SIGNING_SECRET:?MEDIA_SIGNING_SECRET is required}
+      MEDIA_DIR: /app/data/media
       LOVABLE_API_KEY: ${LOVABLE_API_KEY:-}
-    # No "ports:" on purpose: Coolify's proxy reaches port 3000 internally.
-    # For local testing use: docker compose -f docker-compose.yml -f docker-compose.local.yml up
-    expose:
-      - "3000"
+    volumes:
+      - media:/app/data/media
+    expose: ["3000"]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/ready"]
       interval: 30s
       timeout: 5s
-      start_period: 20s
+      start_period: 30s
       retries: 3
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *logging
+
+  backup:
+    image: agriconnect-mr-migrator:latest
+    restart: unless-stopped
+    entrypoint: ["/scripts/backup-cron.sh"]
+    environment:
+      <<: *db-env
+      BACKUP_DIR: /backups
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-24}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - backups:/backups
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    logging: *logging
+
+volumes:
+  pgdata:   # database files (never deleted by deployments)
+  media:    # uploaded photos and videos
+  backups:  # pg_dump archives, separate from the database volume

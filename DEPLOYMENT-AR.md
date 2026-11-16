@@ -1,60 +1,68 @@
-# AgriConnect MR — النشر الذاتي (Docker / Coolify)
+# AgriConnect MR — النشر الذاتي (Docker / Coolify و PostgreSQL 18.7)
 
-## البنية
-- التطبيق: TanStack Start (React 19 مع العرض من جهة الخادم ووظائف الخادم) يُبنى بإعداد **node-server** ويعمل على **Node.js 22** داخل Docker.
-- قاعدة البيانات والمصادقة والتخزين: مشروع Supabase الحالي دون تغيير.
-- الذكاء الاصطناعي (محادثة Plant AI وتحليل صور النباتات): بوابة Lovable AI عبر المفتاح `LOVABLE_API_KEY` من جهة الخادم فقط.
-- المنفذ الداخلي: **3000**. فحص الصحة: `GET /api/health`.
+## 1. البنية
+| الخدمة | الدور |
+|---|---|
+| `db` | قاعدة PostgreSQL 18.7. المجلد الدائم `pgdata` مركّب على `/var/lib/postgresql` (تخطيط الإصدار 18). المنفذ 5432 غير منشور. |
+| `migrate` | مهمة لمرة واحدة في كل نشر: تنتظر القاعدة، تأخذ نسخة احتياطية مُتحقَّقًا منها إن وُجدت ترحيلات معلّقة، ثم تطبّق الترحيلات بقفل يمنع التشغيل المتزامن. |
+| `app` | خادم Node 22 بمستخدم غير جذري على المنفذ 3000، لا يبدأ إلا بعد نجاح `migrate`. الوسائط في المجلد `media`. الفحص: `/api/ready`. |
+| `backup` | نسخ احتياطي دوري بـ `pg_dump` مع تحقق وسياسة احتفاظ، في مجلد `backups` منفصل عن بيانات القاعدة. |
 
-## المتطلبات
-- خادم Linux مع Docker 24+ و Docker Compose v2 (أو Coolify v4).
-- سجلات DNS من نوع `A` للنطاقين `agriconnect-mr.com` و `www` نحو الخادم.
-- رابط Supabase والمفتاح العام، ومفتاح `LOVABLE_API_KEY`.
+لا توجد أي خدمة بيانات خارجية. المفتاح `LOVABLE_API_KEY` مطلوب فقط لميزتي الذكاء الاصطناعي.
 
-## متغيرات البيئة
-| المتغير | التوقيت | إلزامي | الدور |
-|---|---|---|---|
-| `VITE_SUPABASE_URL` | البناء | نعم | رابط Supabase العام |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | البناء | نعم | المفتاح العام |
-| `VITE_SUPABASE_PROJECT_ID` | البناء | لا | معرّف المشروع |
-| `SUPABASE_URL` | التشغيل | نعم | رابط الخادم |
-| `SUPABASE_PUBLISHABLE_KEY` | التشغيل | نعم | المفتاح العام للخادم |
-| `SUPABASE_SERVICE_ROLE_KEY` | التشغيل | لا | غير مستخدم حاليًا |
-| `LOVABLE_API_KEY` | التشغيل | للذكاء الاصطناعي | Plant AI وتحليل الصور |
-
-يرفض الحاوي التشغيل إذا غابت المتغيرات الإلزامية. لا تُضمَّن الأسرار في الصورة.
-
-## الاختبار المحلي
+## 2. متغيرات البيئة
 ```bash
 cp .env.example .env.production
+openssl rand -base64 48   # مرتين: SESSION_SECRET و MEDIA_SIGNING_SECRET
+```
+الإلزامية: `POSTGRES_DB`، `POSTGRES_USER`، `POSTGRES_PASSWORD`، `DATABASE_URL` بصيغة `postgres://USER:PASSWORD@db:5432/DB`، `SESSION_SECRET`، `MEDIA_SIGNING_SECRET` (32 حرفًا على الأقل). الاختيارية: `LOVABLE_API_KEY`، `BACKUP_INTERVAL_HOURS` (24)، `BACKUP_RETENTION_DAYS` (14).
+
+## 3. الاختبار المحلي
+```bash
 docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.local.yml up -d --build
-curl http://localhost:3000/api/health
-docker compose logs -f agriconnect
+docker compose logs migrate
+curl http://localhost:3000/api/ready
 ```
 
-## Coolify
-1. مورد جديد ← **Docker Compose** ← اختر المستودع والفرع، الملف `docker-compose.yml`.
-2. أضف متغيرات البيئة، وفعّل خيار **Build Variable** لمتغيرات `VITE_*`.
-3. النطاقات: `https://agriconnect-mr.com,https://www.agriconnect-mr.com` (المنفذ 3000).
-4. انشر؛ يصدر Coolify شهادة HTTPS تلقائيًا بعد ضبط DNS.
-5. في Supabase أضف `https://agriconnect-mr.com` إلى عناوين إعادة التوجيه للمصادقة.
+## 4. Coolify
+1. مورد جديد ← **Docker Compose** ← المستودع والفرع والملف `docker-compose.yml`.
+2. أضف متغيرات القسم 2.
+3. النطاقات على الخدمة `app` والمنفذ 3000: `https://agriconnect-mr.com,https://www.agriconnect-mr.com`.
+4. انشر. إذا فشل الترحيل يبقى الإصدار السابق يعمل ولا يُعتبر الجديد سليمًا.
+5. لا تفعّل حذف المجلدات عند إعادة النشر.
 
-## السجلات
+## 5. تعديل قاعدة البيانات (للمطورين)
 ```bash
-docker compose logs -f --tail=200 agriconnect
+bun run db:generate --name add_x
+# راجع ملف SQL وأضف قسم "## NNNN_add_x" إلى db/RECOVERY.md
+bun run test && bun run db:check
 ```
+القواعد: لا تعدّل ترحيلًا مطبّقًا، لا تستخدم `drizzle-kit push` في الإنتاج، والتغييرات الهدّامة تمر بمراحل (إضافة ← نقل البيانات ← حذف في إصدار لاحق بموافقة ونسخة احتياطية).
 
-## التحديث
+## 6. النسخ الاحتياطي
 ```bash
-git pull && docker compose --env-file .env.production up -d --build
+docker compose exec backup /scripts/backup-db.sh manual
+docker compose exec backup /scripts/verify-backup.sh /backups/<file>.dump
 ```
 
-## حل المشكلات
-- `Missing required environment variable(s)`: أضف متغيرات التشغيل.
-- صفحة بيضاء: متغيرات `VITE_*` كانت فارغة أثناء البناء، أعد البناء.
-- فشل الذكاء الاصطناعي: تحقق من `LOVABLE_API_KEY` ورصيد البوابة.
-- خطأ 502: الحاوي غير سليم، راجع السجلات وتأكد من المنفذ 3000.
+## 7. الاستعادة (تتطلب تأكيدًا صريحًا)
+```bash
+docker compose stop app
+docker compose run --rm -e CONFIRM_RESTORE=agriconnect migrate /scripts/restore-db.sh /backups/<file>.dump
+docker compose start app
+```
+يرفض السكربت العمل دون `CONFIRM_RESTORE=<اسم القاعدة>` ويأخذ نسخة أمان قبل الاستعادة.
 
-## التبعيات الخارجية المتبقية
-- Supabase (البيانات، المصادقة، التخزين).
-- بوابة Lovable AI؛ البديل: أي واجهة متوافقة مع OpenAI بمفتاح خادم خاص.
+## 8. بعد فشل ترحيل
+- أُلغي الترحيل الفاشل تلقائيًا وبقيت القاعدة على الإصدار السابق.
+- اقرأ الخطأ في `docker compose logs migrate`.
+- أصلح بترحيل **جديد** ثم أعد النشر، أو استعد نسخة `pre-migration` عند تلف البيانات.
+
+## 9. نقل البيانات من القاعدة القديمة (اختياري، مرة واحدة)
+`bun scripts/supabase-import/import.ts --dry-run` ثم بدون `--dry-run`، مع `SOURCE_DATABASE_URL` و `SOURCE_STORAGE_URL` و `SOURCE_SERVICE_KEY`. يحافظ على المعرّفات والتواريخ، ويمكن إعادة تشغيله بأمان، وينقل الملفات ويحدّث روابطها، وينتج تقريرًا. كلمات المرور القديمة تُتحقق عند أول دخول ثم تُحوَّل إلى Argon2id؛ الحسابات دون كلمة مرور صالحة تُضبط بـ `scripts/set-password.ts`. لا تُحذف البيانات القديمة.
+
+## 10. حل المشكلات
+- التطبيق لا يبدأ: راجع `docker compose logs migrate`.
+- `/api/ready` يعيد 503: القاعدة متوقفة أو `DATABASE_URL` خاطئ.
+- فشل رفع الملفات: المجلد `media` غير قابل للكتابة.
+- لا تركّب مجلد PostgreSQL 16 القديم مباشرة: انقل البيانات بالنسخ والاستعادة.

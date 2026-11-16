@@ -1,80 +1,100 @@
-# AgriConnect MR — Self-hosted deployment (Docker / Coolify)
+# AgriConnect MR — Self-hosted deployment (Docker / Coolify, PostgreSQL 18.7)
 
-## Architecture
-- App: TanStack Start (React 19, SSR + server functions) built by Vite/Nitro with the **node-server** preset, running on **Node.js 22** in Docker.
-- Database, Auth, Storage: existing Supabase project (unchanged).
-- AI (Plant AI chat, plant photo analysis): Lovable AI Gateway `https://ai.gateway.lovable.dev`, authenticated server-side with `LOVABLE_API_KEY`.
-- Build target switch: `DEPLOY_TARGET=node` (set in the Dockerfile). Without it the default Cloudflare target is kept, so the current hosting keeps working.
-- Internal port: **3000**. Health check: `GET /api/health`.
+## 1. Architecture
+| Service | Image | Role |
+|---|---|---|
+| `db` | `postgres:18.7-alpine3.24` | Database. Volume `pgdata` → `/var/lib/postgresql` (PostgreSQL 18 layout: data lives in `/var/lib/postgresql/18/docker`). Port 5432 is **not** published. |
+| `migrate` | built from `Dockerfile` (target `migrator`) | One-shot job per deployment: waits for the DB, takes a verified backup if the database already exists and migrations are pending, applies migrations under an advisory lock, exits non-zero on failure. |
+| `app` | built from `Dockerfile` (target `runtime`) | Node 22 server, non-root, port 3000. Starts **only** after `migrate` succeeded. Volume `media` → `/app/data/media`. Health: `/api/ready` (DB reachable), liveness `/api/health`. |
+| `backup` | migrator image | `pg_dump` every `BACKUP_INTERVAL_HOURS`, verified, retention `BACKUP_RETENTION_DAYS`, volume `backups` (separate from `pgdata`). |
 
-## Prerequisites
-- Linux VPS with Docker 24+ and Docker Compose v2 (or Coolify v4).
-- DNS `A` records for `agriconnect-mr.com` and `www` pointing to the VPS.
-- Supabase URL + publishable key, and a `LOVABLE_API_KEY` for AI.
+External services: none for data. `LOVABLE_API_KEY` is only needed for the two AI features.
 
-## Environment variables
-| Variable | When | Required | Purpose |
-|---|---|---|---|
-| `VITE_SUPABASE_URL` | build | yes | Public Supabase URL (browser) |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | build | yes | Public key (browser, RLS-protected) |
-| `VITE_SUPABASE_PROJECT_ID` | build | no | Public project id |
-| `SUPABASE_URL` | runtime | yes | Server/SSR Supabase URL |
-| `SUPABASE_PUBLISHABLE_KEY` | runtime | yes | Server/SSR public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | runtime | no | Not used by current features |
-| `LOVABLE_API_KEY` | runtime | for AI | Plant AI + photo analysis |
-| `PORT` / `HOST` | runtime | no | Default `3000` / `0.0.0.0` |
-
-The container refuses to start if required runtime variables are missing (see `docker/start.mjs`). Secrets are never baked into the image; only `VITE_*` public values are.
-
-## Local Docker test
+## 2. Environment
 ```bash
-cp .env.example .env.production   # fill in values
+cp .env.example .env.production
+openssl rand -base64 48   # run twice: SESSION_SECRET and MEDIA_SIGNING_SECRET
+openssl rand -base64 24   # POSTGRES_PASSWORD (also put it inside DATABASE_URL)
+```
+Required: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `DATABASE_URL` (`postgres://USER:PASSWORD@db:5432/DB`), `SESSION_SECRET`, `MEDIA_SIGNING_SECRET` (32+ chars). Optional: `LOVABLE_API_KEY`, `BACKUP_INTERVAL_HOURS` (24), `BACKUP_RETENTION_DAYS` (14). Compose refuses to start if a required value is missing; the app refuses to start with weak secrets.
+
+## 3. Local test
+```bash
 docker compose --env-file .env.production -f docker-compose.yml -f docker-compose.local.yml up -d --build
-curl http://localhost:3000/api/health
-docker compose logs -f agriconnect
-docker compose down
+docker compose logs migrate          # must end with "[migrate] done."
+curl http://localhost:3000/api/ready # {"status":"ready"}
 ```
 
-Without Compose:
+## 4. Coolify
+1. New resource → **Docker Compose** → repository + branch, file `docker-compose.yml`.
+2. Add the variables of section 2 (no build variables are needed any more).
+3. Domain on service `app`, port 3000: `https://agriconnect-mr.com,https://www.agriconnect-mr.com`.
+4. Deploy. Coolify waits for `migrate` to complete successfully before starting `app`; a failed migration leaves the previous version running and the new one unhealthy.
+5. Never enable "delete volumes" on redeploy.
+
+## 5. Deployment sequence (what happens on each deploy)
+1. `db` starts / is verified healthy (`pg_isready`).
+2. `migrate`: connectivity check → if the database already has migrations and new ones are pending, `scripts/backup-db.sh pre-migration` (verified) → migrations applied once (advisory lock, each in its own transaction, logged in `drizzle.migration_runs`) → constraint validation.
+3. `app` starts → healthcheck `/api/ready`.
+4. Manual smoke test: sign in, publish with a photo, send a message, open notifications.
+
+## 6. Database changes (developers)
 ```bash
-docker build -t agriconnect-mr \
-  --build-arg VITE_SUPABASE_URL=https://xxx.supabase.co \
-  --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx .
-docker run -d --name agriconnect -p 127.0.0.1:3000:3000 --env-file .env.production --init agriconnect-mr
+# edit src/server/db/schema.ts
+bun run db:generate --name add_x       # creates db/migrations/NNNN_add_x.sql
+# review the SQL, add "## NNNN_add_x" with rollback/recovery notes to db/RECOVERY.md
+TEST_DATABASE_URL=postgres://... bun run test
+bun run db:check
+git add src/server/db/schema.ts db/migrations db/RECOVERY.md   # commit together
 ```
+Rules: never edit an applied migration; never `drizzle-kit push` in production; destructive changes use expand-and-contract (add nullable column → backfill & switch code → drop in a later, separately approved release with the `-- migrate:allow-destructive` marker and a verified backup).
 
-## Coolify
-1. New Resource → **Docker Compose** → select the Git repository and branch; compose file: `docker-compose.yml`.
-2. Environment Variables: add all variables above. Mark `VITE_*` as **Build Variable** too (they are passed as build args).
-3. Service `agriconnect` → Domains: `https://agriconnect-mr.com,https://www.agriconnect-mr.com` (port 3000 is detected from `expose`; if asked, use `https://agriconnect-mr.com:3000` syntax per Coolify docs).
-4. Deploy. Coolify's Traefik proxy issues Let's Encrypt HTTPS automatically once DNS points to the VPS.
-5. Optional: redirect `www` → apex in Coolify (Redirect setting) to keep SEO canonical.
-6. Supabase → Auth → URL configuration: add `https://agriconnect-mr.com` to Site URL / Redirect URLs.
+Inspect history: `docker compose exec db psql -U $POSTGRES_USER -d $POSTGRES_DB -c "select tag,status,duration_ms,error,started_at from drizzle.migration_runs order by id"`.
 
-## Logs
+## 7. Backups
 ```bash
-docker compose logs -f --tail=200 agriconnect
+docker compose exec backup /scripts/backup-db.sh manual          # on demand
+docker compose exec backup ls -l /backups
+docker compose exec backup /scripts/verify-backup.sh /backups/<file>.dump
 ```
-In Coolify: resource → **Logs**.
+Copy backups off the server regularly (e.g. `docker compose cp backup:/backups ./offsite`).
 
-## Updating
+## 8. Restore (explicit confirmation required)
 ```bash
-git pull && docker compose --env-file .env.production up -d --build
+docker compose stop app
+docker compose run --rm -e CONFIRM_RESTORE=agriconnect migrate /scripts/restore-db.sh /backups/<file>.dump
+docker compose start app
 ```
-In Coolify: push to the branch (auto-deploy webhook) or click **Redeploy**.
+The script verifies the archive, refuses without `CONFIRM_RESTORE=<database name>`, takes a safety backup of the current state, then restores in a single transaction.
 
-## Troubleshooting
+## 9. Recovery after a failed migration
+- The failed migration was rolled back by its transaction; the database is at the previous version and the old app version keeps running.
+- Read the error: `docker compose logs migrate` and `drizzle.migration_runs`.
+- Fix forward with a **new** migration (never edit an applied one), redeploy.
+- If data was damaged by an earlier, successful migration: restore the `pre-migration` backup (section 8) and redeploy the previous app version.
+
+## 10. Importing data from the previous hosted database (optional, one time)
+Needs: the old database connection string (`SOURCE_DATABASE_URL`) and, for files, the old storage URL and service key.
+```bash
+docker compose run --rm -e SOURCE_DATABASE_URL=... -e SOURCE_STORAGE_URL=https://<old-project>.supabase.co \
+  -e SOURCE_SERVICE_KEY=... -e MEDIA_DIR=/app/data/media -e MEDIA_SIGNING_SECRET=$MEDIA_SIGNING_SECRET \
+  -v agriconnect_media:/app/data/media <dev image with bun> bun scripts/supabase-import/import.ts --dry-run
+# then without --dry-run; the report import-report-*.json lists counts, failures and password resets
+```
+- Identifiers and timestamps are preserved; rows already imported are skipped (safe to retry).
+- Media files are downloaded, validated, stored on the volume, checksummed, and old storage URLs in posts/products are rewritten to new signed URLs (`unresolvedUrls` must be 0).
+- Old bcrypt password hashes are verified at the member's next login and upgraded to Argon2id. Accounts without a usable hash are flagged in `passwordResetRequired`; set a password with `NEW_PASSWORD=... bun scripts/set-password.ts email`.
+- The old data is never modified or deleted.
+
+## 11. Admin
+`DATABASE_URL=... bun scripts/grant-admin.ts admin@example.com` — admins can delete any publication.
+
+## 12. Troubleshooting
 | Symptom | Fix |
 |---|---|
-| `Missing required environment variable(s)` | Set runtime vars in Coolify / env file |
-| Build fails `VITE_SUPABASE_URL ... required` | Provide build args / Coolify build variables |
-| Blank page, "Missing Supabase environment variable" in browser | `VITE_*` were empty at build: rebuild |
-| AI answers fail (401/402) | Check `LOVABLE_API_KEY` / gateway credits |
-| 502 in Coolify | Container unhealthy: check logs, port must be 3000 |
-| Login redirects to old domain | Update Supabase Auth Site URL / Redirect URLs |
-| Built for Cloudflare (`.output` missing) | Ensure `DEPLOY_TARGET=node` during build |
-
-## Remaining external dependencies
-- Supabase (database, auth, storage, RPC functions).
-- Lovable AI Gateway for AI features. Alternative: point `src/lib/agri-chat.functions.ts` and `src/lib/plant.functions.ts` at another OpenAI-compatible endpoint (e.g. OpenAI, Google Gemini) with its own server-side key.
-- Google Fonts (if loaded from `__root.tsx`).
+| `app` never starts | `docker compose logs migrate` — a migration failed or the DB is unreachable. |
+| `Missing or invalid environment variable(s)` | Set the listed variables (secrets must be 32+ chars). |
+| `/api/ready` 503 | Database down or wrong `DATABASE_URL`. |
+| Uploads fail with 500 | Volume `media` not writable by uid 1000 (`node`). |
+| Login loops on http:// | Cookies are `Secure` in production; use HTTPS (or `docker-compose.local.yml` locally). |
+| Old PostgreSQL 16 volume | Do not mount it as-is: dump with the old version and restore into the new `pgdata` volume. |

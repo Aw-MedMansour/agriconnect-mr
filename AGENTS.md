@@ -16,3 +16,4 @@
 - Browser code never queries the database: it calls server functions in `src/lib/*.functions.ts`, which derive the user from the HttpOnly session cookie and enforce rules in `src/server/services/` — why: authorization formerly done by RLS now lives server-side and is covered by `tests/`.
 - Every new migration needs a `## <tag>` recovery section in `db/RECOVERY.md`; destructive SQL requires the `-- migrate:allow-destructive` marker after review — why: the runner and CI refuse otherwise.
 - Media files live on the MEDIA_DIR volume, served by `/api/media/$id` with HMAC-signed URLs; never store binaries in PostgreSQL.
+- Final migration verification is read-only and fail-closed: compare source IDs, timestamps, relationships and original-file hashes against the VPS, then audit stored URLs and requests; missing access or orphaned records must block retirement, not count as success.

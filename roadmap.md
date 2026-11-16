@@ -38,3 +38,10 @@
 - [x] CI, README, guides anglais et arabe
 - [ ] Construire et lancer les images Docker sur le serveur — bloqué : Docker indisponible dans cet environnement
 - [ ] Import réel des anciennes données — attend l'accès à l'ancienne base (chaîne de connexion et clé de stockage)
+
+## Vérification finale avant retrait de l'ancien projet
+- [x] Inventorier les données réelles, médias et liens de l'ancienne base en lecture seule
+- [ ] Comparer les identifiants, dates et relations avec le PostgreSQL 18 du VPS — bloqué : serveur cible non accessible ici
+- [ ] Comparer les 25 originaux aux fichiers physiques du volume VPS — bloqué : originaux et volume cible non accessibles ici
+- [ ] Vérifier les réponses et requêtes réelles du VPS sans anciens liens — bloqué : accès au déploiement cible absent
+- [ ] Autoriser le retrait seulement après réussite des trois contrôles ; conserver l'ancien projet et les liens non résolus jusque-là

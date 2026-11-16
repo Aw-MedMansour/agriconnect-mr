@@ -155,9 +155,9 @@ export async function createNotification(db: Db, actor: SessionUser | null, id: 
   await db.transaction(async (tx) => {
     // Serialise per actor so the 30/minute limit cannot be raced.
     await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${"notif:" + me.id}))`);
-    const [{ n }] = await tx.select({ n: sql<number>`count(*)::int` }).from(notifications)
+    const [counted] = await tx.select({ n: sql<number>`count(*)::int` }).from(notifications)
       .where(and(eq(notifications.actorId, me.id), sql`${notifications.createdAt} > now() - interval '1 minute'`));
-    if (n >= 30) throw new AppError("RATE_LIMITED", "Trop de notifications envoyées, réessayez dans un instant.");
+    if ((counted?.n ?? 0) >= 30) throw new AppError("RATE_LIMITED", "Trop de notifications envoyées, réessayez dans un instant.");
     const [recipient] = await tx.select({ id: accounts.id }).from(accounts).where(eq(accounts.id, String(doc["recipientId"])));
     if (!recipient) return; // recipient without an account (demo member): silently ignored
     await tx.insert(notifications).values({ id: key, recipientId: recipient.id, actorId: me.id, type: String(doc["type"]), read: false, data: { ...doc, read: false } })

@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireSession } from "@/lib/session-middleware";
 
 const Input = z.object({
   language: z.enum(["fr", "en", "ar"]).default("fr"),
@@ -31,7 +31,7 @@ Règles :
 - Si la question ne concerne ni l'agriculture ni AgriConnect, rappelle poliment ton domaine.`;
 
 export const askPlantAI = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireSession])
   .validator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
     const key = process.env["LOVABLE_API_KEY"];
@@ -45,15 +45,25 @@ export const askPlantAI = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         model: "google/gemini-3.8-flash",
-        messages: [{ role: "system", content: `${SYSTEM}\nLangue obligatoire de la réponse : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}.` }, ...data.messages],
+        messages: [
+          {
+            role: "system",
+            content: `${SYSTEM}\nLangue obligatoire de la réponse : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}.`,
+          },
+          ...data.messages,
+        ],
       }),
     });
 
     if (!res.ok) {
       const body = await res.text();
-      if (res.status === 429) throw new Error("Trop de demandes en même temps. Réessayez dans un instant.");
-      if (res.status === 402) throw new Error("Crédits IA épuisés. Rechargez les crédits pour continuer.");
-      throw new Error(`Plant AI est indisponible pour le moment. (${res.status}) ${body.slice(0, 160)}`);
+      if (res.status === 429)
+        throw new Error("Trop de demandes en même temps. Réessayez dans un instant.");
+      if (res.status === 402)
+        throw new Error("Crédits IA épuisés. Rechargez les crédits pour continuer.");
+      throw new Error(
+        `Plant AI est indisponible pour le moment. (${res.status}) ${body.slice(0, 160)}`,
+      );
     }
 
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };

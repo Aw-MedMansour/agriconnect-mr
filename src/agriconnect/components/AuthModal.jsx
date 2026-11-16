@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, User, MapPin, Camera, ArrowRight } from 'lucide-react';
 import { ACTOR_CATEGORIES } from '../data/mockData';
 import { saveUser, findUserById } from '../utils/dbSync';
-import { supabase } from '../utils/supabaseClient';
+import { auth } from '../utils/authClient';
 import agriLogo from '../assets/agriconnect-logo.png';
 import Avatar from './Avatar';
 import { useLanguage } from '../i18n';
@@ -32,7 +32,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
 
     try {
       if (mode === 'signup') {
-        const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+        const { data, error: signUpError } = await auth.signUp({ email, password });
         if (signUpError) {
           const raw = (signUpError.message || '').toLowerCase();
           setError(
@@ -51,7 +51,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         // Make sure a session exists before writing the profile (otherwise it is refused)
         let session = data.session;
         if (!session) {
-          const { data: signInData } = await supabase.auth.signInWithPassword({ email, password });
+          const { data: signInData } = await auth.signInWithPassword({ email, password });
           session = signInData?.session || null;
         }
         if (!session) {
@@ -80,7 +80,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
         onClose();
 
       } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error: signInError } = await auth.signInWithPassword({ email, password });
         if (signInError || !data.user) {
           setError(t('Email ou mot de passe incorrect.'));
           setLoading(false);
@@ -242,7 +242,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess, allUsers = 
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••" required minLength={6}
+                placeholder="••••••••" required minLength={8}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#0a66c2] focus:bg-white" />
             </div>
           </div>

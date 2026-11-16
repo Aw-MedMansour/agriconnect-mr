@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.7-alpine3.24
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/ci_migrations
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with: { bun-version: "1.2.x" }
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Dependency audit
+        run: bun audit --audit-level=high
+      - name: Migration files are reviewed (recovery notes, no unapproved destructive SQL, schema in sync)
+        run: bun run db:check
+      - name: Schema has no un-generated changes
+        run: |
+          bun run db:generate --name ci_drift_check
+          git diff --exit-code --stat db/migrations || (echo "Run bun run db:generate and commit the migration" && exit 1)
+      - name: Apply all migrations to a fresh PostgreSQL 18 database (twice, second run must be a no-op)
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -c "create database ci_migrations"
+          bun run db:migrate
+          bun run db:migrate | tee /tmp/second.log
+          grep -q "database is up to date" /tmp/second.log
+      - name: Type check
+        run: bun run typecheck
+      - name: Lint
+        run: bun run lint
+      - name: Database, auth, authorization and media tests
+        run: bun run test
+      - name: Production build (Node server)
+        env: { DEPLOY_TARGET: node }
+        run: bun run build && bun run build:tools && test -f .output/server/index.mjs
+      - name: Docker Compose validation
+        run: |
+          cp .env.example .env.ci && sed -i 's/^SESSION_SECRET=.*/SESSION_SECRET=ci-secret-ci-secret-ci-secret-ci-secret/; s/^MEDIA_SIGNING_SECRET=.*/MEDIA_SIGNING_SECRET=ci-secret-ci-secret-ci-secret-ci-secret/' .env.ci
+          docker compose --env-file .env.ci -f docker-compose.yml -f docker-compose.local.yml config -q

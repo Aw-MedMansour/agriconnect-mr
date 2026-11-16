@@ -1,46 +1,44 @@
 # syntax=docker/dockerfile:1.7
-# AgriConnect MR — production image (TanStack Start + Nitro node-server)
+# AgriConnect MR — app image (TanStack Start / Node 22) and migrator image (PostgreSQL 18.7 tools + Node).
 
 ############################
-# 1) Build stage (Bun)
+# 1) Build (Bun)
 ############################
 FROM oven/bun:1.2-alpine AS build
 WORKDIR /app
-
-# Public (browser-visible) values baked into the client bundle at build time.
-ARG VITE_SUPABASE_URL
-ARG VITE_SUPABASE_PUBLISHABLE_KEY
-ARG VITE_SUPABASE_PROJECT_ID
-ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
-    VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY \
-    VITE_SUPABASE_PROJECT_ID=$VITE_SUPABASE_PROJECT_ID \
-    DEPLOY_TARGET=node \
-    NODE_ENV=production
-
+ENV DEPLOY_TARGET=node NODE_ENV=production
 COPY package.json bun.lock bunfig.toml ./
 RUN bun install --frozen-lockfile
-
 COPY . .
-RUN test -n "$VITE_SUPABASE_URL" && test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" \
-    || (echo "ERROR: VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY build args are required" && exit 1)
 RUN bun run build && test -f .output/server/index.mjs
+RUN bun run build:tools && test -f dist-tools/migrate.mjs
 
 ############################
-# 2) Runtime stage (Node 22 LTS)
+# 2) Migrator / backup tools (one-shot job + backup sidecar)
+############################
+FROM postgres:18.7-alpine3.24 AS migrator
+RUN apk add --no-cache nodejs
+WORKDIR /app
+COPY --from=build /app/dist-tools ./dist-tools
+COPY db/migrations ./db/migrations
+COPY scripts/backup-db.sh scripts/verify-backup.sh scripts/restore-db.sh scripts/backup-cron.sh scripts/predeploy.sh /scripts/
+RUN chmod +x /scripts/*.sh
+ENV MIGRATIONS_DIR=/app/db/migrations
+CMD ["/scripts/predeploy.sh"]
+
+############################
+# 3) App runtime (default target)
 ############################
 FROM node:22-alpine AS runtime
-ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 MEDIA_DIR=/app/data/media
 WORKDIR /app
-
-# .output is self-contained (Nitro bundles server deps): no node_modules needed.
 COPY --from=build --chown=node:node /app/.output ./.output
 COPY --chown=node:node docker/start.mjs ./docker/start.mjs
-
+RUN mkdir -p /app/data/media && chown -R node:node /app/data
 USER node
 EXPOSE 3000
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
-
+VOLUME ["/app/data/media"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/api/ready || exit 1
 STOPSIGNAL SIGTERM
 CMD ["node", "docker/start.mjs"]

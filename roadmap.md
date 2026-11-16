@@ -24,3 +24,17 @@
 ## Icône mobile et signature
 - [x] Prévoir les icônes d'écran d'accueil et un manifeste mobile
 - [x] Rétablir la signature Agrosky et 3A55 avec son lien dans le site et les pages légales
+
+## Migration vers PostgreSQL 18 auto-hébergé
+- [x] Audit des dépendances à l'ancienne base et retrait du client
+- [x] Schéma Drizzle complet et première migration
+- [x] Authentification native (Argon2id, sessions en base, limites d'essais)
+- [x] Règles d'accès recréées côté serveur et testées
+- [x] Stockage des médias sur volume avec URL signées
+- [x] Lanceur de migrations (verrou, journal, garde-fous) et tests
+- [x] Sauvegarde, vérification, restauration testées
+- [x] Docker Compose / Coolify avec PostgreSQL 18.7
+- [x] Outil d'import de l'ancienne base testé sur données fictives
+- [x] CI, README, guides anglais et arabe
+- [ ] Construire et lancer les images Docker sur le serveur — bloqué : Docker indisponible dans cet environnement
+- [ ] Import réel des anciennes données — attend l'accès à l'ancienne base (chaîne de connexion et clé de stockage)

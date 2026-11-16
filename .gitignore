@@ -36,3 +36,8 @@ dist-ssr
 .env.*.local
 .env.production
 # NOTE: .env is managed by the hosting editor and holds only public keys.
+
+dist-tools
+backups/
+data/
+import-report-*.json

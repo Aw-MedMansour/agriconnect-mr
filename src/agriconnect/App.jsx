@@ -14,7 +14,7 @@ import UserProfileModal from './components/UserProfileModal';
 import AIHub from './components/AIHub';
 import SplashScreen from './components/SplashScreen';
 import { useLanguage } from './i18n';
-import { supabase } from './utils/supabaseClient';
+import { auth } from './utils/authClient';
 
 import { Bot, CheckCircle2, Info, Search, ShieldCheck, Store, Truck, Users, X } from 'lucide-react';
 
@@ -260,7 +260,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await auth.signOut();
     setCurrentUser(null);
     setAuthenticatedProfile(null);
     showToast('Vous vous êtes déconnecté.');

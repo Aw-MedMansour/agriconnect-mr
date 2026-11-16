@@ -128,7 +128,16 @@ function PolicyPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Produit d’Agrosky · Développé en collaboration avec <a href="https://3a55.fulania.com" target="_blank" rel="noopener noreferrer" className="underline">3A55 Digital</a>.
+          Produit d’Agrosky · Développé en collaboration avec{" "}
+          <a
+            href="https://3a55.fulania.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            3A55 Digital
+          </a>
+          .
         </p>
       </main>
     </div>

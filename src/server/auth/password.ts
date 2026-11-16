@@ -8,17 +8,33 @@ export const PASSWORD_MAX = 256;
 export async function hashPassword(password: string): Promise<string> {
   const salt = new Uint8Array(16);
   crypto.getRandomValues(salt);
-  return argon2id({ password, salt, parallelism: 1, iterations: 2, memorySize: 19456, hashLength: 32, outputType: "encoded" });
+  return argon2id({
+    password,
+    salt,
+    parallelism: 1,
+    iterations: 2,
+    memorySize: 19456,
+    hashLength: 32,
+    outputType: "encoded",
+  });
 }
 
 export async function verifyPassword(password: string, encoded: string): Promise<boolean> {
-  try { return await argon2Verify({ password, hash: encoded }); } catch { return false; }
+  try {
+    return await argon2Verify({ password, hash: encoded });
+  } catch {
+    return false;
+  }
 }
 
 /** Imported bcrypt hashes (previous auth system) are verified once, then upgraded to argon2id. */
 export async function verifyLegacyBcrypt(password: string, hash: string): Promise<boolean> {
   if (!/^\$2[aby]\$\d{2}\$/.test(hash)) return false;
-  try { return await bcrypt.compare(password, hash); } catch { return false; }
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch {
+    return false;
+  }
 }
 
 let dummy: Promise<string> | undefined;

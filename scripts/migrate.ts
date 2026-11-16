@@ -3,7 +3,10 @@ import { resolve } from "node:path";
 import { runMigrations, waitForDatabase } from "./migrate-lib";
 
 const url = process.env["DATABASE_URL"];
-if (!url) { console.error("[migrate] DATABASE_URL is required"); process.exit(1); }
+if (!url) {
+  console.error("[migrate] DATABASE_URL is required");
+  process.exit(1);
+}
 const dir = resolve(process.env["MIGRATIONS_DIR"] || "db/migrations");
 const dryRun = process.argv.includes("--dry-run");
 

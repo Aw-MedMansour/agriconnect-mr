@@ -11,9 +11,9 @@ let db: Db | undefined;
 
 export function createDb(url: string) {
   const client = postgres(url, {
-    connect_timeout: 10,        // seconds to establish a connection
-    idle_timeout: 30,           // close idle connections after 30 s
-    max_lifetime: 60 * 30,      // recycle connections every 30 min
+    connect_timeout: 10, // seconds to establish a connection
+    idle_timeout: 30, // close idle connections after 30 s
+    max_lifetime: 60 * 30, // recycle connections every 30 min
     prepare: true,
     onnotice: () => {},
   });
@@ -25,7 +25,9 @@ export function getDb(): Db {
     const created = createDb(serverEnv().databaseUrl);
     sqlClient = created.client;
     db = created.db;
-    const close = () => { void sqlClient?.end({ timeout: 5 }); };
+    const close = () => {
+      void sqlClient?.end({ timeout: 5 });
+    };
     process.once?.("SIGTERM", close);
     process.once?.("SIGINT", close);
   }
@@ -34,5 +36,10 @@ export function getDb(): Db {
 
 export async function pingDb(): Promise<boolean> {
   getDb();
-  try { await sqlClient!`select 1`; return true; } catch { return false; }
+  try {
+    await sqlClient!`select 1`;
+    return true;
+  } catch {
+    return false;
+  }
 }

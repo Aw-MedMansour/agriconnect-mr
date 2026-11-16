@@ -7,7 +7,11 @@ import { z } from "zod";
 type Json = string | number | boolean | null | Json[] | { [k: string]: Json };
 
 const Table = z.enum(["users", "posts", "products", "services", "conversations", "notifications"]);
-const Write = z.object({ table: Table, id: z.string().min(1).max(200), data: z.record(z.string(), z.unknown()) });
+const Write = z.object({
+  table: Table,
+  id: z.string().min(1).max(200),
+  data: z.record(z.string(), z.unknown()),
+});
 const Ref = z.object({ table: Table, id: z.string().min(1).max(200) });
 
 async function ctx() {
@@ -20,8 +24,11 @@ async function ctx() {
 export const fetchAllFn = createServerFn({ method: "GET" }).handler(async () => {
   const { db, actor, svc } = await ctx();
   const [users, products, services, posts, conversations] = await Promise.all([
-    svc.listPublicProfiles(db, actor), svc.listContent(db, "products"), svc.listContent(db, "services"),
-    svc.listContent(db, "posts"), svc.listConversations(db, actor),
+    svc.listPublicProfiles(db, actor),
+    svc.listContent(db, "products"),
+    svc.listContent(db, "services"),
+    svc.listContent(db, "posts"),
+    svc.listConversations(db, actor),
   ]);
   return { users, products, services, posts, conversations } as unknown as Record<string, Json[]>;
 });
@@ -52,8 +59,10 @@ export const upsertFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { db, actor, svc } = await ctx();
     if (data.table === "users") await svc.saveOwnProfile(db, actor, data.id, data.data);
-    else if (data.table === "conversations") await svc.upsertConversation(db, actor, data.id, data.data);
-    else if (data.table === "notifications") await svc.updateNotification(db, actor, data.id, data.data);
+    else if (data.table === "conversations")
+      await svc.upsertConversation(db, actor, data.id, data.data);
+    else if (data.table === "notifications")
+      await svc.updateNotification(db, actor, data.id, data.data);
     else await svc.upsertContent(db, actor, data.table, data.id, data.data);
     return { ok: true };
   });
@@ -64,7 +73,8 @@ export const insertFn = createServerFn({ method: "POST" })
     const { db, actor, svc } = await ctx();
     if (data.table === "notifications") await svc.createNotification(db, actor, data.id, data.data);
     else if (data.table === "users") await svc.saveOwnProfile(db, actor, data.id, data.data);
-    else if (data.table === "conversations") await svc.upsertConversation(db, actor, data.id, data.data);
+    else if (data.table === "conversations")
+      await svc.upsertConversation(db, actor, data.id, data.data);
     else await svc.upsertContent(db, actor, data.table, data.id, data.data);
     return { ok: true };
   });
@@ -81,7 +91,11 @@ export const deleteFn = createServerFn({ method: "POST" })
   });
 
 export const registerViewFn = createServerFn({ method: "POST" })
-  .validator((d: unknown) => z.object({ table: z.enum(["posts", "products", "services"]), id: z.string().min(1).max(200) }).parse(d))
+  .validator((d: unknown) =>
+    z
+      .object({ table: z.enum(["posts", "products", "services"]), id: z.string().min(1).max(200) })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     const { db, svc } = await ctx();
     await svc.registerView(db, data.table, data.id);

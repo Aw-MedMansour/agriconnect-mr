@@ -10,7 +10,12 @@ export const signUpFn = createServerFn({ method: "POST" })
     const { serverEnv } = await import("@/server/env.server");
     const { signUp } = await import("@/server/services/auth.service");
     const http = await import("@/server/http.server");
-    const { token, user } = await signUp(getDb(), serverEnv().sessionSecret, data, http.clientMeta());
+    const { token, user } = await signUp(
+      getDb(),
+      serverEnv().sessionSecret,
+      data,
+      http.clientMeta(),
+    );
     http.writeSessionCookie(token);
     return { user: { id: user.id, email: user.email } };
   });
@@ -23,7 +28,12 @@ export const signInFn = createServerFn({ method: "POST" })
     const { signIn, revokeSession } = await import("@/server/services/auth.service");
     const http = await import("@/server/http.server");
     await revokeSession(getDb(), serverEnv().sessionSecret, http.readSessionToken()); // rotate
-    const { token, user } = await signIn(getDb(), serverEnv().sessionSecret, data, http.clientMeta());
+    const { token, user } = await signIn(
+      getDb(),
+      serverEnv().sessionSecret,
+      data,
+      http.clientMeta(),
+    );
     http.writeSessionCookie(token);
     return { user: { id: user.id, email: user.email } };
   });

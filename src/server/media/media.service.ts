@@ -9,8 +9,20 @@ import { hmacHex, sha256Hex, timingSafeEqualHex } from "../auth/tokens";
 export const MAX_MEDIA_BYTES = 25 * 1024 * 1024;
 export const SIGNED_URL_TTL_S = 365 * 24 * 3600;
 
-const TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "video/mp4": "mp4", "video/webm": "webm" };
-const EXT_ALIASES: Record<string, string[]> = { jpg: ["jpg", "jpeg"], png: ["png"], webp: ["webp"], mp4: ["mp4", "m4v", "mov"], webm: ["webm"] };
+const TYPES: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+};
+const EXT_ALIASES: Record<string, string[]> = {
+  jpg: ["jpg", "jpeg"],
+  png: ["png"],
+  webp: ["webp"],
+  mp4: ["mp4", "m4v", "mov"],
+  webm: ["webm"],
+};
 
 /** Identify the real type from the file signature (magic bytes), never from the name. */
 export function detectMime(b: Uint8Array): string | null {
@@ -27,13 +39,16 @@ export function detectMime(b: Uint8Array): string | null {
 
 export function validateUpload(bytes: Uint8Array, claimedType: string, originalName: string) {
   if (!bytes.length) throw new AppError("INVALID", "Fichier vide.");
-  if (bytes.length > MAX_MEDIA_BYTES) throw new AppError("INVALID", "Fichier trop volumineux (25 Mo maximum).");
+  if (bytes.length > MAX_MEDIA_BYTES)
+    throw new AppError("INVALID", "Fichier trop volumineux (25 Mo maximum).");
   if (!TYPES[claimedType]) throw new AppError("INVALID", "Type de fichier non autorisé.");
   const real = detectMime(bytes);
-  if (!real || real !== claimedType) throw new AppError("INVALID", "Le contenu du fichier ne correspond pas à son type.");
+  if (!real || real !== claimedType)
+    throw new AppError("INVALID", "Le contenu du fichier ne correspond pas à son type.");
   const ext = TYPES[real]!;
   const nameExt = (originalName.split(".").pop() || "").toLowerCase();
-  if (nameExt && originalName.includes(".") && !EXT_ALIASES[ext]!.includes(nameExt)) throw new AppError("INVALID", "Extension de fichier non autorisée.");
+  if (nameExt && originalName.includes(".") && !EXT_ALIASES[ext]!.includes(nameExt))
+    throw new AppError("INVALID", "Extension de fichier non autorisée.");
   return { mime: real, ext };
 }
 
@@ -43,7 +58,12 @@ export async function signMediaUrl(secret: string, id: string, ttlSeconds = SIGN
   return `/api/media/${id}?exp=${exp}&sig=${sig}`;
 }
 
-export async function verifyMediaSignature(secret: string, id: string, exp: string | null, sig: string | null) {
+export async function verifyMediaSignature(
+  secret: string,
+  id: string,
+  exp: string | null,
+  sig: string | null,
+) {
   if (!exp || !sig || !/^\d+$/.test(exp) || Number(exp) < Date.now() / 1000) return false;
   return timingSafeEqualHex(await hmacHex(secret, `media:${id}:${exp}`), sig);
 }
@@ -63,8 +83,13 @@ export async function resolveInside(mediaDir: string, storageKey: string) {
   return full;
 }
 
-export async function storeMedia(db: Db, opts: { mediaDir: string; signingSecret: string }, actor: SessionUser | null,
-  file: { bytes: Uint8Array; type: string; name: string }, legacyPath?: string) {
+export async function storeMedia(
+  db: Db,
+  opts: { mediaDir: string; signingSecret: string },
+  actor: SessionUser | null,
+  file: { bytes: Uint8Array; type: string; name: string },
+  legacyPath?: string,
+) {
   if (!actor && !legacyPath) throw new AppError("UNAUTHENTICATED", "Authentification requise.");
   const { mime, ext } = validateUpload(file.bytes, file.type, file.name);
   const { fs, path } = await fsMods();
@@ -77,14 +102,30 @@ export async function storeMedia(db: Db, opts: { mediaDir: string; signingSecret
   await fs.writeFile(tmp, file.bytes, { flag: "wx", mode: 0o640 });
   await fs.rename(tmp, full);
   try {
-    await db.insert(mediaFiles).values({ id, ownerId: actor?.id ?? null, storageKey, mimeType: mime, sizeBytes: file.bytes.length, sha256: await sha256Hex(file.bytes), legacyPath: legacyPath ?? null });
-  } catch (e) { await fs.unlink(full).catch(() => {}); throw e; }
+    await db
+      .insert(mediaFiles)
+      .values({
+        id,
+        ownerId: actor?.id ?? null,
+        storageKey,
+        mimeType: mime,
+        sizeBytes: file.bytes.length,
+        sha256: await sha256Hex(file.bytes),
+        legacyPath: legacyPath ?? null,
+      });
+  } catch (e) {
+    await fs.unlink(full).catch(() => {});
+    throw e;
+  }
   return { id, url: await signMediaUrl(opts.signingSecret, id) };
 }
 
 export async function getMediaRecord(db: Db, id: string) {
   if (!UUID_RE.test(id)) return null;
-  const [row] = await db.select().from(mediaFiles).where(and(eq(mediaFiles.id, id), isNull(mediaFiles.deletedAt)));
+  const [row] = await db
+    .select()
+    .from(mediaFiles)
+    .where(and(eq(mediaFiles.id, id), isNull(mediaFiles.deletedAt)));
   return row ?? null;
 }
 
@@ -92,7 +133,8 @@ export async function deleteMedia(db: Db, mediaDir: string, actor: SessionUser |
   if (!actor) throw new AppError("UNAUTHENTICATED", "Authentification requise.");
   const row = await getMediaRecord(db, id);
   if (!row) throw new AppError("NOT_FOUND", "Fichier introuvable.");
-  if (row.ownerId !== actor.id && !actor.isAdmin) throw new AppError("FORBIDDEN", "Suppression réservée au propriétaire.");
+  if (row.ownerId !== actor.id && !actor.isAdmin)
+    throw new AppError("FORBIDDEN", "Suppression réservée au propriétaire.");
   await db.update(mediaFiles).set({ deletedAt: new Date() }).where(eq(mediaFiles.id, id));
   const { fs } = await fsMods();
   await fs.unlink(await resolveInside(mediaDir, row.storageKey)).catch(() => {});

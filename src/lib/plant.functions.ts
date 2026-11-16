@@ -41,7 +41,10 @@ export const analyzePlant = createServerFn({ method: "POST" })
       body: JSON.stringify({
         model: "google/gemini-3.8-flash",
         messages: [
-          { role: "system", content: `${SYSTEM}\nProduis toutes les valeurs textuelles dans cette langue : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}. Conserve exactement les clés JSON demandées.` },
+          {
+            role: "system",
+            content: `${SYSTEM}\nProduis toutes les valeurs textuelles dans cette langue : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}. Conserve exactement les clés JSON demandées.`,
+          },
           {
             role: "user",
             content: [
@@ -61,20 +64,26 @@ export const analyzePlant = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const body = await res.text();
-      if (res.status === 429) throw new Error("Trop de demandes en même temps. Réessayez dans un instant.");
-      if (res.status === 402) throw new Error("Crédits d'analyse épuisés. Rechargez les crédits pour continuer.");
+      if (res.status === 429)
+        throw new Error("Trop de demandes en même temps. Réessayez dans un instant.");
+      if (res.status === 402)
+        throw new Error("Crédits d'analyse épuisés. Rechargez les crédits pour continuer.");
       throw new Error(`Analyse impossible pour le moment. (${res.status}) ${body.slice(0, 200)}`);
     }
 
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
     const text = json.choices?.[0]?.message?.content ?? "";
     try {
-      const cleaned = text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+      const cleaned = text
+        .replace(/^```(?:json)?/i, "")
+        .replace(/```$/, "")
+        .trim();
       return JSON.parse(cleaned);
     } catch {
       return {
         reliable: false,
-        reason: "L'analyse n'a pas pu être interprétée. Réessayez avec une photo plus nette de la plante.",
+        reason:
+          "L'analyse n'a pas pu être interprétée. Réessayez avec une photo plus nette de la plante.",
       };
     }
   });

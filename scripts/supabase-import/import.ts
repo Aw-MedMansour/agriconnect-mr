@@ -213,7 +213,10 @@ async function main() {
   for (const table of ["products", "services", "posts"] as const) {
     await importDocs(table, async (r, ids) => {
       const owner = String(r.data[OWNER_KEY[table]] ?? "");
-      if (!ids.has(owner)) throw new Error("owner has no account; preserve source and resolve relationship before import");
+      if (!ids.has(owner))
+        throw new Error(
+          "owner has no account; preserve source and resolve relationship before import",
+        );
       if (!W) return true;
       const res = await db
         .insert(s[table])
@@ -232,9 +235,12 @@ async function main() {
 
   await importDocs("conversations", async (r, ids) => {
     const participantIds = Array.isArray(r.data["participantIds"])
-      ? r.data["participantIds"].map(String) : [];
+      ? r.data["participantIds"].map(String)
+      : [];
     if (participantIds.some((id) => !ids.has(id)))
-      throw new Error("participant has no account; preserve source and resolve relationship before import");
+      throw new Error(
+        "participant has no account; preserve source and resolve relationship before import",
+      );
     if (!W) return true;
     return db.transaction(async (tx) => {
       const res = await tx
@@ -261,7 +267,9 @@ async function main() {
     if (!ids.has(recipient)) throw new Error("recipient has no account");
     const actor = String(r.data["actorId"] ?? "");
     if (!UUID_RE.test(actor) || !ids.has(actor))
-      throw new Error("actor has no account; preserve source and resolve relationship before import");
+      throw new Error(
+        "actor has no account; preserve source and resolve relationship before import",
+      );
     if (!W) return true;
     const res = await db
       .insert(s.notifications)

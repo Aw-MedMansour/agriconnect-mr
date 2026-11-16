@@ -129,12 +129,10 @@ describe("native authentication", () => {
   });
 
   it("accepts an imported bcrypt hash once, then upgrades it to argon2id", async () => {
-    await t.db
-      .insert(accounts)
-      .values({
-        email: "legacy@example.com",
-        legacyBcryptHash: bcrypt.hashSync("old-password-1", 10),
-      });
+    await t.db.insert(accounts).values({
+      email: "legacy@example.com",
+      legacyBcryptHash: bcrypt.hashSync("old-password-1", 10),
+    });
     await signIn(
       t.db,
       SECRET,

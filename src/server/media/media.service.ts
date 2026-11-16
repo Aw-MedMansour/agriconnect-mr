@@ -102,17 +102,15 @@ export async function storeMedia(
   await fs.writeFile(tmp, file.bytes, { flag: "wx", mode: 0o640 });
   await fs.rename(tmp, full);
   try {
-    await db
-      .insert(mediaFiles)
-      .values({
-        id,
-        ownerId: actor?.id ?? null,
-        storageKey,
-        mimeType: mime,
-        sizeBytes: file.bytes.length,
-        sha256: await sha256Hex(file.bytes),
-        legacyPath: legacyPath ?? null,
-      });
+    await db.insert(mediaFiles).values({
+      id,
+      ownerId: actor?.id ?? null,
+      storageKey,
+      mimeType: mime,
+      sizeBytes: file.bytes.length,
+      sha256: await sha256Hex(file.bytes),
+      legacyPath: legacyPath ?? null,
+    });
   } catch (e) {
     await fs.unlink(full).catch(() => {});
     throw e;

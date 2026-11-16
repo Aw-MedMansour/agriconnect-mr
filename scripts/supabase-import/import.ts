@@ -189,9 +189,8 @@ async function importDocs(
   for (const r of rows) {
     bump(table, "source");
     try {
-      (await run({ ...r, data: rewrite(r.data) }, ids))
-        ? bump(table, "imported")
-        : bump(table, "skipped");
+      const imported = await run({ ...r, data: rewrite(r.data) }, ids);
+      bump(table, imported ? "imported" : "skipped");
     } catch (e) {
       fail(table, r.id, (e as Error).message);
     }

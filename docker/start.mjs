@@ -10,7 +10,10 @@ if (missing.length) {
   console.error(`[startup] Missing or invalid environment variable(s): ${missing.join(", ")}`);
   process.exit(1);
 }
-if (!process.env.LOVABLE_API_KEY) console.warn("[startup] LOVABLE_API_KEY not set: Plant AI and photo analysis will be unavailable.");
+if (!process.env.LOVABLE_API_KEY)
+  console.warn(
+    "[startup] LOVABLE_API_KEY not set: Plant AI and photo analysis will be unavailable.",
+  );
 
 process.env.MEDIA_DIR ||= "/app/data/media";
 try {

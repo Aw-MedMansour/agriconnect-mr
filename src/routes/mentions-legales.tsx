@@ -19,9 +19,7 @@ export const Route = createFileRoute("/mentions-legales")({
       { property: "og:url", content: "https://agriconnect-mr.com/mentions-legales" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "canonical", href: "https://agriconnect-mr.com/mentions-legales" },
-    ],
+    links: [{ rel: "canonical", href: "https://agriconnect-mr.com/mentions-legales" }],
   }),
   component: LegalPage,
 });
@@ -92,9 +90,7 @@ function LegalPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-10">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-          Mentions légales
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Mentions légales</h1>
         <p className="mt-2 text-xs text-slate-500 font-medium">
           Dernière mise à jour : septembre 2026
         </p>
@@ -133,7 +129,16 @@ function LegalPage() {
         </div>
 
         <p className="mt-8 text-[11px] text-slate-400">
-          Produit d’Agrosky · Développé en collaboration avec <a href="https://3a55.fulania.com" target="_blank" rel="noopener noreferrer" className="underline">3A55 Digital</a>.
+          Produit d’Agrosky · Développé en collaboration avec{" "}
+          <a
+            href="https://3a55.fulania.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            3A55 Digital
+          </a>
+          .
         </p>
       </main>
     </div>

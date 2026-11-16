@@ -9,7 +9,9 @@ import LanguageGate from "../agriconnect/components/LanguageGate";
 function LocalizedApp() {
   return (
     <LanguageProvider>
-      <LanguageGate><App /></LanguageGate>
+      <LanguageGate>
+        <App />
+      </LanguageGate>
     </LanguageProvider>
   );
 }
@@ -56,7 +58,11 @@ export const Route = createFileRoute("/")({
           url: "https://agriconnect-mr.com/",
           logo: "https://agriconnect-mr.com/favicon.png",
           parentOrganization: { "@type": "Organization", name: "Agrosky" },
-          contributor: { "@type": "Organization", name: "3A55 Digital", url: "https://3a55.fulania.com" },
+          contributor: {
+            "@type": "Organization",
+            name: "3A55 Digital",
+            url: "https://3a55.fulania.com",
+          },
           description:
             "Plateforme professionnelle mettant en relation agriculteurs, acheteurs, transporteurs et prestataires de services agricoles.",
         }),

@@ -45,76 +45,83 @@ Les fonctions interactives qui modifient des données et les deux fonctions IA s
 
 ## Architecture technique
 
-Cette version repose sur **React 19**, **TanStack Start v1 / TanStack Router**, **Vite**, **Tailwind CSS v4**, **Bun** et **Lovable Cloud** pour l'authentification, les données et les médias. Les appels d'IA partent de fonctions serveur et non directement du navigateur.
+**React 19**, **TanStack Start v1** (rendu serveur + fonctions serveur), **Vite**, **Tailwind CSS v4**, **Bun**, et une base **PostgreSQL 18.7** auto-hébergée via **Drizzle ORM** et le pilote **Postgres.js**. Aucune dépendance d'exécution à un service de données externe : comptes, sessions, données et médias sont gérés par le serveur de l'application.
+
+```text
+Navigateur (React) ──fonctions serveur / API──▶ Serveur Node 22 (TanStack Start)
+                                                 ├─ Sessions (cookie HttpOnly) + Argon2id
+                                                 ├─ Règles d'accès (src/server/services)
+                                                 ├─ PostgreSQL 18.7 (Drizzle, volume pgdata)
+                                                 └─ Médias (volume /app/data/media, URL signées)
+```
 
 ```text
 src/
-  routes/                 Accueil, pages légales et métadonnées par page
-  agriconnect/
-    App.jsx               État et orchestration de l'interface principale
-    components/            Annonces, réseau, messagerie, IA, profil, navigation…
-    i18n.jsx              Traductions et préférence linguistique
-    utils/dbSync.js        Lectures, écritures et médias
-    data/mockData.js       Contenu de démonstration et catégories
-  lib/                    Fonctions serveur pour Plant AI et analyse photo
-  integrations/supabase/  Clients et authentification générés
-  styles.css              Styles globaux
-drizzle/migrations/       Migrations complémentaires, notamment notifications
-supabase/migrations/      Historique des migrations initiales de la base
-public/                   Favicon, robots.txt, sitemap.xml et llms.txt
+  routes/                  Pages, /api/health, /api/ready, /api/media/*
+  agriconnect/             Interface (App.jsx, composants, i18n, utils/authClient.js, utils/dbSync.js)
+  lib/                     Fonctions serveur : auth, données, Plant AI, analyse photo
+  server/
+    db/schema.ts           Schéma unique de la base (source de vérité)
+    db/client.server.ts    Pool Postgres.js + Drizzle
+    auth/                  Argon2id, jetons de session
+    services/              Authentification, règles d'accès (ex-politiques de la base)
+    media/                 Validation, stockage et URL signées des médias
+db/migrations/             Migrations SQL versionnées (Drizzle Kit) + db/RECOVERY.md
+scripts/                   Migrations, sauvegarde/restauration, import de l'ancienne base, outils admin
+tests/                     Tests d'intégration (PostgreSQL 18 réel)
 ```
 
-Les pages de contenu disponibles sont `/`, `/conditions`, `/mentions-legales` et `/politique-d-utilisation`. Les cinq espaces métier sont sélectionnés dans l'application à l'adresse `/` ; ce ne sont pas cinq URL indépendantes. `src/routeTree.gen.ts` est généré automatiquement et ne doit pas être modifié manuellement.
+`drizzle/` et `supabase/` contiennent l'**historique de l'ancienne base hébergée** ; ils ne sont pas utilisés par l'application auto-hébergée et ne doivent pas être rejoués sur la nouvelle base.
 
 ## Démarrer en local
 
-**Prérequis :** Bun, une version récente de Node.js compatible avec Vite, et la configuration d'un environnement cloud du projet à laquelle vous êtes autorisé à accéder. Un clone sans configuration cloud peut afficher l'interface, mais l'authentification, les données ou l'IA ne seront pas entièrement opérationnelles.
+Prérequis : Bun 1.2+, Node 22, PostgreSQL 18 (ou Docker).
 
 ```bash
 bun install
+docker run -d --name agri-pg -e POSTGRES_PASSWORD=dev -p 127.0.0.1:5432:5432 postgres:18.7-alpine3.24
+export DATABASE_URL=postgres://postgres:dev@127.0.0.1:5432/postgres
+export SESSION_SECRET=$(openssl rand -base64 48) MEDIA_SIGNING_SECRET=$(openssl rand -base64 48) MEDIA_DIR=./data/media
+bun run db:migrate
 bun run dev
 ```
 
-Ouvrir l'adresse affichée par Vite dans le terminal. Autres scripts présents dans `package.json` :
-
 | Commande | Usage |
 | --- | --- |
-| `bun run build` | Préparer la version de production. |
-| `bun run preview` | Prévisualiser la compilation localement. |
-| `bun run lint` | Exécuter ESLint. |
-| `bun run format` | Reformater les fichiers avec Prettier. |
-
-Le gestionnaire de dépendances de cette version est **Bun** (`bun.lock`) ; ne pas utiliser les instructions `npm` et le `package-lock.json` de l'ancien dépôt pour ce code.
+| `bun run db:generate --name <nom>` | Générer une migration après modification de `src/server/db/schema.ts`. |
+| `bun run db:migrate` / `db:migrate:dry` | Appliquer / lister les migrations en attente. |
+| `bun run db:check` | Contrôler les migrations (notes de reprise, SQL destructif, cohérence). |
+| `bun run test` | Tests d'intégration (`TEST_DATABASE_URL` vers un PostgreSQL 18 jetable). |
+| `bun run typecheck` / `lint` | Vérification des types / ESLint. |
+| `DEPLOY_TARGET=node bun run build` | Compilation serveur Node (utilisée par Docker). |
 
 ## Configuration
 
-| Variable | Portée | Utilisation |
+| Variable | Obligatoire | Rôle |
 | --- | --- | --- |
-| `VITE_SUPABASE_URL` | Client | Adresse du service de données du projet. |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Client | Clé publiable, soumise aux règles d'accès aux données. |
-| `VITE_SUPABASE_PROJECT_ID` | Client | Identifiant public du projet, si fourni par l'environnement. |
-| `LOVABLE_API_KEY` | Serveur uniquement | Accès aux fonctions d'IA ; ne jamais l'exposer dans le navigateur. |
-| `LOVABLE_DB_MIGRATION_URL` | Outils de migration uniquement | Connexion dédiée aux migrations, si le processus de maintenance l'exige. |
+| `DATABASE_URL` | oui | Connexion PostgreSQL (réseau Docker interne). |
+| `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | oui (Docker) | Initialisation du conteneur PostgreSQL. |
+| `SESSION_SECRET` | oui, 32+ caractères | Clé de hachage des jetons de session. |
+| `MEDIA_SIGNING_SECRET` | oui, 32+ caractères | Signature des URL de médias. |
+| `MEDIA_DIR` | non (`/app/data/media`) | Dossier du volume média. |
+| `LOVABLE_API_KEY` | pour l'IA | Plant AI et analyse photo. |
+| `BACKUP_INTERVAL_HOURS`, `BACKUP_RETENTION_DAYS` | non (24, 14) | Planification et rétention des sauvegardes. |
 
-Les variables de configuration sont fournies par l'environnement de développement ou d'hébergement autorisé. **Ne jamais committer un fichier `.env`, des mots de passe, des sessions, des clés privées ou un export de données.** Les variables `VITE_*` sont accessibles au navigateur : elles ne doivent contenir aucun secret. La clé publiable n'est pas une clé d'administration. Vérifier la configuration de l'hébergement avant de déployer hors de l'environnement actuel.
+Tous ces secrets sont **serveur uniquement** (aucun préfixe `VITE_`). L'application refuse de démarrer si une variable obligatoire manque. Ne jamais committer `.env.production`.
 
 ## Données et migrations
 
-- `src/agriconnect/utils/dbSync.js` lit les profils publics, produits, services, publications et conversations ; les notifications sont lues séparément pour le destinataire connecté.
-- Les écritures des contenus et de la messagerie s'appuient sur les autorisations de la base. Les compteurs de vues et certaines mises à jour d'interactions utilisent des fonctions de base dédiées.
-- Les photos et vidéos sont stockées dans l'espace média du projet. L'interface accepte JPEG, PNG, WebP, MP4 et WebM, dans la limite de **25 Mo par fichier** selon la validation actuelle.
-- Les migrations sont réparties entre `supabase/migrations/` et `drizzle/migrations/`. Ne pas rejouer automatiquement les deux historiques sur une base contenant déjà des données : vérifier l'état des migrations et sauvegarder avant toute opération.
-- Le contenu de démonstration est défini dans `src/agriconnect/data/mockData.js`. Pour les produits, services et publications, il peut servir de **repli d'affichage** si aucune ligne n'est renvoyée ; son affichage ne prouve pas qu'une annonce existe réellement dans la base.
-
-**Important :** exporter séparément la base de données et les médias lors d'un transfert d'hébergement. Le dépôt de code ne contient ni les comptes ni les messages des utilisateurs.
+- Le navigateur n'accède jamais à la base : toutes les lectures/écritures passent par `src/lib/data.functions.ts`, qui identifie le membre **uniquement** par sa session serveur.
+- Flux obligatoire d'une évolution : *modifier le schéma → `db:generate` → relire le SQL → ajouter la section dans `db/RECOVERY.md` → tester (`bun run test`) → committer schéma + migration ensemble → déployer → migration appliquée par le service `migrate` → vérification de santé*.
+- Ne jamais modifier une migration déjà appliquée (le lanceur le détecte et s'arrête). Jamais de `drizzle-kit push` en production.
+- Le SQL destructif (DROP, TRUNCATE, changement de type, renommage, DELETE sans WHERE) est refusé sauf marqueur `-- migrate:allow-destructive` ajouté après revue et sauvegarde vérifiée ; suivre la stratégie *expand-and-contract*.
+- Médias : JPEG, PNG, WebP, MP4, WebM, **25 Mo maximum**, type vérifié sur le contenu réel du fichier, nom aléatoire, stockés sur le volume `media`.
 
 ## Sécurité et confidentialité
 
-- L'authentification est gérée par le service cloud ; les mots de passe ne sont pas enregistrés dans les profils applicatifs.
-- Les règles d'accès aux données sont définies dans les migrations. Les profils publics sont limités aux champs destinés à l'annuaire ; les coordonnées personnelles ne doivent pas y être exposées.
-- Les fonctions IA vérifient la connexion et valident leurs entrées côté serveur. Elles utilisent une clé serveur, jamais une clé embarquée dans le code client.
-- La messagerie et les notifications sont associées aux membres concernés. Certaines écritures de notifications disposent de vérifications et de limites définies dans les migrations.
-- Ces protections ne remplacent ni une revue de sécurité régulière ni des sauvegardes. Avant d'ouvrir un nouvel accès aux données, vérifier les droits et les règles pour les visiteurs comme pour les comptes connectés.
+- Mots de passe hachés en **Argon2id** ; sessions stockées en base (seul un hachage du jeton est conservé), cookie `HttpOnly`, `SameSite=Lax`, `Secure` en production, expiration 30 jours glissants, rotation à chaque connexion, révocation à la déconnexion.
+- Protection CSRF (origine vérifiée sur les fonctions serveur et l'envoi de médias) ; limites : 10 essais de connexion / 15 min par adresse, 30 / 15 min par IP, 10 inscriptions / heure par IP, 30 notifications / minute par membre.
+- Règles d'accès recréées côté serveur et couvertes par des tests : un membre ne modifie que son profil et ses publications ; les autres membres ne peuvent changer que les interactions (j'aime, commentaires, partages, vues) ; conversations réservées aux participants ; notifications lisibles et modifiables (statut de lecture seulement) par leur destinataire ; annuaire limité aux champs publics, coordonnées retirées ; suppression de contenu par l'auteur ou un administrateur (`scripts/grant-admin.ts`).
 
 ## Internationalisation et référencement
 
@@ -125,15 +132,7 @@ Les variables de configuration sont fournies par l'environnement de développeme
 
 ## Déploiement et maintenance
 
-Le site public est accessible sur [agriconnect-mr.com](https://agriconnect-mr.com). Une mise en production indépendante exige :
-
-1. un hébergement compatible avec l'application serveur TanStack Start et sa cible d'exécution ;
-2. les variables publiques et les secrets serveur configurés **hors du dépôt** ;
-3. l'accès à la base, aux règles de sécurité, au stockage média et aux migrations appropriées ;
-4. le domaine, le HTTPS et les redirections configurés chez l'hébergeur ;
-5. une vérification des parcours de connexion, publication, messagerie, langue, pages légales et IA après déploiement.
-
-**Le dépôt GitHub historique n'est pas automatiquement l'image de ce projet.** Ne pas forcer une synchronisation destructive entre les deux versions sans accord du propriétaire et sans sauvegarde. Pour une synchronisation bidirectionnelle durable, connecter ce projet au dépôt autorisé depuis les réglages GitHub de l'éditeur ; cela exige des droits d'écriture et une stratégie explicite pour conserver ou remplacer l'ancienne version.
+Déploiement Docker / Coolify, sauvegardes, restauration, import de l'ancienne base et reprise après incident : voir **[DEPLOYMENT.md](DEPLOYMENT.md)** (anglais) et **[DEPLOYMENT-AR.md](DEPLOYMENT-AR.md)** (arabe). La CI (`.github/workflows/ci.yml`) applique toutes les migrations sur un PostgreSQL 18 temporaire, puis lance types, lint, tests, compilation et validation Docker Compose.
 
 ## Limites connues
 

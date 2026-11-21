@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSession } from "@/lib/session-middleware";
+import { GeminiError, geminiConfigured, geminiGenerateJson } from "@/server/ai/gemini.server";
 
 const Input = z.object({
   image: z.string().min(100), // data URL (base64)
@@ -29,6 +30,31 @@ export const analyzePlant = createServerFn({ method: "POST" })
   .middleware([requireSession])
   .validator((data: unknown) => Input.parse(data))
   .handler(async ({ data }) => {
+    const langLine = `Produis toutes les valeurs textuelles dans cette langue : ${data.language === "ar" ? "arabe" : data.language === "en" ? "anglais" : "français"}. Conserve exactement les clés JSON demandées.`;
+    const prompt = data.note
+      ? `Analyse cette plante. Contexte donné par l'agriculteur : ${data.note}`
+      : "Analyse cette plante.";
+    if (geminiConfigured()) {
+      try {
+        const text = await geminiGenerateJson({
+          system: `${SYSTEM}\n${langLine}`,
+          text: prompt,
+          imageDataUrl: data.image,
+        });
+        return parseResult(text);
+      } catch (e) {
+        if (e instanceof GeminiError) {
+          if (e.status === 429)
+            throw new Error("Trop de demandes en même temps. Réessayez dans un instant.");
+          if (e.status === 400 || e.status === 401 || e.status === 403)
+            throw new Error(
+              `Clé ou requête Gemini refusée (${e.status}). Vérifiez GEMINI_API_KEY.`,
+            );
+          throw new Error(`Analyse impossible pour le moment. (Gemini ${e.status})`);
+        }
+        throw e;
+      }
+    }
     const key = process.env["LOVABLE_API_KEY"];
     if (!key) throw new Error("Service d'analyse indisponible (configuration manquante).");
 
@@ -72,18 +98,21 @@ export const analyzePlant = createServerFn({ method: "POST" })
     }
 
     const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-    const text = json.choices?.[0]?.message?.content ?? "";
-    try {
-      const cleaned = text
-        .replace(/^```(?:json)?/i, "")
-        .replace(/```$/, "")
-        .trim();
-      return JSON.parse(cleaned);
-    } catch {
-      return {
-        reliable: false,
-        reason:
-          "L'analyse n'a pas pu être interprétée. Réessayez avec une photo plus nette de la plante.",
-      };
-    }
+    return parseResult(json.choices?.[0]?.message?.content ?? "");
   });
+
+function parseResult(text: string) {
+  try {
+    const cleaned = text
+      .replace(/^```(?:json)?/i, "")
+      .replace(/```$/, "")
+      .trim();
+    return JSON.parse(cleaned);
+  } catch {
+    return {
+      reliable: false,
+      reason:
+        "L'analyse n'a pas pu être interprétée. Réessayez avec une photo plus nette de la plante.",
+    };
+  }
+}
